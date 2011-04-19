@@ -16,6 +16,15 @@
                   for higher-latin upfrom 7680
                   collect (code-char ascii)
                   nconc (list (code-char latin) (code-char higher-latin)))))
+ 
+ ;; :SOURCE PCL Chapter 23 p 305
+ (defun nshuffle-vector (vector)
+   (declare ((simple-array *) vector))
+   (loop for idx downfrom (1- (length vector)) to 1
+      for other = (random (1+ idx))
+      do (unless (= idx other)
+           (rotatef (aref vector idx) (aref vector other))))
+   vector)
 
  (defun make-random-inverted-number-array ()
    (let ((arr (make-array 320))
