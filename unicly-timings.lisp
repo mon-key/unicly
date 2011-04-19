@@ -43,7 +43,7 @@
               for x = (random b)
              ;;collect x)))             ;
               do  (setf (aref arr (incf idx)) x))
-        finally (return (mon:nshuffle-vector arr)))))
+        finally (return (nshuffle-vector arr)))))
 
  (defun make-random-char-array (n)
    (loop 
@@ -120,12 +120,12 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 
 (progn 
   (loop for x from 0 below 1000000
-     do (setf (aref *tt--rnd* x) (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (mon-test:make-random-string 36)))))
+     do (setf (aref *tt--rnd* x) (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (make-random-string 36)))))
   (aref *tt--rnd* 999999))
 
 ;;; ==============================
 ;; compare uuid-to-bit-vector-eql with cl:equal
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time 
  (loop 
     for x from 0 below 999999
@@ -133,7 +133,7 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
     count (uuid-bit-vector-eql (aref *tt--rnd* x) (aref *tt--rnd* y)) into cnt
     finally (return  cnt)))
 
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time 
  (loop 
     for x from 0 below 999999
@@ -149,10 +149,10 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 
 (loop 
    for x from 0 below 1000000 
-   do (setf (aref *tt--rnd* x) (uuid-print-bytes nil (make-v5-uuid *uuid-namespace-dns* (mon-test:make-random-string 36))))
+   do (setf (aref *tt--rnd* x) (uuid-print-bytes nil (make-v5-uuid *uuid-namespace-dns* (make-random-string 36))))
    finally (return (aref *tt--rnd* 999999)))
 
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time (loop for x across *tt--rnd* do (sxhash x)))
 
 ;;; ==============================
@@ -161,28 +161,28 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 
 (loop
    for x from 0 below 1000000 
-   do (setf (aref *tt--rnd2* x) (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (mon-test:make-random-string 36))))
+   do (setf (aref *tt--rnd2* x) (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (make-random-string 36))))
    finally (return (aref *tt--rnd2* 999999)))
 
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time (loop for x across *tt--rnd2* do (sxhash x)))
 
 ;;; ==============================
 ;; timing make-v5-uuid
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (loop 
     for x from 0 below 100000
     do (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* x))))
 
 ;; timing uuid-get-namespace-bytes/make-v5-uuid
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 100000) 
    (uuid-get-namespace-bytes (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
 
 ;; timing uuid-get-namespace-bytes/make-v5-uuid
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 100000) 
    (uuid-get-namespace-bytes (make-v3-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
@@ -190,13 +190,13 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 ;;; ==============================
 ;; The timing differences between `make-v5-uuid'/`make-v3-uuid' are negligible but MD5 allocates 1/3 less
 ;; timing 1mil make-v5-uuid
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 1000000) 
    (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* i))))
 ;;
 ;; timing 1mil make-v3-uuid
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 1000000) 
    (make-v3-uuid *uuid-namespace-dns* (aref *tt--rnd* i))))
@@ -205,28 +205,27 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 ;; There is little additional overhead associated with the uuid-to-bit-vector
 ;; conversion once the UUID is allocated.
 ;; timing 1mil uuid-to-bit-vector/make-v5-uuid
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 1000000) 
    (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
 
 ;; timing uuid-to-bit-vector/make-v3-uuid
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 1000000) 
    (uuid-to-bit-vector (make-v3-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
 
 ;; same without an aref lookup
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 100000) 
-   (uuid-get-namespace-bytes (make-v5-uuid *uuid-namespace-dns* (mon-test:make-random-string 36)))))
+   (uuid-get-namespace-bytes (make-v5-uuid *uuid-namespace-dns* (make-random-string 36)))))
 
-(sb-ext:gc)
+(sb-ext:gc :full t)
 (time
  (dotimes (i 100000) 
-   (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (mon-test:make-random-string 36)))))
-
+   (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (make-random-string 36)))))
 
 ;;; ==============================
 ;;; EOF
