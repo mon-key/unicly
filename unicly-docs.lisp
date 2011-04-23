@@ -147,14 +147,6 @@ Binary value:   #b11111111~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%►►►")
 
-(typedoc 'uuid-integer-length
-         "An object of this type is an integer of type \(unsigned-byte 3\) in the set {1 2 4 6}.~%~@
-These represent valid `cl:integer-length's capable of representing the numeric
-value in a fully intialized instance of the class `unique-universal-identifier'.
-:EXAMPLE~%
- \(mapcar #'\(lambda \(x\) \(cons \(typep x 'uuid-integer-length\) x\)\) '\(0 1 2 3 4 5 6 7\)\)~%
-:SEE-ALSO `uuid-number-to-byte-array'.~%►►►")
-
 (typedoc 'uuid-string-36
 "An object with the type signature: \(array character \(32\)\)
 :EXAMPLE~%~@

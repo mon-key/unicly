@@ -34,6 +34,9 @@
   ;; (make-uuid-from-string "6ba7b814-9dad-11d1-80b4-00c04fd430c8")
   nil) 
 
+;; (defparameter *uuid-v1-imitation-seed* (make-v4-uuid))
+;; (uuid-version *uuid-namespace-dns*) (make-v5-uuid *uuid-namespace-oid*)
+;; (unicly
 )
 
 

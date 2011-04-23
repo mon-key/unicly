@@ -2,6 +2,18 @@
 ;;; :FILE unicly/unicly-timings.lisp
 ;;; ==============================
 
+
+
+;;; ==============================
+;; Most of the loops included below are built to readily swap in
+;; with the equivalent uuid.lisp function
+;;
+;; Substitute in the various operations corresponding operations to see
+;; how they compare e.g.: 
+;;  uuid:uuid-to-byte-array vs. unicly:get-namespace-bytes
+;;
+;;; ==============================
+
 (in-package #:unicly)
 ;; *package*
 
