@@ -8,13 +8,13 @@
 ;;; ==============================
 ;;;
 ;;; (logical-pathname-translations "MON")
-;;; (translate-logical-pathname  "MON:dbc-specific;")
+;;; (translate-logical-pathname  "MON:unicly;")
 ;;;
-;;; (push (translate-logical-pathname  "MON:dbc-specific;") asdf:*central-registry*)
+;;; (push (translate-logical-pathname  "MON:unicly;") asdf:*central-registry*)
 ;;;
 ;;; Finding current fasls:
 ;;; (logical-pathname-translations "FASL")
-;;; (translate-logical-pathname "FASL:dbc-specific;")
+;;; (translate-logical-pathname "FASL:unicly;")
 ;;;
 ;;; ==============================
 
