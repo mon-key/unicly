@@ -276,11 +276,14 @@
     (declare ((integer 0 5) v5-if))
     (= v5-if 5)))
 
+;; :NOTE For both `uuid-bit-vector-zeroed' and `uuid-bit-vector-8-zeroed' we
+;; assume that the returned array is always of type: (simple-bit-vector 128)
+;; :SEE `uuid-verify-bit-vector-simplicity' in :FILE uuid-types.lisp
 (declaim (inline uuid-bit-vector-zeroed))
 (defun uuid-bit-vector-zeroed ()
   (declare (optimize (speed 3)))
   (the uuid-bit-vector-128 (make-array 128 :element-type 'bit :initial-element 0))) 
-
+;;
 (declaim (inline uuid-bit-vector-8-zeroed))
 (defun uuid-bit-vector-8-zeroed ()
   (declare (optimize (speed 3)))
@@ -369,7 +372,7 @@
        for byte in bv-lst
        for offset upfrom 0 by 8 below 128
        do (uuid-deposit-octet-to-bit-vector (the uuid-ub8 byte) offset uuid-bv128)
-       finally (return  uuid-bv128))))
+       finally (return uuid-bv128))))
 
 (declaim (inline %uuid-digest-uuid-instance-md5))
 (defun %uuid-digest-uuid-instance-md5 (namespace name)
@@ -396,6 +399,8 @@
 (defun uuid-get-namespace-bytes (uuid)
   (declare (type unique-universal-identifier uuid)
            (optimize (speed 3)))
+  ;; (when unique-universal-identifier-null-p
+  ;; 
   (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
       uuid
@@ -418,7 +423,7 @@
 ;; UUID:UUID-TO-BYTE-ARRAY we provide it here for congruence. 
 ;; :SEE Bottom of file for our variation of the original definition.
 ;; 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(eval-when (:load-toplevel :execute)
   (setf (fdefinition 'uuid-to-byte-array) 
         (fdefinition 'uuid-get-namespace-bytes)))
 ;;
@@ -685,13 +690,26 @@
 ;; `----
 (declaim (inline make-null-uuid))
 (defun make-null-uuid ()
-  (make-instance 'unique-universal-identifier))
+  ;; :WAS (make-instance 'unique-universal-identifier)
+  ;; (declare (special *uuid-null-uuid*))
+  (if (and *uuid-null-uuid*
+           (%unique-universal-identifier-null-p *uuid-null-uuid*))
+      (the unique-universal-identifier-null *uuid-null-uuid*)
+      (%make-null-uuid-loadtime)))
+;;
+;; (unintern '*uuid-null-uuid*)
+;; (defparameter *uuid-null-uuid* nil)
+;; (eq *uuid-null-uuid* (print-object (make-null-uuid) *standard-output*))
+;; (eq *uuid-null-uuid*
+;; (setf *uuid-null-uuid* (make-null-uuid))
+;; (symbol-value '*uuid-null-uuid*)
 
 ;;; ==============================
 ;; :NOTE Should there be a generic function which dispatches on the UUID's
 ;; representation , e.g. uuid-bit-vector-128, uuid-byte-array-20array-16,
 ;; unique-universal-identifier, uuid-string-32, uuid-string-36?
-;; :NOTE Consider renaming this to `serialize-uuid-byte-array'
+;; :NOTE Consider renaming this to `serialize-uuid-byte-array' and calling the
+;; G-F in body.
 (defun serialize-uuid (uuid stream)
   (declare (type unique-universal-identifier uuid)
            (type stream stream)
@@ -771,7 +789,8 @@
 
 
 ;;; ==============================
-;;; :NOTES Regarding functions idioms to incorporate from vivace-graph-v2
+;;; :NOTES Regarding functions/idioms to incorporate from vivace-graph-v2
+;;; :SEE https://github.com/kraison/vivace-graph-v2
 ;;; ==============================
 ;; :NOTE Given that the bit-vector representation is guaranteed to be a
 ;;  `uuid-bit-vector-128' we should be able to just bit dwiddle are way from

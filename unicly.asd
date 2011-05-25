@@ -18,6 +18,7 @@
 ;;;
 ;;; ==============================
 
+
 (defpackage #:unicly-asd (:use #:common-lisp #:asdf))
 
 (in-package #:unicly-asd)
@@ -40,6 +41,7 @@
                (:file "unicly-class")
                (:file "unicly"      )
                (:file "unicly-docs" )
+               ;; (:file "unicly-compat")
                ;; (:file "unicly-deprecated")
                ))
 
