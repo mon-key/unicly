@@ -65,6 +65,9 @@
 ;;; :UUID-TYPE-PREDICATES
 ;;; ==============================
 
+(defun uuid-bit-vector-128-p (maybe-uuid-bit-vector-128)
+  (typep maybe-uuid-bit-vector-128 'uuid-bit-vector-128-p))
+
 (defun uuid-string-32-p (maybe-uuid-string-32)
   (typep maybe-uuid-string-32 'uuid-string-32))
 

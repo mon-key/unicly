@@ -1,9 +1,4 @@
 
-test-compat.lisp,82
-(defvar *uuid-clock-seq* 4,24
-(defvar *uuid-node* 6,53
-(defun get-node-id 8,79
-
 unicly.lisp,1950
 (defun uuid-request-integer 65,2704
 (define-compiler-macro uuid-request-integer 78,3284
@@ -12,47 +7,47 @@ unicly.lisp,1950
 (defun uuid-disassemble-ub16 133,5711
 (defun uuid-version 159,6879
 (defun uuid-bit-vector-version 226,10517
-(defun uuid-bit-vector-v3-p 253,12033
-(defun uuid-bit-vector-v4-p 262,12359
-(defun uuid-bit-vector-v5-p 271,12685
-(defun uuid-bit-vector-zeroed 280,13013
-(defun uuid-bit-vector-8-zeroed 285,13209
-(defun uuid-octet-to-bit-vector-8 291,13448
-(defun uuid-deposit-octet-to-bit-vector 302,13885
-(defun uuid-byte-array-to-bit-vector 313,14276
-(defun uuid-to-bit-vector 347,15778
-(defun %uuid-digest-uuid-instance-md5 375,17168
-(defun %uuid-digest-uuid-instance-sha1 386,17647
-(defun uuid-get-namespace-bytes 396,18078
-(defun uuid-digest-uuid-instance 427,19751
-(defun %uuid_time-low-request 514,23352
-(defun %uuid_time-mid-request 521,23596
-(defun %uuid_time-high-and-version-request 528,23853
-(defun %uuid_clock-seq-and-reserved-request 537,24194
-(defun %uuid_clock-seq-low-request 543,24454
-(defun %uuid_node-request 549,24659
-(defun digested-v5-uuid 556,24894
-(defun digested-v3-uuid 570,25836
-(defun %verify-version-3-or-5 584,26785
-(defun %verify-digest-version 593,27102
-(defun digested-v3or5-uuid 600,27363
-(defun make-v3-uuid 610,27853
-(defun make-v5-uuid 617,28142
-(defun make-v4-uuid 645,29549
-(defun uuid-as-urn-string 658,30325
-(defun make-null-uuid 670,30812
-(defun serialize-uuid 678,31189
-(defun uuid-string-to-sha1-byte-array 687,31492
-(defun uuid-from-byte-array 702,32294
-(defun make-uuid-from-string 736,34199
-(defmacro uuid-get-bytes-for-integer 849,39613
-(defun uuid-to-byte-array 866,40300
-(deftype uuid-integer-length 896,41698
-(defun uuid-number-to-byte-array 901,41822
-(defun uuid-load-bytes 938,43533
-(defun %uuid-get-bytes-if 950,43947
-(defun uuid-get-bytes 964,44611
-(defun uuid-digest-uuid-string 982,45434
+(defun uuid-bit-vector-v3-p 253,12045
+(defun uuid-bit-vector-v4-p 262,12371
+(defun uuid-bit-vector-v5-p 271,12697
+(defun uuid-bit-vector-zeroed 280,13025
+(defun uuid-bit-vector-8-zeroed 285,13221
+(defun uuid-octet-to-bit-vector-8 291,13460
+(defun uuid-deposit-octet-to-bit-vector 302,13897
+(defun uuid-byte-array-to-bit-vector 313,14288
+(defun uuid-to-bit-vector 347,15790
+(defun %uuid-digest-uuid-instance-md5 375,17180
+(defun %uuid-digest-uuid-instance-sha1 386,17659
+(defun uuid-get-namespace-bytes 396,18090
+(defun uuid-digest-uuid-instance 444,20341
+(defun %uuid_time-low-request 531,23942
+(defun %uuid_time-mid-request 538,24186
+(defun %uuid_time-high-and-version-request 545,24443
+(defun %uuid_clock-seq-and-reserved-request 554,24784
+(defun %uuid_clock-seq-low-request 560,25044
+(defun %uuid_node-request 566,25249
+(defun digested-v5-uuid 573,25484
+(defun digested-v3-uuid 587,26426
+(defun %verify-version-3-or-5 601,27375
+(defun %verify-digest-version 610,27692
+(defun digested-v3or5-uuid 617,27953
+(defun make-v3-uuid 627,28443
+(defun make-v5-uuid 634,28732
+(defun make-v4-uuid 662,30139
+(defun uuid-as-urn-string 675,30915
+(defun make-null-uuid 687,31402
+(defun serialize-uuid 695,31787
+(defun uuid-string-to-sha1-byte-array 704,32090
+(defun uuid-from-byte-array 719,32892
+(defun make-uuid-from-string 753,34797
+(defmacro uuid-get-bytes-for-integer 866,40211
+(defun uuid-to-byte-array 883,40898
+(deftype uuid-integer-length 913,42296
+(defun uuid-number-to-byte-array 918,42420
+(defun uuid-load-bytes 955,44131
+(defun %uuid-get-bytes-if 967,44545
+(defun uuid-get-bytes 981,45209
+(defun uuid-digest-uuid-string 999,46032
 
 unicly-utils.lisp,637
 (deftype hexadecimal-char 28,935
@@ -75,10 +70,10 @@ unicly-utils.lisp,637
 (defun typedoc 144,4676
 
 unicly-timings.lisp,69
-(defparameter *tt--rnd* 131,4739
-(defparameter *tt--rnd2* 172,5956
+(defparameter *tt--rnd* 137,4983
+(defparameter *tt--rnd2* 178,6200
 
-unicly-types.lisp,801
+unicly-types.lisp,839
 (deftype uuid-ub48 9,187
 (deftype uuid-ub32 12,232
 (deftype uuid-ub24 15,277
@@ -95,14 +90,15 @@ unicly-types.lisp,801
 (deftype uuid-string-36 54,1240
 (deftype uuid-hex-string-32 57,1295
 (deftype uuid-hex-string-36 60,1386
-(defun uuid-string-32-p 68,1575
-(defun uuid-string-36-p 72,1707
-(defun uuid-byte-array-p 76,1836
-(defun uuid-byte-array-16-p 79,1936
-(defun uuid-byte-array-20-p 82,2048
-(defun uuid-byte-string-p 85,2160
-(defun uuid-hex-string-32-p 88,2264
-(defun uuid-hex-string-36-p 92,2416
+(defun uuid-bit-vector-128-p 68,1575
+(defun uuid-string-32-p 71,1693
+(defun uuid-string-36-p 75,1825
+(defun uuid-byte-array-p 79,1954
+(defun uuid-byte-array-16-p 82,2054
+(defun uuid-byte-array-20-p 85,2166
+(defun uuid-byte-string-p 88,2278
+(defun uuid-hex-string-32-p 91,2382
+(defun uuid-hex-string-36-p 95,2534
 
 unicly-class.lisp,964
 (defgeneric uuid-print-bit-vector 10,188
@@ -113,24 +109,31 @@ unicly-class.lisp,964
 (defclass unique-universal-identifier 50,1893
 (defun uuid-bit-vector-eql 224,11469
 (defgeneric uuid-eql 253,12799
-(defgeneric unique-universal-identifier-p 277,13824
-(defun %verify-slot-boundp-and-type 311,15333
-(defmethod print-object 369,18024
-(defmethod uuid-print-bytes 391,19214
-(defmethod uuid-print-bytes-to-string 424,20804
-(defmethod uuid-princ-to-string 455,22229
-(defmethod uuid-print-bit-vector 458,22330
-(defmethod uuid-print-bit-vector 470,22902
-(defun uuid-copy-uuid 483,23520
-(defmacro uuid-string-parse-integer 505,24754
-(defun make-uuid-from-string-if 513,25211
-(defun sxhash-uuid 529,26018
-(sb-ext:define-hash-table-test uuid-eql 535,26196
-(defun make-hash-table-uuid 538,26257
-(defun make-hash-table-uuid 543,26382
+(defgeneric unique-universal-identifier-p 288,14469
+(defun %verify-slot-boundp-and-type 322,15978
+(defmethod print-object 380,18669
+(defmethod uuid-print-bytes 402,19859
+(defmethod uuid-print-bytes-to-string 435,21449
+(defmethod uuid-princ-to-string 466,22874
+(defmethod uuid-print-bit-vector 469,22975
+(defmethod uuid-print-bit-vector 481,23547
+(defun uuid-copy-uuid 494,24165
+(defmacro uuid-string-parse-integer 516,25399
+(defun make-uuid-from-string-if 524,25856
+(defun sxhash-uuid 540,26663
+(sb-ext:define-hash-table-test uuid-eql 546,26841
+(defun make-hash-table-uuid 549,26902
+(defun make-hash-table-uuid 554,27027
 
 package.lisp,27
 (defpackage #:unicly8,196
+
+unicly-compat.lisp,162
+(defvar *clock-seq-uuid* 76,2942
+(defvar *node-uuid* 78,2971
+(defvar *ticks-per-count-uuid* 87,3331
+(defun get-node-id 118,4763
+(defun make-v1-uuid 160,6690
 
 unicly-v1-compat.lisp,163
 (defvar *clock-seq-uuid* 66,2552

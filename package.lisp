@@ -30,6 +30,7 @@
    #:uuid-hex-string-32                 ; TYPE
    #:uuid-hex-string-36                 ; TYPE
    ;;
+   #:uuid-bit-vector-128-p
    #:uuid-byte-array-16-p
    #:uuid-byte-array-20-p
    #:uuid-byte-string-p
@@ -119,6 +120,10 @@
    ;; #:string-empty                       ; TYPE
    ;; #:string-or-null                     ; TYPE
    ;; #:*hexadecimal-chars*                ; VARIABLE
+   ;;
+ ;; unicly/unicly-compat.lisp
+   ;;
+
    ))
 
 ;;; ==============================

@@ -2,13 +2,29 @@
 ;;; :FILE unicly/unicly.asd
 ;;; ==============================
 
+
+;;; ==============================
+;;; :LOGICAL-PATHNAMES
+;;; ==============================
+;;;
+;;; (logical-pathname-translations "MON")
+;;; (translate-logical-pathname  "MON:dbc-specific;")
+;;;
+;;; (push (translate-logical-pathname  "MON:dbc-specific;") asdf:*central-registry*)
+;;;
+;;; Finding current fasls:
+;;; (logical-pathname-translations "FASL")
+;;; (translate-logical-pathname "FASL:dbc-specific;")
+;;;
+;;; ==============================
+
 (defpackage #:unicly-asd (:use #:common-lisp #:asdf))
 
 (in-package #:unicly-asd)
 
 (defsystem #:unicly
   :name "unicly"
-  :licence "LLGPL"
+  :licence "MIT"
   :version "04-18-2011"
   :maintainer "MON KEY"
   :description "UUID Generation"

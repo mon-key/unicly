@@ -237,11 +237,11 @@
          (0 (ecase (the bit (sbit uuid-bit-vector 51))
               (1 1)
               ;; RFC4122 Setion 4.1.7. "Nil UUID" specifically requires a null UUID
-              ;; However, itdoesn't say anything about the version 0 UUID... 
+              ;; However, it doesn't say anything about the version 0 UUID... 
               ;; Of course it wouldn't given how C centric nature of the entire RFC :)
               ;; So, as a way of flipping the bird to the curly brace inclined we
               ;; choose to return as if by `cl:values': 0, null-uuid
-              (0 (values (or #-sbcl (and (uuid-eql uuid-bit-vector (uuid-bit-vector-zeroed)) 0) 
+              (0 (values (or #-sbcl (and (uuid-bit-vector-eql uuid-bit-vector (uuid-bit-vector-zeroed)) 0) 
                              #+sbcl (and (sb-int:bit-vector-= uuid-bit-vector (uuid-bit-vector-zeroed)) 0)
                              (error "something wrong with UUID-BIT-VECTOR bit field~% got: ~S" uuid-bit-vector))
                          'null-uuid))))))
@@ -412,6 +412,23 @@
                                     %uuid_clock-seq-and-reserved
                                     %uuid_clock-seq-low
                                     (uuid-disassemble-ub48 %uuid_node)))))
+
+
+;; :NOTE UNICLY:UUID-GET-NAMESPACE-BYTES is equivalent to
+;; UUID:UUID-TO-BYTE-ARRAY we provide it here for congruence. 
+;; :SEE Bottom of file for our variation of the original definition.
+;; 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (setf (fdefinition 'uuid-to-byte-array) 
+        (fdefinition 'uuid-get-namespace-bytes)))
+;;
+;; (progn 
+;;   (defparameter *tt--uuid-v4* (make-v4-uuid))
+;;   (unwind-protect 
+;;        (equalp (uuid-to-byte-array *tt--uuid-v4*)
+;;                (uuid-get-namespace-bytes *tt--uuid-v4*))
+;;     (unintern '*tt--uuid-v4*)))
+
 
 ;;; ==============================
 ;; :NOTE By dispatching on %UUID-DIGEST-UUID-INSTANCE-SHA1/%UUID-DIGEST-UUID-INSTANCE-MD5
@@ -672,7 +689,7 @@
 
 ;;; ==============================
 ;; :NOTE Should there be a generic function which dispatches on the UUID's
-;; representation , e.g. uuid-bit-vector-128, uuid-byte-array-16,
+;; representation , e.g. uuid-bit-vector-128, uuid-byte-array-20array-16,
 ;; unique-universal-identifier, uuid-string-32, uuid-string-36?
 ;; :NOTE Consider renaming this to `serialize-uuid-byte-array'
 (defun serialize-uuid (uuid stream)

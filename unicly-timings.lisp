@@ -12,6 +12,12 @@
 ;; how they compare e.g.: 
 ;;  uuid:uuid-to-byte-array vs. unicly:get-namespace-bytes
 ;;
+;; :TODO Either wrap this into dedicated timing functions or add print
+;; statements before each call indicating the nature of the timing performed and
+;; its purpose.
+;;
+;; :TODO Add comparison timings for unicly vs. uuid where applicable.
+;;
 ;;; ==============================
 
 (in-package #:unicly)

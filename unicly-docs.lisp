@@ -620,7 +620,7 @@ A v4 UUID is one generatied UUIDs from truly-random or pseudo-random numbers.~%~
  |     values.
  |     `-> Slots `%uuid_time-low', `%uuid_time-mid', `%uuid-clock-seq-low', `%uuid_node'
  `----~%~@
-:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-null-uuid',
+:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v1-uuid', `make-null-uuid',
 `*random-state-uuid*', `cl:random'.~%►►►")
 
 (fundoc 'make-v3-uuid ; ######
@@ -799,54 +799,7 @@ Used for the generation of UUIDv3 and UUIDv5 UUID by `make-v5-uuid' and `make-v3
  \(uuid-digest-uuid-string 5 \(uuid-get-bytes \(uuid-print-bytes nil *uuid-namespace-dns*\)\) \"bubba\"\)
 :SEE-ALSO `<XREF>'.~%►►►")
 
-#+nil
-(fundoc 'uuid-get-bytes ; ######
-            "Convert UUID-STRING to a string of characters.~%~@
-UUID-STRING is a is a string as returned by `uuid-print-bytes'.~%~@
-Return value is constructed from the `cl:code-char' of each number in UUID-STRING.~%~@
-Return value has is of type `uuid-byte-string' with the type signature:~%
- \(simple-array character \(16\)\)~%~@
-And will satisfy the predicate `uuid-byte-string-p'.~%~@
-Helper function for `make-v3-uuid' and `make-v5-uuid'.~%~@
-:EXAMPLE~%
- \(uuid-get-bytes 
-  \(uuid-print-bytes nil \(make-uuid-from-string \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\)\)\)~%
-\(uuid-get-bytes \"5E320838715730398383652D96705A7D\"\)~%~@
-:SEE-ALSO `<XREF>'.~%►►►")
 
-#+nil
-(fundoc '%uuid-get-bytes-if ; ######
-"Helper function for `uuid-get-bytes'.~%~@
-Verify that arg CHK-UUID-STR is of type `uuid-hex-string-32'.~%~@
-Signal an error if not.~%~@
-:EXAMPLE~%~@
- \(%uuid-get-bytes-if \"6ba7b8109dad11d180b400c04fd430c8\"\)~%
- \(%uuid-get-bytes-if \"6BA7B8109DAD11D180B400C04FD430C8\"\)~%
- \(%uuid-get-bytes-if \"6ba7b8109dad11d180b400c04fd430c8-Q\"\)~%~@
-:SEE-ALSO `uuid-hex-string-32-p'.~%►►►")
-
-#+nil
-(fundoc 'uuid-load-bytes ; ######
- "Helper function.~%~@
-Load as if by `cl:dpb' the bytes of BYTE-ARRAY.~%~@
-Return bytes set as integer values.~%~@
-keyword BYTE-SIZE is a byte width to set. Default is 8.~%~@
-keyword START is the position in BYTE-ARRAY to begin setting bytes from. Default is 0.~%~@
-END is the position to stop setting bytes.~%~@
-:EXAMPLE~%~@
- { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%►►►")
-
-#+nil
-(fundoc 'uuid-to-byte-array ; ######
-  "Convert UUID to a byte-array.~%~@
-Arg UUID should be an instance of the UNIQUE-UNIVERSAL-IDENTIFIER class.~%~@
-Return value is an array of type `uuid-byte-array-16' with the type signature:~%
- \(simple-array \(unsigned-byte 8\) \(16\)\)~%~@
-It will satisfy the predicate `uuid-byte-array-16-p'.
-:EXAMPLE~%~@
- \(uuid-to-byte-array *uuid-namespace-dns*\)~%~@
-:SEE-ALSO `uuid-from-byte-array'.~%►►►")
 
 ;;; ==============================
 

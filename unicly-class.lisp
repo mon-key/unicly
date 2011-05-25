@@ -255,6 +255,17 @@ In long-form this number is:~%
     (uuid-bit-vector-eql (uuid-to-bit-vector uuid-a) (uuid-to-bit-vector uuid-b)))
   (:method ((uuid-a unique-universal-identifier) uuid-b)
     nil)
+  ;; :NOTE Following method is correct but should not be enabled until we have
+  ;;implemented a reliable `uuid-bit-vector-to-uuid'
+  ;; (:method ((uuid-a bit-vector) (uuid-b bit-vector)) 
+  ;;   (if (and (uuid-bit-vector-128-p uuid-a) 
+  ;;            (uuid-bit-vector-128-p uuid-b))
+  ;;       (locally (declare (uuid-bit-vector-128 uuid-a uuid-b))
+  ;;         ;; don't signal if we have a poorly formed uuid-bit-vector-128
+  ;;         (and (eql (ignore-errors (uuid-bit-vector-version uuid-a))
+  ;;                   (ignore-errors (uuid-bit-vector-version uuid-b)))
+  ;;              (uuid-bit-vector-eql uuid-a uuid-b)))
+  ;;       nil))
   (:method (uuid-a (uuid-b unique-universal-identifier))
     nil)
   (:method ((uuid-a t) (uuid-b t))

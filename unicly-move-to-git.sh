@@ -31,7 +31,7 @@ unicly-docs.lisp
 unicly-loadtime-bind.lisp
 unicly-tests.lisp
 unicly-timings.lisp
-unicly-v1-compat.lisp
+unicly-compat.lisp
 unicly-deprecated.lisp
 LICENSE.txt
 README
@@ -82,8 +82,14 @@ etags_after_copy ()
  cd $UNICLY_SRC
  find . -name '*.lisp' -print | xargs etags -o ./TAGS --language=lisp
  echo "etags created $UNICLY_SRC/TAGS"
- cp $UNICLY_SRC/TAGS $UNICLY_GIT/TAGS
- echo "Copied :FILE $UNICLY_SRC/TAGS --> $UNICLY_GIT/TAGS"
+ echo
+ # Don't copy tags from source directory!
+ # cp $UNICLY_SRC/TAGS $UNICLY_GIT/TAGS
+ # echo "Copied :FILE $UNICLY_SRC/TAGS --> $UNICLY_GIT/TAGS"
+ cd $UNICLY_GIT
+ find . -name '*.lisp' -print | xargs etags -o ./TAGS --language=lisp
+ echo "etags created :FILE $UNICLY_GIT/TAGS"
+ echo
 }
 
 ensure_abort_dirs

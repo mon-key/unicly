@@ -21,10 +21,6 @@
 ;;; ==============================
 
 
-
-
-
-
 
 ;;; ==============================
 ;;; SUPERSEDED-SLOW-OR-BUGGY
@@ -155,6 +151,13 @@
 ;; :SEE-ALSO `<XREF>'.~%►►►")
 ;;; ==============================
 
+;; (typedoc 'uuid-integer-length
+;;          "An object of this type is an integer of type \(unsigned-byte 3\) in the set {1 2 4 6}.~%~@
+;; These represent valid `cl:integer-length's capable of representing the numeric
+;; value in a fully intialized instance of the class `unique-universal-identifier'.
+;; :EXAMPLE~%
+;;  \(mapcar #'\(lambda \(x\) \(cons \(typep x 'uuid-integer-length\) x\)\) '\(0 1 2 3 4 5 6 7\)\)~%
+;; :SEE-ALSO `uuid-number-to-byte-array'.~%►►►")
 
 
 ;;; ==============================
@@ -251,118 +254,6 @@
 ;;                    do (setf (ldb (byte 8 (* 8 (- ,to i))) res) (aref ,w-array i))
 ;;                    finally (return res))))
 ;;     (arr-to-bytes 0 3 array )))
-;;; ==============================
-
-
-;;; ==============================
-;; ;; :NOTE The variables `*clock-seq*', `*node*', `*ticks-per-count*' are not
-;; ;; needed b/c we don't use `make-v1-uuid'
-;; (defvar *clock-seq* 0 
-;;   "Holds the clock sequence. Is is set when a version 1 uuid is 
-;;   generated for the first time and remains unchanged during a whole session.")
-;;
-;; (defvar *node* nil 
-;;   "Holds the IEEE 802 MAC address or a random number when such is not available")
-;;
-;; (defvar *ticks-per-count* 1024 
-;;   "Holds the amount of ticks per count.
-;;  The ticks per count determine the number of possible version 1 uuids created for
-;;  one time interval.
-;;  Common Lisp provides INTERNAL-TIME-UNITS-PER-SECOND which gives the ticks per
-;;  count for the current system so *ticks-per-count* can be set to
-;;  INTERNAL-TIME-UNITS-PER-SECOND")
-;;
-;; ;; :NOTE `get-node-id' not needed b/c we don't use `make-v1-uuid'
-;; (defun get-node-id ()
-;;   "Get MAC address of first ethernet device"
-;;   (let ((node
-;;          #+(and :linux (or :cmu :sbcl :allegro))
-;; 	 ;; todo this can be simplified a bit ;
-;;          (let ((proc #+(and :linux :cmu)
-;;                      (ext:run-program "/sbin/ifconfig"
-;;                                       nil
-;;                                       :pty nil 
-;;                                       :wait t 
-;;                                       :output :stream 
-;;                                       :error t
-;;                                       :if-error-exists nil)
-;;                      #+(and :linux :sbcl)
-;;                      (sb-ext:run-program "/sbin/ifconfig" 
-;;                                          nil
-;;                                          :output :stream
-;;                                          :error t
-;;                                          :if-error-exists nil
-;;                                          :wait nil)
-;;                      #+(and :linux :allegro)
-;;                      (excl:run-shell-command "/sbin/ifconfig" 
-;;                                              :output :stream
-;;                                              :if-error-output-exists t
-;;                                              :wait nil)))
-;;            (prog1
-;;                (loop for line = (read-line #+(and :linux :cmu)
-;;                                            (extensions:process-output proc) 
-;;                                            #+(and :linux :sbcl)
-;;                                            (sb-ext:process-output proc)
-;;                                            #+(and :linux :allegro)
-;;                                            proc
-;;                                            nil) 
-;;                   while line 
-;;                   when (search "HWaddr" line :test #'string-equal)
-;;                   return (parse-integer (remove #\: (subseq line 38))
-;;                                         :radix 16))
-;;              #+(and :linux :allegro)
-;;              (sys:reap-os-subprocess)))
-;;
-;;          #+(and :windows :clisp)
-;;          (let ((output (ext:run-program "ipconfig" 
-;;                                         :arguments (list "/all")
-;;                                         :input nil
-;;                                         :output :stream
-;;                                         :wait t)))
-;;            (loop for line = (read-line output nil) while line 
-;;               when (search "Physical" line :test #'string-equal)
-;;               return (parse-integer (remove #\- (subseq line 37)) :radix 16)))
-;;          ))
-;;     (when (not node)
-;;       (setf node (dpb #b01 (byte 8 0) (random #xffffffffffff))))
-;;     node))
-;;
-;; ;; :NOTE `get-timestamp' not needed when not using `make-v1-uuid'
-;; (let ((uuids-this-tick 0)
-;;       (last-time 0))
-;;   (defun get-timestamp ()
-;;     "Get timestamp, compensate nanoseconds intervals"
-;;     (tagbody 
-;;      restart
-;;        (let ((time-now (+ (* (get-universal-time) 10000000) 100103040000000000)))
-;;  					;10010304000 is time between 1582-10-15 and 1900-01-01 in seconds
-;;          (cond ((not (= last-time time-now))
-;;                 (setf uuids-this-tick 0
-;;                       last-time time-now)
-;;                 (return-from get-timestamp time-now))
-;;                (T 
-;;                 (cond ((< uuids-this-tick *ticks-per-count*)
-;;                        (incf uuids-this-tick)
-;;                        (return-from get-timestamp (+ time-now uuids-this-tick)))
-;;                       (T
-;;                        (sleep 0.0001)
-;;                        (go restart)))))))))
-;;
-;; (defun make-v1-uuid ()
-;;   "Generates a version 1 (time-based) uuid."
-;;   (let ((timestamp (get-timestamp)))
-;;     (when (zerop *clock-seq*)
-;;       ;;  :WAS (setf *clock-seq* (random 10000 )))
-;;       (setf *clock-seq* (random 10000 *random-state-uuid*)))
-;;     (unless *node*
-;;       (setf *node* (get-node-id)))
-;;     (make-instance 'unique-universal-identifier
-;;                    :%uuid_time-low (ldb (byte 32 0) timestamp)
-;;                    :%uuid_time-mid (ldb (byte 16 32) timestamp)
-;;                    :%uuid_time-high-and-version (dpb #b0001 (byte 4 12) (ldb (byte 12 48) timestamp))
-;;                    :%uuid_clock-seq-and-reserved (dpb #b10 (byte 2 6) (ldb (byte 6 8) *clock-seq*))
-;;                    :%uuid_clock-seq-low (ldb (byte 8 0) *clock-seq*) 
-;;                    :%uuid_node *node*)))
 ;;; ==============================
 
 
