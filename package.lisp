@@ -123,7 +123,12 @@
    ;;
  ;; unicly/unicly-compat.lisp
    ;;
-
+   ;; #:*clock-seq-uuid*
+   ;; #:*node-uuid*
+   ;; #:*ticks-per-count-uuid*
+   ;; #:get-node-id
+   ;; #:get-timestamp-uuid
+   ;; #:make-v1-uuid
    ))
 
 ;;; ==============================
