@@ -3,6 +3,9 @@
 ;;; ==============================
 
 :LINKS
+
+(URL `http://www.ietf.org/rfc/rfc4122.txt')
+
 (URL `http://johannburkard.de/blog/programming/java/Java-UUID-generators-compared.html')
 
 ;;; ==============================

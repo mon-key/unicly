@@ -14,6 +14,8 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar *random-state-uuid* (make-random-state t))
 
+(defvar *uuid-null-uuid* nil)
+
 ;;; ==============================
 ;; :NOTE Following are bound to their RFC4122 Appendix C. defaults at loadtime in:
 ;; :FILE unicly-loadtime-bind.lisp

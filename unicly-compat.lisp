@@ -68,8 +68,8 @@
 ;;
 ;;; ==============================
 
+
 ;;; ==============================
-
 (in-package #:unicly)
 ;; *package*
 
@@ -86,8 +86,7 @@
 ;; We set this to 1024 to allow declarations in `get-timestamp-uuid'
 (defvar *ticks-per-count-uuid* 1024)
 
-
-
+
 ;;; ==============================
 ;; :NOTE As of 2011-04-23 uuid:get-node-id has a(nother) bug in that it sets bit
 ;; 0 of the the LSByte of a 48bit integer with:
@@ -124,6 +123,7 @@
     (declare (uuid-ub48 rand-node))
     (the uuid-ub48 (dpb #b01 (byte 1 40) rand-node))))
 
+
 ;; :NOTE closed over value uuids-this-tick should not exceed `unicly::*ticks-per-count-uuid*'.
 (let ((uuids-this-tick 0) 
       (last-time 0))
@@ -176,9 +176,9 @@
 
   (unless *node-uuid* (setf *node-uuid* (get-node-id))))
    
-
+
 ;;; ==============================
-;;; :DOCUMENTATION
+;;; :UNICLY-COMPAT-VARIABLES-DOCUMENTATION
 ;;; ==============================
 
 (vardoc  '*clock-seq-uuid*
@@ -227,7 +227,7 @@ value is 1000, whereas on GNU CLISP 2.48 (2009-07-28) it is 1,000,000.~%~@
 
 
 ;;; ==============================
-;;; :FUNCTIONS
+;;; :UNICLY-COMPAT-FUNCTIONS-DOCUMENTATION
 ;;; ==============================
 
 (fundoc 'make-v1-uuid

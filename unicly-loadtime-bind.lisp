@@ -15,6 +15,9 @@
 
   (setf *uuid-namespace-x500* (make-uuid-from-string "6ba7b814-9dad-11d1-80b4-00c04fd430c8"))
   
+  ;; set *uuid-null-uuid* to instance of class `unique-universal-identifier-null'
+  (%make-null-uuid-loadtime)
+
   )
 
 ;;; ==============================

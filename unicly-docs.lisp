@@ -93,6 +93,24 @@ With the string representaton: \"6ba7b812-9dad-11d1-80b4-00c04fd430c8\"~%~@
 :SEE \(URL `http://luca.ntop.org/Teaching/Appunti/asn1.html'\) esp. Section 6. ~%~@
 :SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%►►►")
 
+(typedoc '*uuid-null-uuid*
+         "The default null-uuid per RFC4122 Section 4.1.7 \"Nil UUID\".~%
+The value of this variable is initialized at loadtime with
+`unicly::%make-null-uuid-loadtime'.~%~@
+User code should not neither direclty access nor set the value of this
+variable and should instead always use `unicly:make-null-uuid'!~%~@
+It is an an object of type `unicly::unique-universal-identifier-null'.~%~@
+The value of this variable should always evalute to the same object as there
+are methods specialized it, e.g.:~%~@
+ \(uuid-eql *uuid-null-uuid* *uuid-null-uuid*\)~%
+ \(uuid-eql *uuid-null-uuid* \(make-null-uuid\)\)~%
+ \(uuid-eql \(make-null-uuid\) *uuid-null-uuid*\)~%
+ \(uuid-eql *uuid-null-uuid* \(make-instance 'unicly::unique-universal-identifier-null\)\)~%
+ \(uuid-eql *uuid-null-uuid* \(make-instance 'unicly::unique-universal-identifier\)\)~%
+:NOTE The value of this variable should always return t for the following:~%
+ \(and \(slot-exists-p *uuid-null-uuid* '%uuid_null\)
+      \(slot-value *uuid-null-uuid* '%uuid_null\)\)~%~@
+:SEE-ALSO `<XREF>'.~%►►►")
 
 
 ;;; ==============================
@@ -662,12 +680,39 @@ STREAM is an output-stream of type `stream-or-boolean-or-string-with-fill-pointe
 "Generate a NULL UUID.~%~@
 Per RFC4122 Setion 4.1.7. \"Nil UUID\": 
  The nil UUID is special form of UUID specified to have all 128 bits set to zero.~%~@
-Return value is an instance of `unique-universal-identifier' with all slots defaulted to 0.~%~@
+Return value is an instance of `unique-universal-identifier' with all slots
+defaulted to 0.~%~@
 Return value has the format:~%
  00000000-0000-0000-0000-000000000000~%~@
 :EXAMPLE~%
  \(make-null-uuid\)~%~@
+:NOTE Two null-uuids do not share identity:~%
+ \(eq  \(make-instance 'unique-universal-identifier\) 
+      \(make-instance 'unique-universal-identifier\)\)~%
+ \(eql \(make-instance 'unique-universal-identifier\) 
+      \(make-instance 'unique-universal-identifier\)\)~%
+ \(equal  \(make-instance 'unique-universal-identifier\) 
+         \(make-instance 'unique-universal-identifier\)\)~%
+ \(equalp \(make-instance 'unique-universal-identifier\) 
+         \(make-instance 'unique-universal-identifier\)\)~%~@
+However, we can test with `uuid-eql' if they have the same representation in
+uuid-bit-vector-128 format:~%
+ \(uuid-eql
+  \(make-instance 'unique-universal-identifier\) 
+  \(make-instance 'unique-universal-identifier\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-zeroed'.~%►►►")
+
+(fundoc 'unique-universal-identifier-null-p
+"Whether object is an instance of the class
+`unicly::unique-universal-identifier-null' and its value is `cl:eq' that of
+special variable `unicly::*uuid-null-uuid*'.~%~@
+:EXAMPLE~%
+ \(unique-universal-identifier-null-p *uuid-null-uuid*\)~%
+ \(unique-universal-identifier-null-p \(make-null-uuid\)\)~%
+;; Following both fail successfully:~%
+ \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier-null\)\)~%
+ \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier\)\)~%
+:SEE-ALSO `unicly:unique-universal-identifier-p'.~%►►►")
 
 (fundoc 'uuid-from-byte-array ; ######
  "Convert BYTE-ARRAY to a UUID.~%~@

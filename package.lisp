@@ -13,6 +13,7 @@
    #:*uuid-namespace-url* 
    #:*uuid-namespace-oid* 
    #:*uuid-namespace-x500*
+   ;; #:*uuid-null-uuid*
    ;;
    #:uuid-byte-string                   ; TYPE
    #:uuid-ub48                          ; TYPE
@@ -47,6 +48,9 @@
    #:make-v4-uuid
    #:make-v5-uuid
    #:make-null-uuid
+   ;; #:%unique-universal-identifier-null-p
+   ;; #:%make-null-uuid-loadtime
+   ;; #:unique-universal-identifier-null
    #:make-uuid-from-string
    #:uuid-copy-uuid
    #:serialize-uuid
@@ -123,7 +127,12 @@
    ;;
  ;; unicly/unicly-compat.lisp
    ;;
-
+   ;; #:*clock-seq-uuid*
+   ;; #:*node-uuid*
+   ;; #:*ticks-per-count-uuid*
+   ;; #:get-node-id
+   ;; #:get-timestamp-uuid
+   ;; #:make-v1-uuid
    ))
 
 ;;; ==============================

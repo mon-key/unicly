@@ -31,6 +31,9 @@
 (deftype uuid-bit-vector-128 ()
   '(uuid-bit-vector 128))
 
+;; (upgraded-array-element-type 
+;;  (type-of (make-array 128 :element-type 'bit :initial-element 0)))
+
 (deftype uuid-bit-vector-8 ()
   '(uuid-bit-vector 8))
 
@@ -64,6 +67,16 @@
 ;;; ==============================
 ;;; :UUID-TYPE-PREDICATES
 ;;; ==============================
+
+;;; :NOTE Following definition is unused on the assumption that it is guaranteed
+;;;  that the following always returns (SIMPLE-BIT-VECTOR 0) on all implementations:
+;;;  (type-of (make-array 0 :element-type 'bit :initial-element 0))
+(defun uuid-verify-bit-vector-simplicity (putative-simple-bit-vector)
+  (declare (bit-vector putative-simple-bit-vector)
+           (optimize (speed 3)))
+  (and (eql (array-element-type putative-simple-bit-vector) 'bit)
+       (null (adjustable-array-p putative-simple-bit-vector))
+       (null (array-has-fill-pointer-p putative-simple-bit-vector))))
 
 (defun uuid-bit-vector-128-p (maybe-uuid-bit-vector-128)
   (typep maybe-uuid-bit-vector-128 'uuid-bit-vector-128-p))

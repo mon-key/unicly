@@ -63,7 +63,7 @@ A digested UUID's byte-array octets are accessible with `%uuid_time-low-request'
 Occurs in a UUID `uuid-bit-vector-128' representation from offset 0 through index 31.~%~@
 Occurs as the 0 element in a UUID string delimited by #\\-.~%~@
 Its string representation is 8 hexadecimal characters.~%"))
-     (%uuid_time-mid
+   (%uuid_time-mid
       :initarg :%uuid_time-mid
       :type uuid-ub16
       :initform 0 
@@ -117,7 +117,7 @@ UUID's variant layout/type with the top 3 most significant bits formatted as fol
     1     0     x  ; where X indicates a \"don't care\" value~%~@
 :NOTE UUID v3, v4, v5 instances of this class will have the relevenat portions
 of their bit fields returned in the above configuration.~%"))
-     (%uuid_clock-seq-low
+   (%uuid_clock-seq-low
       :initarg :%uuid_clock-seq-low
       :type uuid-ub8
       :initform 0
@@ -132,7 +132,7 @@ A digested UUIDs byte-array octets are accessible with `%uuid_clock-seq-low-requ
 Occurs in a UUID `uuid-bit-vector-128' representation from offset 72 through index 79.~%~@
 Occurs in the lower portion of the 3 element in a UUID string delimited by #\\-.~%~@
 Its string representation is 2 hexadecimal characters.~%"))
-     (%uuid_node
+   (%uuid_node
       :initarg :%uuid_node
       :type uuid-ub48
       :initform 0
@@ -191,6 +191,59 @@ In long-form this number is:~%
  thousand and 455~%~@
 :SEE-ALSO `<XREF>'.►►►~%~%")))
 
+(defclass unique-universal-identifier-null (unique-universal-identifier)
+  ;; :NOTE We don't advertise `*uuid-null-uuid*' and `%make-null-uuid-loadtime'
+  ;; b/c there should only be one null-id!
+  ((%uuid_null :initform t))
+  (:documentation
+   #.(format nil 
+             "Like instances of `unicly:unique-universal-identifier' but with all slots zeroed.~%~@
+There should only ever be one instance of this class and it should be the value
+of the special variable `unicly::*uuid-null-uuid*'.~%~@
+User code should neither set nor access the slot-values of this class, instead
+user code may gain access to a valid null-uuid with `make-null-uuid'.~%~@
+Though the consequences are undefined, it is an error for any slot-value of an
+instance of this class to be non-zero.~%~@
+ ,---- RFC4122 section 4.1.7. \"Nil UUID\"
+ | The nil UUID is special form of UUID that is specified to have all
+ | 128 bits set to zero.
+ `----~%~@
+Following returns true when object is of type `unicly:unique-universal-identifier-null'.~%
+ \(slot-exists-p *uuid-null-uuid* '%uuid_null\)~%~@
+Instance of this class return T for both `unicly:uuid-eql' and
+`unicly:uuid-bit-vector-eql' however not two null-uuids share identity under
+`cl:eq', `cl:eql', `cl:equal', `cl:equalp':~%
+ \(eq  \(make-instance 'unique-universal-identifier-null\) 
+      \(make-instance 'unique-universal-identifier\)\)~%
+ \(eql \(make-instance 'unique-universal-identifier\) 
+      \(make-instance 'unique-universal-identifier\)\)~%
+ \(equal  \(make-instance 'unique-universal-identifier\) 
+         \(make-instance 'unique-universal-identifier\)\)~%
+ \(equalp \(make-instance 'unique-universal-identifier\) 
+         \(make-instance 'unique-universal-identifier\)\)~%
+:SEE-ALSO `make-null-uuid'.~%►►►")))
+
+(declaim (inline %unique-universal-identifier-null-p))
+(defun %unique-universal-identifier-null-p (object)
+ (declare (optimize (speed 3)))
+  (typep object 'unique-universal-identifier-null))
+
+(defun unique-universal-identifier-null-p (object)
+  (declare (inline %unique-universal-identifier-null-p)
+           (optimize (speed 3)))
+  (when (%unique-universal-identifier-null-p object)
+    (eq (the unique-universal-identifier-null object) 
+        *uuid-null-uuid*)))
+
+(defun %make-null-uuid-loadtime ()
+  ;; (eq *uuid-null-uuid* (%make-null-uuid-loadtime))
+  (declare (special *uuid-null-uuid*))
+  (if (%unique-universal-identifier-null-p *uuid-null-uuid*)
+      *uuid-null-uuid*
+      (let ((instance (allocate-instance (find-class 'unique-universal-identifier-null))))
+        (setq *uuid-null-uuid* (shared-initialize instance t))
+        *uuid-null-uuid*)))
+
 
 ;;; ==============================
 ;;
@@ -235,6 +288,7 @@ In long-form this number is:~%
   #+sbcl 
   (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b))
 
+
 ;;; ==============================
 ;; :TODO Find the best test for this and incorporate with generic fun `uuid-eql'
 ;; (defun uuid-byte-array-eql (uuid-ba-a uuid-ba-b)
@@ -251,9 +305,45 @@ In long-form this number is:~%
 ;;  (equalp (uuid-get-namespace-bytes uuid-a) (uuid-get-namespace-bytes uuid-b))
 ;; By converting both ARGS to their bit-vector representation we can test `equal'.
 (defgeneric uuid-eql (uuid-a uuid-b)
+  (:method ((uuid-a (eql *uuid-null-uuid*)) (uuid-b (eql *uuid-null-uuid*)))
+    ;; Only allow the object at variable `*uuid-null-uuid*' to be considered the
+    ;; true null-uuid.
+    ;; (values t "(eql *uuid-null-uuid*) (eql *uuid-null-uuid*)"))
+     t)
+  (:method ((uuid-a (eql *uuid-null-uuid*)) (uuid-b unique-universal-identifier-null))
+    ;; (values nil "(eql *uuid-null-uuid*) unique-universal-identifier-null"))    
+    nil)
+  (:method ((uuid-a unique-universal-identifier-null) (uuid-b (eql *uuid-null-uuid*)))
+    ;; (values nil "unique-universal-identifier-null (eql *uuid-null-uuid*)"))
+    nil)
+  (:method ((uuid-a unique-universal-identifier-null) (uuid-b unique-universal-identifier-null))    
+    ;; (values nil "unique-universal-identifier-null unique-universal-identifier-null"))
+     nil)
+  ;; Following four methods prevent the initial null uuid returned from:
+  ;;  (make-instance 'unique-universal-identifier) 
+  ;; from matching either of the values for returned for objects:
+  ;;  *uuid-null-uuid* and (make-instance 'unique-universal-identifier-null)
+  (:method ((uuid-a (eql *uuid-null-uuid*)) (uuid-b unique-universal-identifier))
+    ;; (values nil "(eql *uuid-null-uuid*) unique-universal-identifier"))
+    nil)
+  (:method ((uuid-a unique-universal-identifier) (uuid-b (eql *uuid-null-uuid*)))
+    ;; (values nil "unique-universal-identifier (eql *uuid-null-uuid*)"))
+     nil)
+  (:method ((uuid-a unique-universal-identifier-null) (uuid-b unique-universal-identifier))
+    ;; (values nil "unique-universal-identifier-null unique-universal-identifier"))
+     nil)
+  (:method ((uuid-a unique-universal-identifier) (uuid-b unique-universal-identifier-null))
+    ;; (values nil "unique-universal-identifier unique-universal-identifier-null"))
+     nil)
+  (:method ((uuid-a t) (uuid-b unique-universal-identifier-null))
+    ;; (values nil "t unique-universal-identifier-null"))
+    nil)
+  (:method ((uuid-a unique-universal-identifier-null) (uuid-b t))
+    ;; (values nil "unique-universal-identifier-null t"))
+    nil)
   (:method ((uuid-a unique-universal-identifier) (uuid-b unique-universal-identifier))
     (uuid-bit-vector-eql (uuid-to-bit-vector uuid-a) (uuid-to-bit-vector uuid-b)))
-  (:method ((uuid-a unique-universal-identifier) uuid-b)
+  (:method ((uuid-a unique-universal-identifier) (uuid-b t))
     nil)
   ;; :NOTE Following method is correct but should not be enabled until we have
   ;;implemented a reliable `uuid-bit-vector-to-uuid'
@@ -266,7 +356,7 @@ In long-form this number is:~%
   ;;                   (ignore-errors (uuid-bit-vector-version uuid-b)))
   ;;              (uuid-bit-vector-eql uuid-a uuid-b)))
   ;;       nil))
-  (:method (uuid-a (uuid-b unique-universal-identifier))
+  (:method ((uuid-a t) (uuid-b unique-universal-identifier))
     nil)
   (:method ((uuid-a t) (uuid-b t))
     nil)
@@ -279,6 +369,19 @@ In long-form this number is:~%
  \(uuid-eql \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
            \(make-v5-uuid *uuid-namespace-dns* \"bubbA\"\)\)~%
  \(uuid-eql \"bubb\" \"bobby\"\)~%~@
+ \(uuid-eql *uuid-null-uuid* *uuid-null-uuid*\)~%
+ \(uuid-eql *uuid-null-uuid* \(make-null-uuid\)\)~%
+ \(uuid-eql \(make-null-uuid\) *uuid-null-uuid*\)~%
+ \(uuid-eql \(make-null-uuid\) \(%make-null-uuid-loadtime\)\)~%
+ \(uuid-eql \(make-null-uuid\) \(%make-null-uuid-loadtime\)\)~%
+ \(uuid-eql \(make-null-uuid\) \(make-instance 'unique-universal-identifier-null\)\)~%
+ \(uuid-eql \(make-instance 'unique-universal-identifier-null\) \(make-instance 'unique-universal-identifier-null\)\)~%
+ \(uuid-eql \(make-instance 'unique-universal-identifier-null\) \(make-null-uuid\)\)~%
+ \(uuid-eql \(make-instance 'unique-universal-identifier\) \(make-null-uuid\)\)~%~@
+:NOTE When either UUID-A or UUID-B is an instance of the class
+`unicly::unique-universal-identifier-null' they are only considered to be
+`unicly:uuid-eql' if both objects are `cl:eql' the value of special variable
+`unicly::*uuid-null-uuid*'.~%~@
 :SEE-ALSO `unique-universal-identifier-p'.~%►►►")))
 
 ;;; ==============================
@@ -296,7 +399,7 @@ one of its subclasses.~%~@
 :EXAMPLE~%
  \(unique-universal-identifier-p *uuid-namespace-dns*\)~%
  \(unique-universal-identifier-p t\)~%~@
-:SEE-ALSO `uuid-eql'.~%►►►")))
+:SEE-ALSO `uuid-eql', `unicly::unique-universal-identifier-null-p'.~%►►►")))
 
 ;;; ==============================
 ;; We can speed up make-v5-uuid/make-v3-uuid if an objects is routinely used as
@@ -374,8 +477,8 @@ one of its subclasses.~%~@
 ;; *print-array* not applicable for string-output
 ;; 
 ;; *print-readably* ??? This isnt particulularly readable:
-;;  (let ((*print-readably* t))
-;;    (print-object (make-v4-uuid) t))
+;; (let ((*print-readably* t))
+;;   (print-object (make-v4-uuid) t))
 ;; 
 (defmethod print-object ((id unique-universal-identifier) stream)
   ;;  "Print UNIQUE-UNIVERSAL-IDENTIFIER ID to to STREAM in string representation.
@@ -398,7 +501,7 @@ one of its subclasses.~%~@
     (format stream "~(~8,'0X-~4,'0X-~4,'0X-~2,'0X~2,'0X-~12,'0X~)" 
             %uuid_time-low %uuid_time-mid %uuid_time-high-and-version 
             %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)))
-  
+;; (print-object (make-v4-uuid) nil)
 (defmethod uuid-print-bytes (stream (uuid unique-universal-identifier))
   #.(format nil
 "Print the raw bytes of UUID in hexadecimal format to STREAM.~%~@
@@ -451,7 +554,7 @@ Default method speciaclized on instances of class `unique-universal-identifier'.
  | The hexadecimal values \"a\" through \"f\" are output as
  | lower case characters and are case insensitive on input.
  `----~%~@
-:SEE-ALSO `uuid-print-bytes'.~%►►►")
+:SEE-ALSO `uuid-print-bytes', `uuid-print-bit-vector', `uuid-princ-to-string'.~%►►►")
   (declare ((or null STRING-WITH-FILL-POINTER) string))
   #-sbcl (assert (STRING-WITH-FILL-POINTER-P "string")
                  () 
@@ -466,7 +569,10 @@ Default method speciaclized on instances of class `unique-universal-identifier'.
 (defmethod uuid-princ-to-string ((uuid unique-universal-identifier) &key)
   (princ-to-string uuid))
 
-(defmethod uuid-print-bit-vector (stream (uuid simple-bit-vector))
+(defmethod uuid-print-bit-vector (stream ;; (stream stream)
+                                  #-sbcl (uuid bit-vector) 
+                                  ;; SBCL allows speciaclizing simple-bit-vector
+                                  #+sbcl (uuid simple-bit-vector))
   #.(format nil
             "Print the bit-vector reprsentation of UUID to STREAM.~%~@
 UUID should be an object of type `uuid-bit-vector-128', sigal an error if not.~%~@
@@ -478,18 +584,24 @@ UUID should be an object of type `uuid-bit-vector-128', sigal an error if not.~%
   #-sbcl (etypecase bv2 (uuid-bit-vector-128 t))
   (with-standard-io-syntax (write uuid :stream stream)))
 
-(defmethod uuid-print-bit-vector (stream (uuid unique-universal-identifier))
+
+(defmethod uuid-print-bit-vector (stream ;; (stream stream)
+                                  (uuid unique-universal-identifier))
   #.(format nil
             "Print the `uuid-bit-vector-128' representation UUID to STREAM.~%~@
 UUID is an instance of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%
  \(uuid-print-bit-vector nil \(make-v4-uuid\)\)~%
  \(find-method #'uuid-print-bit-vector nil '\(t unique-universal-identifier\)\)~%~@
-:SEE-ALSO `<XREF>'.~%►►►~%")
+:SEE-ALSO `uuid-princ-to-string'.~%►►►~%")
   (let ((id-to-bv (uuid-to-bit-vector uuid)))
-    (declare (uuid-bit-vector-128 uuid))
+    (declare (uuid-bit-vector-128 id-to-bv))
     ;; (with-standard-io-syntax (write id-to-bv :stream stream))))
     (uuid-print-bit-vector stream id-to-bv)))
+
+(defmethod uuid-print-bit-vector (stream ;; (stream stream)
+                                  (uuid unique-universal-identifier-null))
+  (uuid-print-bit-vector stream (the uuid-bit-vector-128 (uuid-bit-vector-zeroed))))
 
 (defun uuid-copy-uuid (uuid-instance)
   (declare (unique-universal-identifier uuid-instance)
@@ -497,6 +609,12 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
   #-sbcl (assert (unique-universal-identifier-p uuid-instance)
                  (uuid-instance)
                  "Arg UUID-INSTANCE does not satisfy `unique-universal-identifier-p'")
+  ;; We shouldn't return *uuid-null-uuid* with `make-null-uuid' because we don't
+  ;; want the variable mutated. Likewise we should try to be smart about it and
+  ;; not return an instance of class `unique-universal-identifier-null' b/c
+  ;; there should only be one.
+  (when (%unique-universal-identifier-null-p uuid-instance)
+    (return-from uuid-copy-uuid (make-instance 'unique-universal-identifier)))
   (%verify-slot-boundp-and-type uuid-instance)
   (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
