@@ -709,6 +709,7 @@ special variable `unicly::*uuid-null-uuid*'.~%~@
 :EXAMPLE~%
  \(unique-universal-identifier-null-p *uuid-null-uuid*\)~%
  \(unique-universal-identifier-null-p \(make-null-uuid\)\)~%
+ \(type-of \(make-instance 'unique-universal-identifier-null\)\)~%~@
 ;; Following both fail successfully:~%
  \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier-null\)\)~%
  \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier\)\)~%

@@ -351,6 +351,8 @@
   (declare (type unique-universal-identifier uuid)
            (inline uuid-disassemble-ub32 uuid-disassemble-ub16 uuid-bit-vector-zeroed)
            (optimize (speed 3)))
+  (when (%unique-universal-identifier-null-p uuid)
+    (return-from uuid-to-bit-vector (uuid-bit-vector-zeroed)))
   (let ((bv-lst 
          (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                       %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
@@ -399,8 +401,9 @@
 (defun uuid-get-namespace-bytes (uuid)
   (declare (type unique-universal-identifier uuid)
            (optimize (speed 3)))
-  ;; (when unique-universal-identifier-null-p
-  ;; 
+  (when (%unique-universal-identifier-null-p uuid)
+    (return-from uuid-get-namespace-bytes 
+      (make-array 16 :element-type 'uuid-ub8 :initial-element 0)))
   (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
       uuid
@@ -417,7 +420,6 @@
                                     %uuid_clock-seq-and-reserved
                                     %uuid_clock-seq-low
                                     (uuid-disassemble-ub48 %uuid_node)))))
-
 
 ;; :NOTE UNICLY:UUID-GET-NAMESPACE-BYTES is equivalent to
 ;; UUID:UUID-TO-BYTE-ARRAY we provide it here for congruence. 
@@ -690,21 +692,16 @@
 ;; `----
 (declaim (inline make-null-uuid))
 (defun make-null-uuid ()
+  ;; (eq *uuid-null-uuid* (make-null-uuid))
   ;; :WAS (make-instance 'unique-universal-identifier)
   ;; (declare (special *uuid-null-uuid*))
   (if (and *uuid-null-uuid*
            (%unique-universal-identifier-null-p *uuid-null-uuid*))
       (the unique-universal-identifier-null *uuid-null-uuid*)
       (%make-null-uuid-loadtime)))
-;;
-;; (unintern '*uuid-null-uuid*)
-;; (defparameter *uuid-null-uuid* nil)
-;; (eq *uuid-null-uuid* (print-object (make-null-uuid) *standard-output*))
-;; (eq *uuid-null-uuid*
-;; (setf *uuid-null-uuid* (make-null-uuid))
-;; (symbol-value '*uuid-null-uuid*)
 
 ;;; ==============================
+;; :TODO `deserialize-uuid'... 
 ;; :NOTE Should there be a generic function which dispatches on the UUID's
 ;; representation , e.g. uuid-bit-vector-128, uuid-byte-array-20array-16,
 ;; unique-universal-identifier, uuid-string-32, uuid-string-36?
@@ -718,6 +715,8 @@
      with bv = (the uuid-byte-array-16 (uuid-get-namespace-bytes uuid))
      for i from 0 below 16
      do (write-byte (aref bv i) stream)))
+
+
 
 (defun uuid-string-to-sha1-byte-array (string)
   (declare (type string string))
