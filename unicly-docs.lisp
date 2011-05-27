@@ -93,7 +93,7 @@ With the string representaton: \"6ba7b812-9dad-11d1-80b4-00c04fd430c8\"~%~@
 :SEE \(URL `http://luca.ntop.org/Teaching/Appunti/asn1.html'\) esp. Section 6. ~%~@
 :SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%►►►")
 
-(typedoc '*uuid-null-uuid*
+(vardoc '*uuid-null-uuid*
          "The default null-uuid per RFC4122 Section 4.1.7 \"Nil UUID\".~%
 The value of this variable is initialized at loadtime with
 `unicly::%make-null-uuid-loadtime'.~%~@
@@ -226,6 +226,25 @@ bits of a `unique-universal-identifier'~%~@
  \(typep \(uuid-string-to-sha1-byte-array \"bubba\"\) 'uuid-byte-array-20\)~%~@
 :SEE-ALSO `uuid-hex-string-36'.~%►►►")
 
+(typedoc 'uuid-byte-array-null
+        "An object of type `unicly:uuid-byte-array-16' with each element `cl:zerop'.~%~@
+:EXAMPLE~%~@
+ \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-null\)~%
+ \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\) 'uuid-byte-array-null\)~%
+ \(not \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\) 'uuid-byte-array-null\)\)~%
+ \(not \(typep \(uuid-bit-vector-zeroed\) 'uuid-byte-array-null\)\)~%
+:SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%►►►")
+
+(typedoc 'uuid-bit-vector-null
+"An object of type `unicly:uuid-bit-vector-128' and satisfying
+`unicly:uuid-bit-vector-eql'.~%~@
+:EXAMPLE~%
+  \(typep \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-null\)~%
+  \(typep \(make-array 128 :element-type 'bit :initial-element 1\) 'uuid-bit-vector-null\)~%
+  \(not \(typep \(uuid-byte-array-zeroed\) 'uuid-bit-vector-null\)\)~%~@
+:SEE-ALSO `uuid-bit-vector-128', `uuid-bit-vector-zeroed',
+`uuid-byte-array-zeroed', `uuid-byte-array-null'.~%►►►")
+
 
 ;;; ==============================
 ;;; :UUID-TYPE-PREDICATE-DOCUMENTATION
@@ -317,15 +336,46 @@ Return T when object has the type signature:~%
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
 `uuid-eql'.~%►►►")
 
+(fundoc 'uuid-bit-vector-null-p
+"Whether BIT-VECTOR-MAYBE-NULL is of type `unicly:uuid-bit-vector-null'.~%~@
+:EXAMPLE~%
+ \(uuid-bit-vector-null-p \(uuid-bit-vector-zeroed\)\)~%
+ \(uuid-bit-vector-null-p \(make-array 128 :element-type 'bit :initial-element 1\)\)~%
+ \(null \(uuid-bit-vector-null-p \(uuid-byte-array-zeroed\)\)\)~%~@
+:SEE-ALSO `unicly:uuid-bit-vector-eql', `unicly:uuid-bit-vector-zeroed',
+`unicly:uuid-bit-vector-128', `unicly:uuid-bit-vector-128-p'.~%►►►")
+
+(fundoc 'uuid-byte-array-null-p
+        "Whether object is of type `unicly:uuid-byte-array-null'.~%~@
+:EXAMPLE~%~@
+ \(uuid-byte-array-null-p \(uuid-byte-array-zeroed\)\)~%
+ \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\)\)~%
+ \(not \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\)\)\)~%
+ \(not \(uuid-byte-array-null-p \(uuid-bit-vector-zeroed\)\)\)~%~@
+:SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%►►►")
+
 
 ;;; ==============================
 ;;; UUID-FUNCTIONS-DOCUMENTATION
 ;;; ==============================
 
 (fundoc 'uuid-bit-vector-version
-" <DOCSTR> ~%~@
-:EXAMPLE~%~@
- { ... <EXAMPLE> ... } ~%~@
+"Return the version of uuid version of UUID-BIT-VECTOR.~%~@
+UUID-BIT-VECTOR is on object of type `uuid-bit-vector-128'.~%~@
+When object is the null uuid return as if by `cl:values':
+ 0,null-uuid~%~@
+If for some reason bit 48 of object is not `cl:zerop' an error is signaled.~%~@
+:EXAMPLE~%
+ \(uuid-bit-vector-version \(uuid-to-bit-vector \(make-v4-uuid\)\)\)~%
+ \(uuid-bit-vector-version \(uuid-to-bit-vector 
+                           \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%
+ \(uuid-bit-vector-version \(uuid-to-bit-vector 
+                           \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%
+ \(uuid-bit-vector-version \(uuid-to-bit-vector \(make-null-uuid\)\)\)~%~@
+;; Following successfully signals an error:~%
+ \(let \(\(bv-z \(uuid-bit-vector-zeroed\)\)\)
+   \(setf \(sbit bv-z 48\) 1\)
+   \(uuid-bit-vector-version bv-z\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-version', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
 `uuid-eql'.~%►►►")
@@ -357,12 +407,21 @@ its source UUID-INSTANCE.~%~@
 :SEE-ALSO `<XREF>'.~%►►►")
 
 (fundoc 'uuid-bit-vector-zeroed
-"Return a bit vector of 128 elements with all eltements zeroed.~%~@
+"Return a bit vector of 128 elements with all elements zeroed.~%~@
 :EXAMPLE~%
  \(uuid-bit-vector-zeroed\)~%
  \(typep \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector-128', `uuid-deposit-octet-to-bit-vector',
 `uuid-byte-array-to-bit-vector', `make-null-uuid'.~%►►►")
+
+(fundoc 'uuid-byte-array-zeroed
+"Return an array of type `uuid-byte-array-16' with all elements zeroed.~%~@
+:EXAMPLE~%~@
+ \(uuid-byte-array-zeroed\)~%
+ \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-16\)~%
+ \(uuid-byte-array-16-p \(uuid-byte-array-zeroed\)\)~%~@
+:SEE-ALSO `uuid-bit-vector-zeroed', `uuid-byte-array-16-p',
+`uuid-byte-array-null-p', `uuid-byte-array-null'.~%►►►")
 
 (fundoc 'uuid-request-integer
   "Decode an integer of LENGTH octets from ARRAY starting at OFFSET.~%~@
@@ -709,6 +768,7 @@ special variable `unicly::*uuid-null-uuid*'.~%~@
 :EXAMPLE~%
  \(unique-universal-identifier-null-p *uuid-null-uuid*\)~%
  \(unique-universal-identifier-null-p \(make-null-uuid\)\)~%
+ \(type-of \(make-instance 'unique-universal-identifier-null\)\)~%~@
 ;; Following both fail successfully:~%
  \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier-null\)\)~%
  \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier\)\)~%

@@ -37,6 +37,10 @@
 (deftype uuid-bit-vector-8 ()
   '(uuid-bit-vector 8))
 
+(deftype uuid-bit-vector-null ()
+  '(and uuid-bit-vector-128
+    (satisfies %uuid-bit-vector-null-p)))
+
 (deftype uuid-byte-array (&optional size)
   (let ((sz (or size '*)))
     `(simple-array uuid-ub8 (,sz))))
@@ -45,6 +49,10 @@
 (deftype uuid-byte-array-16 ()
   ;; expands to: (simple-array (unsigned-byte 8) (16)))
   '(uuid-byte-array 16))
+
+(deftype uuid-byte-array-null ()
+  ;; expands to: (simple-array (unsigned-byte 8) (16)))
+  '(and uuid-byte-array-16 (satisfies %uuid-byte-array-null-p)))
 
 ;; UUID v5 SHA1 returns an array of type: (simple-array (unsigned-byte 8) (20))
 (deftype uuid-byte-array-20 ()
@@ -79,7 +87,7 @@
        (null (array-has-fill-pointer-p putative-simple-bit-vector))))
 
 (defun uuid-bit-vector-128-p (maybe-uuid-bit-vector-128)
-  (typep maybe-uuid-bit-vector-128 'uuid-bit-vector-128-p))
+  (typep maybe-uuid-bit-vector-128 'uuid-bit-vector-128))
 
 (defun uuid-string-32-p (maybe-uuid-string-32)
   (typep maybe-uuid-string-32 'uuid-string-32))
@@ -97,6 +105,19 @@
 
 (defun uuid-byte-array-20-p (maybe-uuid-byte-array-20)
   (typep maybe-uuid-byte-array-20 'uuid-byte-array-20))
+
+(declaim (inline %uuid-byte-array-null-p))
+(defun %uuid-byte-array-null-p (byte-array-maybe-null)
+  ;; (%uuid-byte-array-null-p (uuid-byte-array-zeroed))
+  ;; (%uuid-byte-array-null-p (make-array 16 :element-type 'uuid-ub8 :initial-element 1))
+  (declare (uuid-byte-array-16 byte-array-maybe-null)
+           (optimize (speed 3)))
+  (loop for x across byte-array-maybe-null always (zerop x)))
+
+;; (uuid-byte-array-null-p (make-array 20 :element-type 'uuid-ub8 :initial-element 1))
+
+(defun uuid-byte-array-null-p (byte-array-maybe-null)
+  (typep byte-array-maybe-null 'uuid-byte-array-null))
 
 (defun uuid-byte-string-p (maybe-uuid-byte-string)
   (typep maybe-uuid-byte-string 'uuid-byte-string))
