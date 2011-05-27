@@ -57,6 +57,37 @@
 (in-package #:unicly)
 ;; *package*
 
+;; :NOTE For both `uuid-bit-vector-zeroed' and `uuid-bit-vector-8-zeroed' we
+;; assume that the returned array is always of type: (simple-bit-vector 128)
+;; :SEE `uuid-verify-bit-vector-simplicity' in :FILE uuid-types.lisp
+(declaim (inline uuid-bit-vector-zeroed))
+(defun uuid-bit-vector-zeroed ()
+  (declare (optimize (speed 3)))
+  (the uuid-bit-vector-128 (make-array 128 :element-type 'bit :initial-element 0)))
+
+(defun %uuid-bit-vector-null-p (bit-vector-maybe-null)
+  ;; (%uuid-bit-vector-null-p (uuid-bit-vector-zeroed))
+  ;; (%uuid-bit-vector-null-p (make-array 128 :element-type 'bit :initial-element 0))
+  (declare (uuid-bit-vector-128 bit-vector-maybe-null)
+           (inline uuid-bit-vector-zeroed)
+           (optimize (speed 3)))
+  (uuid-bit-vector-eql bit-vector-maybe-null (the uuid-bit-vector-128 
+                                               (uuid-bit-vector-zeroed))))
+(declaim (inline uuid-bit-vector-null-p))
+(defun uuid-bit-vector-null-p (bit-vector-maybe-null)
+  (declare (optimize (speed 3)))
+  (typep bit-vector-maybe-null 'uuid-bit-vector-null))
+
+(declaim (inline uuid-bit-vector-8-zeroed))
+(defun uuid-bit-vector-8-zeroed ()
+  (declare (optimize (speed 3)))
+  (the uuid-bit-vector-8 (make-array 8 :element-type 'bit :initial-element 0)))
+
+(declaim (inline uuid-byte-array-zeroed))
+(defun uuid-byte-array-zeroed ()
+    (declare (optimize (speed 3)))
+  (the uuid-byte-array-16
+    (make-array 16 :element-type 'uuid-ub8 :initial-element 0)))
 
 ;;; ==============================
 ;;; :PASTE-AUTHOR nyef -- Alistair Bridgewater
@@ -152,13 +183,14 @@
 ;; |     ^--bit-48
 ;; `----
 ;;
-;; :TODO Tighten this up to match uuid-bit-vector-version e.g. checking for null-uuid
-;;       which RFC4122 Setion 4.1.7. "Nil UUID" specifically requires
 ;; :TODO Currently not detecting v1 or v2 UUIDs at all.
 (declaim (inline uuid-version))
 (defun uuid-version (uuid)
   (declare (unique-universal-identifier uuid)
+           (inline %unique-universal-identifier-null-p)
            (optimize (speed 3)))
+  (when (%unique-universal-identifier-null-p uuid)
+    (return-from uuid-version (values 0 'null-uuid)))
   (let ((uuid-thav (if (slot-boundp uuid '%uuid_time-high-and-version)
                        (slot-value uuid '%uuid_time-high-and-version)
                        (error (make-condition 'unbound-slot :name '%uuid_time-high-and-version)))))
@@ -215,6 +247,19 @@
 ;; thousand and 455
 ;;; ==============================
 
+(declaim (inline %uuid-bit-vector-version-if))
+(defun %uuid-bit-vector-version-if (uuid-bit-vector)
+  ;; :NOTE Its not likely this will happen but its wrong to let the error propogate further.
+  ;; :TEST
+  ;; (let ((bv-z (uuid-bit-vector-zeroed)))
+  ;;   (setf (sbit bv-z 48) 1)
+  ;;   (%uuid-bit-vector-version-if bv-z))
+  (declare (uuid-bit-vector-128 uuid-bit-vector)
+           (optimize (speed 3)))
+  (unless (zerop (sbit uuid-bit-vector 48))
+    (error "bit 48 not `cl:zerop'~% ~
+            per RFC4122 section 4.1.3 it should always be 0")))
+
 ;;; ==============================
 ;;  48 49 50 51
 ;; | 0  0  0  1  | 1  The time-based version specified in this document.
@@ -225,10 +270,11 @@
 (declaim (inline uuid-bit-vector-version))
 (defun uuid-bit-vector-version (uuid-bit-vector)
   (declare (uuid-bit-vector-128 uuid-bit-vector)
+           (inline %uuid-bit-vector-version-if
+                   uuid-bit-vector-zeroed
+                   uuid-bit-vector-null-p)
            (optimize (speed 3)))
-  (unless (zerop (sbit uuid-bit-vector 48))
-    ;; :NOTE Its not likely this will happen but its wrong to let the error propogate further.
-    (error "per RFC4122 section 4.1.3 bit 48 should always be 0~% got: ~S" uuid-bit-vector))
+  (%uuid-bit-vector-version-if uuid-bit-vector)
   (ecase (the bit (sbit uuid-bit-vector 49))
     (0 (ecase (the bit (sbit uuid-bit-vector 50))
          (1 (ecase (the bit (sbit uuid-bit-vector 51))
@@ -241,8 +287,7 @@
               ;; Of course it wouldn't given how C centric nature of the entire RFC :)
               ;; So, as a way of flipping the bird to the curly brace inclined we
               ;; choose to return as if by `cl:values': 0, null-uuid
-              (0 (values (or #-sbcl (and (uuid-bit-vector-eql uuid-bit-vector (uuid-bit-vector-zeroed)) 0) 
-                             #+sbcl (and (sb-int:bit-vector-= uuid-bit-vector (uuid-bit-vector-zeroed)) 0)
+              (0 (values (or (and (uuid-bit-vector-null-p uuid-bit-vector) 0)
                              (error "something wrong with UUID-BIT-VECTOR bit field~% got: ~S" uuid-bit-vector))
                          'null-uuid))))))
     (1 (ecase (the bit (sbit uuid-bit-vector 51))
@@ -276,19 +321,6 @@
     (declare ((integer 0 5) v5-if))
     (= v5-if 5)))
 
-;; :NOTE For both `uuid-bit-vector-zeroed' and `uuid-bit-vector-8-zeroed' we
-;; assume that the returned array is always of type: (simple-bit-vector 128)
-;; :SEE `uuid-verify-bit-vector-simplicity' in :FILE uuid-types.lisp
-(declaim (inline uuid-bit-vector-zeroed))
-(defun uuid-bit-vector-zeroed ()
-  (declare (optimize (speed 3)))
-  (the uuid-bit-vector-128 (make-array 128 :element-type 'bit :initial-element 0))) 
-;;
-(declaim (inline uuid-bit-vector-8-zeroed))
-(defun uuid-bit-vector-8-zeroed ()
-  (declare (optimize (speed 3)))
-  (the uuid-bit-vector-8 (make-array 8 :element-type 'bit :initial-element 0)))
-
 ;; :COURTESY Zach Beane :DATE 2011-04-08
 ;; :SOURCE (URL `http://paste.lisp.org/+2LKZ/2')
 (defun uuid-octet-to-bit-vector-8 (octet)
@@ -315,10 +347,13 @@
 
 (defun uuid-byte-array-to-bit-vector (uuid-byte-array)
   (declare (uuid-byte-array-16 uuid-byte-array)
-           (inline uuid-deposit-octet-to-bit-vector)
+           (inline uuid-deposit-octet-to-bit-vector
+                   %uuid-byte-array-null-p)
            (optimize (speed 3)))
   (let ((uuid-bv128 (uuid-bit-vector-zeroed)))
     (declare (uuid-bit-vector-128 uuid-bv128))
+    (when (%uuid-byte-array-null-p uuid-byte-array)
+      (return-from uuid-byte-array-to-bit-vector uuid-bv128))
     (loop 
        for byte across uuid-byte-array
        for offset upfrom 0 by 8 below 128
@@ -349,7 +384,8 @@
 ;; (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ"))
 (defun uuid-to-bit-vector (uuid)
   (declare (type unique-universal-identifier uuid)
-           (inline uuid-disassemble-ub32 uuid-disassemble-ub16 uuid-bit-vector-zeroed)
+           (inline uuid-disassemble-ub32 uuid-disassemble-ub16
+                   uuid-bit-vector-zeroed %unique-universal-identifier-null-p)
            (optimize (speed 3)))
   (when (%unique-universal-identifier-null-p uuid)
     (return-from uuid-to-bit-vector (uuid-bit-vector-zeroed)))
@@ -376,6 +412,25 @@
        do (uuid-deposit-octet-to-bit-vector (the uuid-ub8 byte) offset uuid-bv128)
        finally (return uuid-bv128))))
 
+;; :NOTE Keep the sxhahs/hash-table stuff here or in a file which comes after unicly-class.lisp 
+;; otherwise the compiler complains about open coding
+(defun sxhash-uuid (uuid)
+  (declare (unique-universal-identifier uuid)
+           (optimize (speed 3)))
+  (sxhash (the uuid-bit-vector-128 (uuid-to-bit-vector uuid))))
+
+#+sbcl 
+(sb-ext:define-hash-table-test uuid-eql sxhash-uuid)
+
+#-sbcl
+(defun make-hash-table-uuid (&key synchronized) 
+  (declare (ignore synchronized))
+  (make-hash-table :test 'equal))
+
+#+sbcl
+(defun make-hash-table-uuid (&key synchronized) ;; &allow-other-keys ??
+  (make-hash-table :test 'uuid-eql :synchronized synchronized))
+
 (declaim (inline %uuid-digest-uuid-instance-md5))
 (defun %uuid-digest-uuid-instance-md5 (namespace name)
   (declare (uuid-byte-array-16 namespace)
@@ -400,10 +455,10 @@
 
 (defun uuid-get-namespace-bytes (uuid)
   (declare (type unique-universal-identifier uuid)
+           (inline uuid-byte-array-zeroed  %unique-universal-identifier-null-p)
            (optimize (speed 3)))
   (when (%unique-universal-identifier-null-p uuid)
-    (return-from uuid-get-namespace-bytes 
-      (make-array 16 :element-type 'uuid-ub8 :initial-element 0)))
+    (return-from uuid-get-namespace-bytes (the uuid-byte-array-16 (uuid-byte-array-zeroed))))
   (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
       uuid
@@ -694,7 +749,7 @@
 (defun make-null-uuid ()
   ;; (eq *uuid-null-uuid* (make-null-uuid))
   ;; :WAS (make-instance 'unique-universal-identifier)
-  ;; (declare (special *uuid-null-uuid*))
+  (declare (inline %unique-universal-identifier-null-p))
   (if (and *uuid-null-uuid*
            (%unique-universal-identifier-null-p *uuid-null-uuid*))
       (the unique-universal-identifier-null *uuid-null-uuid*)
@@ -716,8 +771,6 @@
      for i from 0 below 16
      do (write-byte (aref bv i) stream)))
 
-
-
 (defun uuid-string-to-sha1-byte-array (string)
   (declare (type string string))
   (let ((digester (ironclad:make-digest :sha1)))
@@ -736,9 +789,14 @@
 (defun uuid-from-byte-array (byte-array)
   ;; :NOTE We declare this a uuid-byte-array-16 even though SHA-1s are arrays of 20 elts
   ;; IOW if we call this from uuid-digest-uuid-instance we deserve to fail.
-  (declare (type uuid-byte-array-16 byte-array))
+  (declare (type uuid-byte-array-16 byte-array)
+           (inline %uuid-byte-array-null-p))
   #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
                  "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
+  (when (%uuid-byte-array-null-p byte-array)
+    (return-from uuid-from-byte-array 
+      ;; Remember, there can only be one *uuid-null-uuid*!
+      (make-instance 'unique-universal-identifier)))
   (macrolet ((arr-to-bytes (from to w-array)
                "Helper macro used in `uuid-from-byte-array'."
                (declare ((mod 17) from to))

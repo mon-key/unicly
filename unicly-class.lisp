@@ -278,8 +278,8 @@ Instance of this class return T for both `unicly:uuid-eql' and
   (declare (uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
            (optimize (speed 3)))
   #-sbcl 
-  (if (and (= (count 0 uuid-bv-a) (count 0 uuid-bv-b))
-           (= (count 1 uuid-bv-a) (count 1 uuid-bv-b)))
+  (if (and (= (count 0 uuid-bv-a :test #'=) (count 0 uuid-bv-b :test #'=))
+           (= (count 1 uuid-bv-a :test #'=) (count 1 uuid-bv-b :test #'=)))
       (loop 
          for low-idx from 0 below 64
          for top-idx = (logxor low-idx 127)
@@ -287,6 +287,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
                      (= (sbit uuid-bv-a top-idx) (sbit uuid-bv-b top-idx)))))
   #+sbcl 
   (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b))
+ 
 
 
 ;;; ==============================
@@ -654,23 +655,6 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
                                   :w-got uuid-hex-string-36-if
                                   :w-type-of t
                                   :signal-or-only nil)))
-
-(defun sxhash-uuid (uuid)
-  (declare (unique-universal-identifier uuid)
-           (optimize (speed 3)))
-  (sxhash (the uuid-bit-vector-128 (uuid-to-bit-vector uuid))))
-
-#+sbcl 
-(sb-ext:define-hash-table-test uuid-eql sxhash-uuid)
-
-#-sbcl
-(defun make-hash-table-uuid (&key synchronized) 
-  (declare (ignore synchronized))
-  (make-hash-table :test 'equal))
-
-#+sbcl
-(defun make-hash-table-uuid (&key synchronized) ;; &allow-other-keys ??
-  (make-hash-table :test 'uuid-eql :synchronized synchronized))
 
 ;;; ==============================
 

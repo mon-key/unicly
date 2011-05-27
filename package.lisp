@@ -26,6 +26,8 @@
    #:uuid-bit-vector-128                ; TYPE
    #:uuid-byte-array-16                 ; TYPE
    #:uuid-byte-array-20                 ; TYPE
+   #:uuid-byte-array-null               ; TYPE
+   #:uuid-bit-vector-null               ; TYPE 
    #:uuid-string-32                     ; TYPE
    #:uuid-string-36                     ; TYPE
    #:uuid-hex-string-32                 ; TYPE
@@ -34,6 +36,8 @@
    #:uuid-bit-vector-128-p
    #:uuid-byte-array-16-p
    #:uuid-byte-array-20-p
+   #:uuid-bit-vector-null-p
+   #:uuid-byte-array-null-p
    #:uuid-byte-string-p
    #:uuid-string-32-p
    #:uuid-string-36-p
@@ -64,6 +68,7 @@
    #:uuid-get-namespace-bytes
    #:uuid-string-to-sha1-byte-array
    #:uuid-bit-vector-zeroed
+   #:uuid-byte-array-zeroed
    #:uuid-bit-vector-8-zeroed
    #:uuid-octet-to-bit-vector-8
    #:uuid-byte-array-to-bit-vector
