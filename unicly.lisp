@@ -69,7 +69,7 @@
   ;; (%uuid-bit-vector-null-p (uuid-bit-vector-zeroed))
   ;; (%uuid-bit-vector-null-p (make-array 128 :element-type 'bit :initial-element 0))
   (declare (uuid-bit-vector-128 bit-vector-maybe-null)
-           (inline uuid-bit-vector-zeroed)
+            (inline uuid-bit-vector-zeroed)
            (optimize (speed 3)))
   (uuid-bit-vector-eql bit-vector-maybe-null (the uuid-bit-vector-128 
                                                (uuid-bit-vector-zeroed))))
@@ -169,11 +169,35 @@
     (declare (uuid-ub8 b1 b2))
     (values b1 b2)))
 
+(declaim (inline %uuid-bit-vector-version-if))
+(defun %uuid-bit-vector-version-if (uuid-bit-vector)
+  ;; :TEST (signals succesfully)
+  ;; (let ((bv-z (uuid-bit-vector-zeroed)))
+  ;;         (setf (sbit bv-z 48) 1)
+  ;;         (%uuid-bit-vector-version-if bv-z))
+  (declare (uuid-bit-vector-128 uuid-bit-vector)
+           (optimize (speed 3)))
+  (unless (zerop (sbit uuid-bit-vector 48))
+    (error 'uuid-bit-48-error  :uuid-bit-48-error-datum uuid-bit-vector)))
+
+(declaim (inline %uuid-uuid-version-if))
+(defun %uuid-uuid-version-if (uuid-time-high-and-version uuid)
+  ;; :TEST (signals succesfully)
+  ;; (let ((v4uuid (make-v4-uuid)))
+  ;;   (setf (slot-value v4uuid '%uuid_time-high-and-version) #xFFFF) 
+  ;;   (%uuid-uuid-version-if (slot-value v4uuid '%uuid_time-high-and-version) v4uuid))
+  (declare (unique-universal-identifier uuid)
+           (uuid-ub16 uuid-time-high-and-version)
+           (optimize (speed 3)))
+  (when (ldb-test (byte 1 15) uuid-time-high-and-version)
+    (error 'uuid-bit-48-error :uuid-bit-48-error-datum uuid)))
+
 ;;; ==============================
 ;; ,---- RFC4122 4.1.3. Subsection "Version"
 ;; | The version number is in the most significant 4 bits of the time
 ;; | stamp (bits 4 through 7 of the time_hi_and_version field).
 ;; | 
+;; |    15    14    13    12 
 ;; |  Msb0  Msb1  Msb2  Msb3   Version  Description
 ;; |     0     0     0     1        1     The time-based version specified in this document.
 ;; |     0     0     1     0        2     DCE Security version, with embedded POSIX UIDs.
@@ -190,26 +214,35 @@
            (inline %unique-universal-identifier-null-p)
            (optimize (speed 3)))
   (when (%unique-universal-identifier-null-p uuid)
-    (return-from uuid-version (values 0 'null-uuid)))
+    (return-from uuid-version (values 0 'null-uuid))) 
   (let ((uuid-thav (if (slot-boundp uuid '%uuid_time-high-and-version)
                        (slot-value uuid '%uuid_time-high-and-version)
-                       (error (make-condition 'unbound-slot :name '%uuid_time-high-and-version)))))
+                       ;; (error (make-condition 'unbound-slot 
+                       ;;                        :instance uuid
+                       ;;                        :name '%uuid_time-high-and-version))
+                       (error ';;uuid-simple-error
+                        'uuid-slot-unbound
+                              :format-control "slot %UUID_TIME-HIGH-AND-VERSION is not ~
+                                              `cl:slot-boundp' in uuid object"))))
     (declare (uuid-ub16 uuid-thav))
-    (if (ldb-test (byte 1 15) uuid-thav)
-        (error "per RFC4122 section 4.1.3 ~
-                bit 15 of %uuid_time-high-and-version should always be 0~% ~
-                got: ~S" uuid)
-        (or (and (ldb-test (byte 1 13) uuid-thav)
-                 (ldb-test (byte 1 12) uuid-thav)
-                 3)
-            (and (ldb-test (byte 1 14) uuid-thav)
-                 (or (and (ldb-test (byte 1 12) uuid-thav) 5)
-                     (and (not (ldb-test (byte 1 13) uuid-thav)) 4)
-                     (error "something wrong with UUID bit field~% got: ~S"
-                            uuid-thav)))))))
+    (%uuid-uuid-version-if uuid-thav uuid)
+    (or (and (ldb-test (byte 1 13) uuid-thav)
+             (ldb-test (byte 1 12) uuid-thav)
+             3)
+        (and (ldb-test (byte 1 14) uuid-thav)
+             (or (and (ldb-test (byte 1 12) uuid-thav) 5)
+                 (and (not (ldb-test (byte 1 13) uuid-thav)) 4)
+                 (error 'uuid-simple-error
+                        :format-control "something wrong with UUID bit field~% got: ~S"
+                        :format-arguments (list uuid-thav)))))))
+
+;; (let ((v4 (make-v4-uuid)))
+;;   (slot-makunbound v4 '%uuid_time-high-and-version)
+;;   (uuid-version v4))
+
 
 ;;; ==============================
-;;; :TODO Finish `uuid-byte-byte-array-version'
+;;; :TODO Finish `uuid-byte-array-version'
 ;; (defun uuid-byte-array-version (uuid-byte-array)
 ;;  (declare (uuid-byte-array-16 uuid-byte-array))
 ;; (
@@ -247,18 +280,6 @@
 ;; thousand and 455
 ;;; ==============================
 
-(declaim (inline %uuid-bit-vector-version-if))
-(defun %uuid-bit-vector-version-if (uuid-bit-vector)
-  ;; :NOTE Its not likely this will happen but its wrong to let the error propogate further.
-  ;; :TEST
-  ;; (let ((bv-z (uuid-bit-vector-zeroed)))
-  ;;   (setf (sbit bv-z 48) 1)
-  ;;   (%uuid-bit-vector-version-if bv-z))
-  (declare (uuid-bit-vector-128 uuid-bit-vector)
-           (optimize (speed 3)))
-  (unless (zerop (sbit uuid-bit-vector 48))
-    (error "bit 48 not `cl:zerop'~% ~
-            per RFC4122 section 4.1.3 it should always be 0")))
 
 ;;; ==============================
 ;;  48 49 50 51
@@ -812,6 +833,29 @@
                    :%uuid_clock-seq-and-reserved (the uuid-ub8 (aref byte-array 8))
                    :%uuid_clock-seq-low (the uuid-ub8 (aref byte-array 9))
                    :%uuid_node (the uuid-ub48 (arr-to-bytes 10 15 byte-array)))))
+
+;;; ==============================
+;; :TODO uuid-from-bit-vector
+;;
+;; (defun %uuid-from-bit-vector-if (uuid-bit-vector-128)
+;;; (declare (uuid-bit-vector-128 uuid-bit-vector-128))
+;;   (let ((bv-version-if (uuid-bit-vector-version uuid-bit-vector-128)))
+;;  (ecase bv-version-if
+;;   (0 (return-from 'uuid-from-bit-vector (make-instance 'unique-universal-identifier-null)))
+;; (2  
+;; (let ((uuid-bit-vector-128 (uuid-to-bit-vector (make-v4-uuid))))
+;;   (error 'uuid-simple-error
+;;          :format-control
+;;          "Arg UUID-BIT-VECTOR-128 is a uuid version 2.~%~@
+;;                    The function `unicly:make-v2-uuid' is unimplemented.~%~@
+;;                    got UUID-BIT-VECTOR-128 with subseq [48,63]:~%~T~S~%"
+;;          :format-arguments
+;;          (list (subseq uuid-bit-vector-128 48 63))))
+;;   ((3 4 5) bv-version-if)
+;;  
+
+;; (defun uuid-from-bit-vector (uuid-bit-vector-128)
+;;; (declare (uuid-bit-vector-128 uuid-bit-vector-128))
 
 ;;; ==============================
 ;; :TODO This should also check for a uuid-hex-string-32 and parse at different

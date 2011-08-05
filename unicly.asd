@@ -2,6 +2,14 @@
 ;;; :FILE unicly/unicly.asd
 ;;; ==============================
 
+;; ,----
+;; | "I am sick to death of knee-jerk anti-LOOPism and I am beginning to
+;; |  irrationally regard it as a plot to disable me as a programmer by
+;; |  excommunicating my useful tools."
+;; |
+;; |     :SOURCE "Knee-jerk Anti-LOOPism and other E-mail Phenomena" p 17 
+;; `---- :SEE http://ccs.mit.edu/papers/CCSWP150.html
+
 
 ;;; ==============================
 ;;; :LOGICAL-PATHNAMES
@@ -28,7 +36,7 @@
   :licence "MIT"
   :version "04-18-2011"
   :maintainer "MON KEY"
-  :description "UUID Generation"
+  :description "UUID Generation per RFC 4122"
   :long-description "Lisp implementation of RFC 4122"
   :serial t
   :depends-on (:ironclad 
@@ -38,6 +46,7 @@
                (:file "unicly-specials")
                (:file "unicly-utils")
                (:file "unicly-types")
+               (:file "unicly-conditions")
                (:file "unicly-class")
                (:file "unicly"      )
                (:file "unicly-docs" )
@@ -50,8 +59,8 @@
   (let ((chk-if (probe-file (make-pathname 
                              :directory `(,@(pathname-directory (truename (asdf:system-source-directory :unicly))))
                              :name "unicly-loadtime-bind" :type "lisp"))))
-    (and chk-if (load  chk-if)))
-  )
+    (and chk-if (load  chk-if))))
+
 
 ;;; ==============================
 ;;; EOF

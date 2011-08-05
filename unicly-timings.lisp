@@ -93,14 +93,14 @@ The latin-1 chars in the range 161,255~%~@
 UTF-8 chars in the range 7680,7774~%~@
 :EXAMPLE~%
  \(aref *random-chars* 0\)~%~@
-:SEE-ALSO `<XREF>'.~%►►►")
+:SEE-ALSO `<XREF>'.~%▶▶▶")
 
  (fundoc 'make-random-char-array
              "Return an array of length N containing random characters selected from `*random-chars*'.~%~@
 :EXAMPLE~%
  \(make-random-char-array 3\)~%
  \(make-random-char-array 8\)~%~@
-:SEE-ALSO `make-random-string'.~%►►►")
+:SEE-ALSO `make-random-string'.~%▶▶▶")
 
  (fundoc 'make-random-string
          "Return a string of up to sixteen random characters from the value of `*random-chars*'.~%~@
@@ -108,7 +108,7 @@ Optional arg STR-LEN is a positive integer value. When ommitted defaults to 16.~
 Strings generated as if by `make-random-char-array' ~%~@
 :EXAMPLE~%
  \(loop repeat 3 collect \(make-random-string\)\)~%~@
-:SEE-ALSO `<XREF>'.~%►►►")
+:SEE-ALSO `<XREF>'.~%▶▶▶")
 
  (fundoc 'make-random-inverted-number-array
          "Return array of 320 randomly selected integers with a distribution inverted
@@ -126,7 +126,7 @@ No effort is made to guarantee the returned array will not contain duplicated en
 Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%►►►")
+:SEE-ALSO `<XREF>'.~%▶▶▶")
 
 |#
 

@@ -33,6 +33,7 @@ unicly-tests.lisp
 unicly-timings.lisp
 unicly-compat.lisp
 unicly-deprecated.lisp
+unicly-conditions.lisp
 LICENSE.txt
 README
 unicly-move-to-git.sh"

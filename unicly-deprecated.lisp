@@ -112,7 +112,7 @@
 ;; Value is set as if by `dbc:make-uuid-from-string'.~%~@
 ;; :EXAMPLE~%~@
 ;;  { ... <EXAMPLE> ... } ~%~@
-;; :SEE-ALSO `<XREF>'.~%►►►")
+;; :SEE-ALSO `<XREF>'.~%▶▶▶")
 ;;; ==============================
 
 ;;; ==============================
@@ -124,7 +124,7 @@
 ;; :EXAMPLE~%
 ;;  \(unique-universal-identifier-p *uuid-namespace-dns*\)
 ;;  \(unique-universal-identifier-p t\)~%~@
-;; :SEE-ALSO `<XREF>'.~%►►►")
+;; :SEE-ALSO `<XREF>'.~%▶▶▶")
 ;;; ==============================
 
 ;;; ==============================
@@ -135,7 +135,7 @@
 ;; :EXAMPLE~%~@
 ;;  \(uuid-princ-to-string *uuid-namespace-dns*\)
 ;;  \(uuid-princ-to-string t\)
-;; :SEE-ALSO `<XREF>'.~%►►►")
+;; :SEE-ALSO `<XREF>'.~%▶▶▶")
 ;;; ==============================
 
 ;;; ==============================
@@ -148,7 +148,7 @@
 ;;  6ba7b8109dad11d180b400c04fd430c8~%~@
 ;; :EXAMPLE~%~@
 ;;  { ... <EXAMPLE> ... } ~%~@
-;; :SEE-ALSO `<XREF>'.~%►►►")
+;; :SEE-ALSO `<XREF>'.~%▶▶▶")
 ;;; ==============================
 
 ;; (typedoc 'uuid-integer-length
@@ -157,7 +157,7 @@
 ;; value in a fully intialized instance of the class `unique-universal-identifier'.
 ;; :EXAMPLE~%
 ;;  \(mapcar #'\(lambda \(x\) \(cons \(typep x 'uuid-integer-length\) x\)\) '\(0 1 2 3 4 5 6 7\)\)~%
-;; :SEE-ALSO `uuid-number-to-byte-array'.~%►►►")
+;; :SEE-ALSO `uuid-number-to-byte-array'.~%▶▶▶")
 
 
 ;;; ==============================
