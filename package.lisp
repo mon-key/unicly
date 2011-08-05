@@ -47,6 +47,11 @@
    #:uuid-eql
    #:uuid-bit-vector-eql
    ;;
+   ;; #:uuid-error                     ; CONDITION
+   ;; #:uuid-simple-error              ; CONDITION
+   ;; #:uuid-slot-unbound-error        ; CONDITION
+   ;; #:uuid-bit-48-error              ; CONDITION
+   ;;
    #:unique-universal-identifier
    #:make-v3-uuid
    #:make-v4-uuid
@@ -58,6 +63,7 @@
    #:make-uuid-from-string
    #:uuid-copy-uuid
    #:serialize-uuid
+   ;; #:deserialize-uuid                 ;(UNIMPLEMENTED)
    #:sxhash-uuid
    #:make-hash-table-uuid
    #:uuid-print-bit-vector
