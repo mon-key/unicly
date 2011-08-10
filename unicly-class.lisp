@@ -601,7 +601,7 @@ UUID should be an object of type `uuid-bit-vector-128', sigal an error if not.~%
  \(find-method #'uuid-print-bit-vector nil '\(t simple-bit-vector\)\)~%~@
 :SEE-ALSO `uuid-to-bit-vector'.~%▶▶▶~%")
   (declare (uuid-bit-vector-128 uuid))
-  #-sbcl (etypecase bv2 (uuid-bit-vector-128 t))
+  ;; #-sbcl (etypecase bv2 (uuid-bit-vector-128 t))
   (with-standard-io-syntax (write uuid :stream stream)))
 
 
