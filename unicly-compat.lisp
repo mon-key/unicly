@@ -116,7 +116,7 @@
 ;;
 (defun get-node-id ()
   ;; Don't bother getting the MAC address of an ethernet device. 
-  ;; RFC4122 Secion 5 says it is perfectly feasible to just use a random number.
+  ;; RFC4122 Section 5 says it is perfectly feasible to just use a random number.
   (declare (optimize (speed 3)))
   (let* ((*random-state* *random-state-uuid*)
          (rand-node (the uuid-ub48 (random #xffffffffffff))))

@@ -83,6 +83,72 @@
   (declare (optimize (speed 3)))
   (the uuid-bit-vector-8 (make-array 8 :element-type 'bit :initial-element 0)))
 
+;;; ==============================
+;; :SOURCE (URL `http://www.lispforum.com/viewtopic.php?f=2&t=1205#p6269')
+;; (defun uuid-bit-vector-to-integer (bit-vector)
+;;   "Return BIT-VECTOR's representation as a positive integer."
+;;    ;; (= (bit-vector-to-integer (uuid- (make-v4-uuid)
+;;    ;; 122378404974049034400182615604361091930)
+;;   (declare (bit-vector bit-vector)
+;;            (optimize (speed 3)))
+;;   ;; :NOTE We ought to be able to optimize around the size of expected return
+;;   ;; value by taking the length of the bv which should not exceed the
+;;   ;; integer-length of final return value.
+;;   (flet ((bit-adder (first-bit second-bit)
+;;            (+ (ash first-bit 1) second-bit)))
+;;     (etypecase bit-vector
+;;       (simple-bit-vector 
+;;        (locally (declare (simple-bit-vector bit-vector))
+;;          (reduce #'bit-adder bit-vector)))
+;;       (bit-vector
+;;        (reduce #'bit-adder bit-vector)))))
+;;; ==============================
+;; :PASTE-DATE 2011-08-10
+;; :PASTE-TITLE "Annotation number 1: another version"
+;; :PASTED-BY 	Xach
+;; :PASTE-URL (URL `http://paste.lisp.org/+2NN1/1')
+;; (defun uuid-bit-vector-to-integer (bit-vector)
+;;   "Return BIT-VECTOR's representation as a positive integer."
+;;   (let ((j 0))
+;;     (dotimes (i (length bit-vector) j)
+;;       (setf j (logior (bit bit-vector i)
+;;                       (ash j 1))))))
+;;; ==============================
+;; :PASTE-DATE 2011-08-10
+;; :PASTE-TITLE "Annotation number 2: a faster version"
+;; :PASTED-BY stassats
+;; :PASTE-URL (URL `http://paste.lisp.org/+2NN1/2')
+(defun uuid-bit-vector-to-integer (bit-vector) ;; (uuid-bit-vector <SIZE>)
+  (let* ((bv-length (length bit-vector))       ;; uuid-ub128-integer-length
+         (word-size 64) ;; (ash bv-length 1)   ;; uuid-ub128-integer-length
+         (result 0)
+         (index -1))
+    (flet ((build-word ()
+             (loop 
+                repeat word-size
+                for j = 0 then (logior (bit bit-vector (incf index))
+                                       (ash j 1))
+                finally (return j))))
+      (loop 
+         repeat (floor bv-length word-size)
+         do (setf result (logior (build-word)
+                                 (ash result (1- word-size)))))
+      (loop 
+         while (< index (1- bv-length))
+         do (setf result (logior (bit bit-vector (incf index))
+                                 (ash result 1)))))
+    result))
+;;
+;; (fundoc 'uuid-bit-vector-to-integer
+;;   "Return BIT-VECTOR's representation as a positive integer.~%~@
+;; BIT-VECTOR is an object of type `cl:simple-bit-vector'.~%~@
+;; :EXAMPLE~%~@
+;;  { ... <EXAMPLE> ... } ~%~@
+;; :NOTE This is a modified version of a a \"BIT-VECTOR-TO-INTEGER\" function
+;; written by Stas Boukarev using `cl:flet' and `cl:loop'.
+;; :SEE :FILE unicly/unicly.lisp for additional details.~%~@
+;; :SEE-ALSO `<XREF>'.~%▶▶▶")
+
 (declaim (inline uuid-byte-array-zeroed))
 (defun uuid-byte-array-zeroed ()
     (declare (optimize (speed 3)))
