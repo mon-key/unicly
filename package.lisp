@@ -21,9 +21,25 @@
    #:uuid-ub24                          ; TYPE
    #:uuid-ub16                          ; TYPE
    #:uuid-ub8                           ; TYPE
+   #:uuid-ub128-integer-length          ; TYPE  
+   #:uuid-ub64-integer-length           ; TYPE
+   #:uuid-ub48-integer-length           ; TYPE
+   #:uuid-ub32-integer-length           ; TYPE
+   #:uuid-ub24-integer-length           ; TYPE
+   #:uuid-ub16-integer-length           ; TYPE
+   #:uuid-ub8-integer-length            ; TYPE
    #:uuid-bit-vector                    ; TYPE
+   #:uuid-bit-vector-128                ; TYPE   
+   #:uuid-bit-vector-48                 ; TYPE
+   #:uuid-bit-vector-32                 ; TYPE
+   #:uuid-bit-vector-16                 ; TYPE
    #:uuid-bit-vector-8                  ; TYPE
-   #:uuid-bit-vector-128                ; TYPE
+   #:uuid-bit-vector-length             ; TYPE
+   #:uuid-bit-vector-128-length         ; TYPE
+   #:uuid-bit-vector-48-length          ; TYPE
+   #:uuid-bit-vector-32-length          ; TYPE
+   #:uuid-bit-vector-16-length          ; TYPE
+   #:uuid-bit-vector-8-length           ; TYPE
    #:uuid-byte-array-16                 ; TYPE
    #:uuid-byte-array-20                 ; TYPE
    #:uuid-byte-array-null               ; TYPE

@@ -125,6 +125,8 @@ Hex value:     #xFFFFFFFFFFFF
 Decimal value: 281474976710655
 Octal value:   #o7777777777777777
 :Binary value: #b111111111111111111111111111111111111111111111111~%~@
+Capable of representing the integer value of slot `%uuid_node' of class
+`unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
@@ -137,6 +139,8 @@ Hex value:     #xFFFFFFFF
 Decimal value: 4294967295
 Octal value:   #o37777777777
 Binary value:  #b11111111111111111111111111111111~%~@
+Capable of representing the integer value of slot `%uuid_time-low' of class
+`unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
@@ -149,6 +153,8 @@ Hex value:      #xFFFF
 Decimal value:  65535
 Octal value:    #o177777
 Binary value:   #b1111111111111111~%~@
+Capable of representing the integer value of slots `%uuid_time-mid' and
+`%uuid_time-high-and-version' of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
@@ -161,6 +167,10 @@ Hex value:      #xFF
 Decimal value:  255
 Octal value:    #o377
 Binary value:   #b11111111~%~@
+Capable of representing integer of any any element in an object of type
+`uuid-byte-array' and the and the integer value of slots
+`%uuid_clock-seq-and-reserved' `%uuid_clock-seq-low' of class
+`unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
@@ -207,12 +217,145 @@ And satisfies `mon:string-all-hex-char-p'.~%~@
  \(typep \(uuid-get-bytes \(uuid-print-bytes nil *uuid-namespace-dns*\)\) 'uuid-byte-string\)~%~@
 :SEE-ALSO `uuid-byte-array-16', `uuid-hex-string-36'.~%▶▶▶")
 
+(typedoc 'uuid-bit-vector
+"An object of type \(simple-bit-vector <LENGTH>\).
+Objects of this type are capable of the bits of a `unique-universal-identifier'~%~@
+:EXAMPLE~%
+ \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector\)~%~@
+:SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+
 (typedoc 'uuid-bit-vector-128
 "An object of type \(simple-bit-vector 128\) capable of representing all 128
 bits of a `unique-universal-identifier'~%~@
+Objects of this type have a length of type `uuid-bit-vector-128-length' and may
+be used to represent the integer value of the combined slots of class
+`unique-universal-identifier'.~%~@
 :EXAMPLE~%
+ \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
+:SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-48
+"An object of type \(simple-bit-vector 48\) capable of representing 48
+bits of a `unique-universal-identifier'~%~@
+Objects of this type have a length of type `uuid-bit-vector-48-length', and may
+be used to represent the integer values of the slot `%uuid_node' of class
+`unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 48) 'uuid-bit-vector-48\)~%
  \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-32
+"An object of type \(simple-bit-vector 32\) capable of representing 32
+bits of a `unique-universal-identifier'~%~@
+Objects of this type have a length of type `uuid-bit-vector-32-length', and may
+be used to represent the integer values of the slot `%uuid_time-low' of class
+`unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 32) 'uuid-bit-vector-32\)~%
+ \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-32\)~%~@
+:SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-16
+"An object of type \(simple-bit-vector 16\) capable of representing 16
+bits of a `unique-universal-identifier'~%~@
+Objects of this type have a length of type `uuid-bit-vector-16-length', and may
+be used to represent the integer values of the slots `%uuid_time-mid' and
+`%uuid_time-mid' of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 16) 'uuid-bit-vector-16\)~%
+ \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
+:SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-8
+"An object of type \(simple-bit-vector 128\) capable of representing 8
+bits of a `unique-universal-identifier'~%~@
+Objects of this type have a length of type `uuid-bit-vector-8-length', and may
+be used to represent an `uuid-ub8' value of any sub-sequence of bits in a
+`uuid-bit-vector-128' and specifically those integer values of the slots
+`%uuid_clock-seq-and-reserved' and `%uuid_clock-seq-low' of class
+`unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 8) 'uuid-bit-vector-8\)~%
+ \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
+:SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-length
+"An object of type (integer <SIZE> <SIZE>).~%~@
+:EXAMPLE~%
+ \(typep 16 '\(uuid-bit-vector-length 16\)\) => T~%
+ \(typep 17 '\(uuid-bit-vector-length 16\)\) => NIL~%~@
+:SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
+`uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-128-length
+"An object of type \(uuid-bit-vector-length 128\).~%~@
+Objects of this type correspond with the length of a simple-bit-vector of type
+`uuid-bit-vector-128' which are used to represent the integer value of the
+combined slots of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep 128 '\(uuid-bit-vector-128-length\)) => T~%
+ \(typep 127 '\(uuid-bit-vector-127-length\)\) => NIL~%~@
+:SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
+`uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-48-length
+"An object of type \(uuid-bit-vector-length 48\).~%~@
+Objects of this type correspond with the length of a simple-bit-vector of type
+`uuid-bit-vector-48' which are used to represent the integer values of the slot
+`%uuid_node' of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep 48 '\(uuid-bit-vector-48-length\)) => T~%
+ \(typep 47 '\(uuid-bit-vector-48-length\)\) => NIL~%~@
+:SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
+`uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-32-length
+"An object of type \(uuid-bit-vector-length 32\).~%~@
+Objects of this type correspond with the length of a simple-bit-vector of type
+`uuid-bit-vector-32' which are used to represent the integer values of the slot
+`%uuid_time-low' of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep 32 '\(uuid-bit-vector-32-length\)) => T~%
+ \(typep 31 '\(uuid-bit-vector-31-length\)\) => NIL~%~@
+:SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
+`uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-16-length
+"An object of type \(uuid-bit-vector-length 16\).~%~@
+Objects of this type correspond with the length of a simple-bit-vector of type
+`uuid-bit-vector-16' which are used to represent the integer values of the slots
+`%uuid_time-mid' and `%uuid_time-high-and-version' of class
+`unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep 16 '\(uuid-bit-vector-16-length\)) => T~%
+ \(typep 17 '\(uuid-bit-vector-16-length\)\) => NIL~%~@
+:SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
+`uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+
+(typedoc 'uuid-bit-vector-8-length
+"An object of type \(uuid-bit-vector-length 8\).~%~@
+Objects of this type correspond with the length of a simple-bit-vector of type
+`uuid-bit-vector-8' which are used to represent the integer values of the slots
+`%uuid_clock-seq-low'  and `%uuid_clock-seq-and-reserved' of class
+`unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(typep 8 '\(uuid-bit-vector-8-length\)) => T~%
+ \(typep 8 '\(uuid-bit-vector-8-length\)\) => NIL~%~@
+:SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
+`uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
 
 (typedoc 'uuid-byte-array-16
  "An object which has the type signature: \(simple-array \(unsigned-byte 8\) \(16\)\)~%~@

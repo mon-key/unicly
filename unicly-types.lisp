@@ -21,9 +21,50 @@
 (deftype uuid-ub8 ()
   '(unsigned-byte 8))
 
-(deftype uuid-byte-string ()
-  '(simple-array character (16)))
+;; 128 8 bits
+;; 64  7 bits
+;; 32  6 bits
+;; 16  5 bits
+;; 8   nibble
 
+(deftype uuid-unsigned-byte-integer-length (integer)
+  `(mod ,integer))
+
+(deftype uuid-ub128-integer-length ()
+  '(uuid-unsigned-byte-integer-length 129))
+
+(deftype uuid-ub64-integer-length ()
+  '(uuid-unsigned-byte-integer-length 65))
+
+(deftype uuid-ub48-integer-length ()
+  '(uuid-unsigned-byte-integer-length 49))
+
+(deftype uuid-ub32-integer-length ()
+  '(uuid-unsigned-byte-integer-length 33))
+
+(deftype uuid-ub24-integer-length ()
+  '(uuid-unsigned-byte-integer-length 24))
+
+(deftype uuid-ub16-integer-length ()
+  '(uuid-unsigned-byte-integer-length 17))
+
+(deftype uuid-ub8-integer-length ()
+  '(uuid-unsigned-byte-integer-length 9))
+
+;; 
+;; (deftype uuid-fixnum-bit-width ()
+;;   #-sbcl '(integer 0 #.(integer-length most-positive-fixnum))
+;;   #+sbcl '(integer 0 #.sb-vm:n-positive-fixnum-bits))
+
+;; (deftype uuid-bignum-bit-width ()
+;;   #-sbcl '(integer #.(integer-length most-positive-fixnum) *)
+;;   ;; :NOTE x86-32 only
+;;   ;; #+sbcl '(integer #.sb-vm:n-positive-fixnum-bits #.(- (expt 2 24) 2))
+;;   ;; not following range is 1 under sb-bignum::maximum-bignum-length for congruency with the x86-32 above.
+;;   ;; I'm assuming this is correct for other procs/architectures...
+;;   #+sbcl '(integer #.sb-vm:n-positive-fixnum-bits #.(1- sb-bignum::maximum-bignum-length)))
+
+;; :NOTE (upgraded-array-element-type (type-of (make-array 128 :element-type 'bit :initial-element 0))) => T
 (deftype uuid-bit-vector (&optional size)
    (let ((sz (or size '*)))
      `(simple-bit-vector ,sz)))
@@ -31,15 +72,42 @@
 (deftype uuid-bit-vector-128 ()
   '(uuid-bit-vector 128))
 
-;; (upgraded-array-element-type 
-;;  (type-of (make-array 128 :element-type 'bit :initial-element 0)))
+(deftype uuid-bit-vector-48 ()
+  '(uuid-bit-vector 48))
+
+(deftype uuid-bit-vector-32 ()
+  '(uuid-bit-vector 32))
+
+(deftype uuid-bit-vector-16 ()
+  '(uuid-bit-vector 16))
 
 (deftype uuid-bit-vector-8 ()
   '(uuid-bit-vector 8))
 
+(deftype uuid-bit-vector-length (size)
+  `(integer ,size ,size))
+
+(deftype uuid-bit-vector-128-length ()
+  '(uuid-bit-vector-length 128))
+
+(deftype uuid-bit-vector-48-length ()
+  '(uuid-bit-vector-length 48 48))
+
+(deftype uuid-bit-vector-32-length ()
+  '(uuid-bit-vector-length 32 32))
+
+(deftype uuid-bit-vector-16-length ()
+  '(uuid-bit-vector-length 16 16))
+
+(deftype uuid-bit-vector-8-length ()
+  '(uuid-bit-vector-length 8 8))
+
 (deftype uuid-bit-vector-null ()
   '(and uuid-bit-vector-128
     (satisfies %uuid-bit-vector-null-p)))
+
+(deftype uuid-byte-string ()
+  '(simple-array character (16)))
 
 (deftype uuid-byte-array (&optional size)
   (let ((sz (or size '*)))

@@ -8,8 +8,8 @@
 ;; Most of the loops included below are built to readily swap in
 ;; with the equivalent uuid.lisp function
 ;;
-;; Substitute in the various operations corresponding operations to see
-;; how they compare e.g.: 
+;; Substitute in the various corresponding operations to see how uuid and unicly
+;; compare e.g.:
 ;;  uuid:uuid-to-byte-array vs. unicly:get-namespace-bytes
 ;;
 ;; :TODO Either wrap this into dedicated timing functions or add print
