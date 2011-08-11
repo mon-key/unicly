@@ -16,6 +16,9 @@
    ;; #:*uuid-null-uuid*
    ;;
    #:uuid-byte-string                   ; TYPE
+   #:uuid-unsigned-byte-size            ; TYPE
+   #:uuid-ub128                         ; TYPE
+   #:uuid-ub64                          ; TYPE
    #:uuid-ub48                          ; TYPE
    #:uuid-ub32                          ; TYPE
    #:uuid-ub24                          ; TYPE

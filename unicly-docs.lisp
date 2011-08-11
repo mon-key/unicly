@@ -117,6 +117,37 @@ are methods specialized it, e.g.:~%~@
 ;;; :UUID-TYPES-DOCUMENTATION
 ;;; ==============================
 
+(typedoc 'uuid-unsigned-byte-size
+"An object of type: \(unsigned-byte <SIZE>\)~%~@
+:EXAMPLE~%~@
+ { ... <EXAMPLE> ... } ~%~@
+:SEE-ALSO `uuid-ub128', `uuid-ub64', `uuid-ub48', `uuid-ub32', `uuid-ub16',
+`uuid-ub8'.~%▶▶▶")
+
+(typedoc 'uuid-ub128
+"An object of type: \(unsigned-byte 128\)~%~@
+Octets:        16
+Bits:          128
+Hex value:     #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Decimal value: 340282366920938463463374607431768211455
+Octal value:   #o3777777777777777777777777777777777777777777~%~@
+An object of this type is capable of representing the combined the integer value
+of the slots of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%~@
+ { ... <EXAMPLE> ... } ~%~@
+:SEE-ALSO 
+`uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48', `uuid-ub32',
+`uuid-ub16', `uuid-ub8'.~%▶▶▶")
+
+(typedoc 'uuid-ub64
+"An object of type: \(unsigned-byte 64\)~%~@
+An object of this type is capable of representing any integer value
+of a  slot of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%~@
+ { ... <EXAMPLE> ... } ~%~@
+:SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+
 (typedoc 'uuid-ub48
 "An object of type: \(unsigned-byte 48\)~%~@
 Octets:         6
@@ -127,9 +158,12 @@ Octal value:   #o7777777777777777
 :Binary value: #b111111111111111111111111111111111111111111111111~%~@
 Capable of representing the integer value of slot `%uuid_node' of class
 `unique-universal-identifier'.~%~@
+An object of this type is capable of representing any integer value
+of a  slot of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+:SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
 
 (typedoc 'uuid-ub32
 "An object of type: \(unsigned-byte 32\)~%~@
@@ -143,7 +177,8 @@ Capable of representing the integer value of slot `%uuid_time-low' of class
 `unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+:SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
 
 (typedoc 'uuid-ub16
 "An object of type: \(unsigned-byte 16\)~%~@
@@ -157,7 +192,8 @@ Capable of representing the integer value of slots `%uuid_time-mid' and
 `%uuid_time-high-and-version' of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+:SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
 
 (typedoc 'uuid-ub8
          "An object of type: \(unsigned-byte 8\)~%~@
@@ -173,7 +209,8 @@ Capable of representing integer of any any element in an object of type
 `unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `uuid-ub48', `uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+:SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
 
 (typedoc 'uuid-string-36
 "An object with the type signature: \(array character \(32\)\)
@@ -219,7 +256,8 @@ And satisfies `mon:string-all-hex-char-p'.~%~@
 
 (typedoc 'uuid-bit-vector
 "An object of type \(simple-bit-vector <LENGTH>\).
-Objects of this type are capable of the bits of a `unique-universal-identifier'~%~@
+Objects of this type are capable of representing as bit-vectors the integer
+values of slots of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%
  \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
@@ -619,7 +657,6 @@ It will satisfy the predicate `uuid-byte-array-16-p'.~%~@
 :EXAMPLE~%
  \(uuid-get-namespace-bytes *uuid-namespace-dns*\)~%~@
 :SEE-ALSO `uuid-from-byte-array'.~%▶▶▶")
-
 
 (fundoc 'make-hash-table-uuid
         "Return a hash-table specialized to hold UUIDs as keys.~%~@
