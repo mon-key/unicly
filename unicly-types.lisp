@@ -6,20 +6,29 @@
 (in-package #:unicly)
 ;; *package*
 
+(deftype uuid-unsigned-byte-size (byte-size)
+  `(unsigned-byte ,byte-size))
+
+(deftype uuid-ub128 ()
+ '(uuid-unsigned-byte-size 128))
+
+(deftype uuid-ub64 ()
+ '(uuid-unsigned-byte-size 64))
+
 (deftype uuid-ub48 ()
- '(unsigned-byte 48))
+ '(uuid-unsigned-byte-size 48))
 
 (deftype uuid-ub32 ()
- '(unsigned-byte 32))
+ '(uuid-unsigned-byte-size 32))
 
 (deftype uuid-ub24 ()
-  '(unsigned-byte 24))
+  '(uuid-unsigned-byte-size 24))
 
 (deftype uuid-ub16 ()
-  '(unsigned-byte 16))
+  '(uuid-unsigned-byte-size 16))
 
 (deftype uuid-ub8 ()
-  '(unsigned-byte 8))
+  '(uuid-unsigned-byte-size 8))
 
 ;; 128 8 bits
 ;; 64  7 bits
@@ -91,16 +100,16 @@
   '(uuid-bit-vector-length 128))
 
 (deftype uuid-bit-vector-48-length ()
-  '(uuid-bit-vector-length 48 48))
+  '(uuid-bit-vector-length 48))
 
 (deftype uuid-bit-vector-32-length ()
-  '(uuid-bit-vector-length 32 32))
+  '(uuid-bit-vector-length 32))
 
 (deftype uuid-bit-vector-16-length ()
-  '(uuid-bit-vector-length 16 16))
+  '(uuid-bit-vector-length 16))
 
 (deftype uuid-bit-vector-8-length ()
-  '(uuid-bit-vector-length 8 8))
+  '(uuid-bit-vector-length 8))
 
 (deftype uuid-bit-vector-null ()
   '(and uuid-bit-vector-128
