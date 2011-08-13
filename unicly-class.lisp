@@ -344,19 +344,25 @@ Instance of this class return T for both `unicly:uuid-eql' and
     nil)
   (:method ((uuid-a unique-universal-identifier) (uuid-b unique-universal-identifier))
     (uuid-bit-vector-eql (uuid-to-bit-vector uuid-a) (uuid-to-bit-vector uuid-b)))
-  (:method ((uuid-a unique-universal-identifier) (uuid-b t))
-    nil)
   ;; :NOTE Following method is correct but should not be enabled until we have
   ;;implemented a reliable `uuid-bit-vector-to-uuid'
-  ;; (:method ((uuid-a bit-vector) (uuid-b bit-vector)) 
-  ;;   (if (and (uuid-bit-vector-128-p uuid-a) 
-  ;;            (uuid-bit-vector-128-p uuid-b))
-  ;;       (locally (declare (uuid-bit-vector-128 uuid-a uuid-b))
-  ;;         ;; don't signal if we have a poorly formed uuid-bit-vector-128
-  ;;         (and (eql (ignore-errors (uuid-bit-vector-version uuid-a))
-  ;;                   (ignore-errors (uuid-bit-vector-version uuid-b)))
-  ;;              (uuid-bit-vector-eql uuid-a uuid-b)))
-  ;;       nil))
+  (:method ((uuid-a bit-vector) (uuid-b bit-vector))
+    (if (and (uuid-bit-vector-128-p uuid-a) 
+             (uuid-bit-vector-128-p uuid-b))
+        (locally (declare (uuid-bit-vector-128 uuid-a uuid-b))
+          ;; don't signal if we have a poorly formed uuid-bit-vector-128
+          (and (eql (ignore-errors (uuid-bit-vector-version uuid-a))
+                    (ignore-errors (uuid-bit-vector-version uuid-b)))
+               (uuid-bit-vector-eql uuid-a uuid-b)))
+        nil))
+  (:method ((uuid-a bit-vector) (uuid-b unique-universal-identifier))
+    (and (uuid-bit-vector-128-p uuid-a)
+         (uuid-eql uuid-a  (uuid-to-bit-vector uuid-b))))
+  (:method ((uuid-a unique-universal-identifier) (uuid-b bit-vector))
+    (and (uuid-bit-vector-128-p uuid-b)
+         (uuid-eql (uuid-to-bit-vector uuid-a) uuid-b)))
+  (:method ((uuid-a unique-universal-identifier) (uuid-b t))
+    nil)
   (:method ((uuid-a t) (uuid-b unique-universal-identifier))
     nil)
   (:method ((uuid-a t) (uuid-b t))
@@ -390,7 +396,15 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;; (defun unique-universal-identifier-p (maybe-uuid-instance)
 ;;   (typep maybe-uuid-instance 'unique-universal-identifier))
 (defgeneric unique-universal-identifier-p (object)
-  (:method ((object unique-universal-identifier)) t)
+  (:method ((object unique-universal-identifier))
+    t)
+  (:method ((object bit-vector))
+    (if (uuid-bit-vector-128-p object)
+        (let ((chk-version (ignore-errors (uuid-bit-vector-version object))))
+          (if chk-version 
+              (values nil (list 'uuid-bit-vector-128 chk-version))
+              nil))
+        nil))
   (:method (object) nil)
   (:documentation
    #.(format nil
@@ -399,6 +413,7 @@ Return T if argument is a class instance of `unique-universal-identifier' or
 one of its subclasses.~%~@
 :EXAMPLE~%
  \(unique-universal-identifier-p *uuid-namespace-dns*\)~%
+ \(unique-universal-identifier-p \(uuid-to-bit-vector *uuid-namespace-dns*\)\)~%
  \(unique-universal-identifier-p t\)~%~@
 :SEE-ALSO `uuid-eql', `unicly::unique-universal-identifier-null-p'.~%▶▶▶")))
 

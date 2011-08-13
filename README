@@ -2,11 +2,353 @@
 ;;; :FILE unicly/README
 ;;; ==============================
 
-:LINKS
+Unicly is a Common Lisp library for generation of UUIDs (Universally Unique
+Identifiers) as described by RFC 4122.
+
+Usage:
+
+Description
+
+Unicly has a similar interface to Boian Tzonev's Common Lisp library uuid: 
+ :SEE (URL `https://github.com/dardoria/uuid')
+
+Indeed, the core of Unicly is derived from Tzonev's uuid codebase.
+
+However, Unicly deviates in some not insignificant ways Tzonev's uuid and while
+we have made to create a compatibility layer between the two libraries they UUID
+objects generated with Unicly can not be used interchangeably with those of
+Tzonev's uuid.
+
+Some notable differences between Unicly and Tzonev's uuid:
+
+ - Unicly is developed on SBCL 
+
+   * many routines are targeted towards making use SBCL specific features.
+
+   * It is highly declaration bound and inlined.
+
+   * I do not test on implementations other than SBCL but code for generating
+     v3, v4, and v5 UUIDs *should* run portably on others ;}
+
+ - Unicly is developed primarily for speedy minting of v3, v4, and v5 UUIDs.
+   On an x86-32 SBCL we have found Unicly's minting of v3/v4/v5 UUIDs to be
+   significantly faster (at least 3-5x) than the equivalent code from uuid.
+   See unicly/unicly-timings.lisp for some timing comparions.
+
+ - Unicly is extended with support for creating/storing/(de)serializing UUID
+   objects as bit vectors.
+   For persistence libraries which make use of hashtables to store their keys
+   as UUID objects in hex-string representation there are some potentially big
+   gains to be had by moving to a bit-vector base UUID representation.
+   For example, on SBCL it is possible to sb-ext:define-hash-table-test which test
+   for UUID bit-vector equivalence using equal instead of equalp.
+
+ - Unicly is extended with support for preseriving identity of the null-uuid.
+   This feature is specified in RFC 4122.
+
+ - Unicly prints UUID string representations in case-significant form.
+   This feature is specified in RFC 4122 Section 3. "Namespace Registration Template"
+
+ - Unicly defines its base UUID class as unique-universal-identifier instead of uuid.
+
+ - Unicly does not expose accessors for the slots of the UUID class unique-universal-identifier.
+   UUIDS should be considered immutable once minted and there should be no need
+   for user code to modify their slot values.
+
+ - Unicly slot-names for the base class unique-universal-identifier are strongly
+   namespaced with "%uuid_". This intent here is twofold:
+
+    * UUIDS should be considered immutable once minted and there should be no
+      need for user code to modify their slot values. Obfuscation easy access
+      helps prevent this.
+
+    * Because the Unicly interface is similiar to that of the uuid library we've
+      attempted to prevent trivial visual namespace collision with the slots of
+      the uuid library.  Projects using both Unicly and the uuid library may
+      benefit from being able to easily distinguish among the two.
+
+ - Unicly's printing of a UUIDs string representation is not always conformant with ANSI spec. 
+   The UUID CL:PRINT-OBJECT method is not wrapped around PRINT-UNREADABLE-OBJECT.
+
+ - Unicly interface is extensively documented and source-code is commented with
+   references to the relevant portions of RFC 4122.
+
+ - Unicly does not have a trivial-utf-8 dependency
+   * SBCL users can use internal features (assuming a unicode enabled SBCL)
+   * non-SBCL code can use flexi-streams
+
+ - Unicly is not released under an LLGPL licencse.
+
+   * If licensing issues are a concern in your project please take a moment to
+     investigate unicly/LICENSE.txt
+
+    Although Unicly is initally derived from Tzonev's uuid libary we note that
+    significant portions of that library were in turn strongly derived from the
+    non-normative reference implementation source code included of RFC4122 Appendix
+    C as a wholly functional C language source code implemention of RFC4122.
+
+    We believe the original RFC reference implementation and license have clear
+    precedent in lieu of the later LLGPL and believe it reasonable to revert to the
+    spirit of the original permissive and non-LLGPL'd license included of RFC4122.
+   
+ - Unicly is not targeted for generation of version 1 UUIDs (e.g. time based).
+
+   The general implementation strategy for minting v1 UUID is reliant on
+   interrogation of the systems underlying hardware and clock setting [1].
+   When this is the strategy taken we have found that:
+
+    * It requires platform and implementation specific code;
+
+    * Minting version 1 UUIDs requires interrogating the MAC address of an
+      ethernet device;
+
+    * Minting versino 1 UUIDS requires interrogating the system clock -- there
+      are in general some notoriously nasty bugs which spring from reliance on
+      the value of the system clock e.g. cross-platform multi-boot systems...
+
+    * Minting version 1 UUIDs is slow;
+
+    * There is no portably universal mechanism for generation of version 1 UUIDs
+      Some implementations use the hardware for seed value others use a random-number.
+
+    * The uniqueness of version 1 UUIDs is not nearly as robust as the v3, v4,
+      v5 variants. There are numerous mechanisms by which a v1 UUID can
+      become corrupted which simply do not affect the others.
+
+   [1]  RFC 4122 Section 4.5 "Node IDs that Do Not Identify the Host"
+   Suggests that a v1 UUID may also be minted from a "47-bit cryptographic
+   quality random number" by using it as the bottom 47 bits of the UUID Node id
+   and setting the LSB of the first octe of the UUID node id to 1.
+   Unfortunately, when attempting to implement this alternative strategy we found that
+   Tzonev's uuid library has what we believe to be a bug in uuid:get-node-id in
+   that it sets bit 0 of the the LSByte of a 48bit integer with:
+
+     (setf node (dpb #b01 (byte 8 0) (random #xffffffffffff *random-state-uuid*)))
+
+   Apparently, there is some confusion around the RFC's reference to the
+   unicast/multicast bit, instead of the arguably more correct local/global bit.
+   
+   As it is now, when using Tzonev's uuid one can not reliably inspect a v1 UUID
+   for its version because the bits are in the wrong sequence and disambiguation
+   of of the various v1, v2, v3, v4, and v5 UUIDs is impossible.
+   
+  :SEE unicly/unicly-compat.lisp for additional details/discussion.
+
+   We could attempt to accomodate this and propogate the error onward or do the prudent 
+   thing and simply relying on v3, v4, v5 UUIDs instead. 
+
+Examples of Common Lisp librarys which make use of UUIDs:
+
+(URL `https://raw.github.com/kraison/vivace-graph-v2/master/triples.lisp')
+(URL `https://raw.github.com/lisp/de.setf.resource/master/resource-object.lisp')
+(URL `https://raw.github.com/dto/blocky/master/prototypes.lisp')
+(URL `https://raw.github.com/fons/cl-mongo/master/src/bson-oid.lisp')
+(URL `git://github.com/kraison/kyoto-persistence.git')
+
+An Emacs lisp implementation of uuid:
+
+(URL `https://github.com/kanru/uuid-el')
+
+RFC 4122:
 
 (URL `http://www.ietf.org/rfc/rfc4122.txt')
 
-(URL `http://johannburkard.de/blog/programming/java/Java-UUID-generators-compared.html')
+Usage
+
+ (make-v4-uuid)
+ ;=> 2f20bdfa-cd67-4150-8500-80c94821bbda
+
+ (defparameter *unique-random-namespace* 
+   (format nil "~S" (unicly:make-v4-uuid)))
+ ;=> *UNIQUE-RANDOM-NAMESPACE*
+
+ *UNIQUE-RANDOM-NAMESPACE*
+ ;=> "77b84745-ab13-49c6-8fdc-9afaabc51c52"
+
+ (setf *unique-random-namespace* 
+       (make-uuid-from-string *unique-random-namespace*))
+ ;=> 77b84745-ab13-49c6-8fdc-9afaabc51c52
+
+ *unique-random-namespace*
+ ;=> 77b84745-ab13-49c6-8fdc-9afaabc51c52
+
+ (uuid-as-urn-string nil *unique-random-namespace*)
+ ;=> "urn:uuid:77b84745-ab13-49c6-8fdc-9afaabc51c52"
+
+ (make-v5-uuid *unique-random-namespace* "bubba")
+ ;=> 065944a4-7566-53b2-811b-11a20e0bfed2
+
+ (uuid-eql 
+  (make-v5-uuid *unique-random-namespace* "bubba")
+  (make-v5-uuid *unique-random-namespace* "bubba"))
+ ;=> T
+
+ (uuid-princ-to-string (make-v5-uuid *unique-random-namespace* "bubba"))
+ ;=> "065944a4-7566-53b2-811b-11a20e0bfed2"
+
+ (uuid-eql 
+  (make-v5-uuid *unique-random-namespace* "bubba")
+  (make-uuid-from-string "065944a4-7566-53b2-811b-11a20e0bfed2"))
+ ;=> T
+
+ (defparameter *another-unique-random-namespace* 
+   (format nil "~S" (unicly:make-v4-uuid)))
+ ;=> *ANOTHER-UNIQUE-RANDOM-NAMESPACE*
+ 
+ (setf *another-unique-random-namespace*
+       (make-uuid-from-string *another-unique-random-namespace*))
+ ;=> f65c8371-0c41-4913-96e6-8a917666aa51
+
+ (defparameter *v5-uuids-in-distinct-unique-random-namespaces* '()) 
+ ;=> *V5-UUIDS-IN-DISTINCT-UNIQUE-RANDOM-NAMESPACES*
+
+ (loop
+    initially (setf *v5-uuids-in-distinct-unique-random-namespaces* nil)
+    for bubba in (loop
+                    for cnt from 0 below 16  
+                    collect (format nil "bubba-~D" cnt))
+    do (push (cons (make-v5-uuid *unique-random-namespace*  bubba) bubba)
+             *v5-uuids-in-distinct-unique-random-namespaces*)
+    (push (cons (make-v5-uuid *another-unique-random-namespace*  bubba) bubba)
+          *v5-uuids-in-distinct-unique-random-namespaces*)
+    finally (return *v5-uuids-in-distinct-unique-random-namespaces* ))
+
+ ;=> ((7c34b05e-d7a0-573e-baa2-7cc407532609 . "bubba-15")
+ ;     (f7922a16-0b67-5329-87c9-71fdaa52c6c1 . "bubba-15")
+ ;     { ... }
+ ;     (7af9b747-e1f4-59b1-8f05-0acb70220817 . "bubba-0")
+ ;     (f3228291-0a24-5a46-a9e2-7963d4671069 . "bubba-0"))
+
+ (assoc 
+  (make-v5-uuid *unique-random-namespace* "bubba-8")
+  *v5-uuids-in-distinct-unique-random-namespaces*
+  :test #'uuid-eql)
+ ;=> (8e64c855-70fd-5d53-82ce-67e545f724a1 . "bubba-8")
+
+ (assoc 
+  (make-v5-uuid *another-unique-random-namespace* "bubba-8")
+  *v5-uuids-in-distinct-unique-random-namespaces*
+  :test #'uuid-eql)
+ ;=> (ef74e326-4ecc-5edc-9b55-e69e6069610a . "bubba-8")
+
+ (uuid-eql 
+  (make-v5-uuid *unique-random-namespace* "bubba-8")
+  (make-v5-uuid *another-unique-random-namespace* "bubba-8"))
+ ;=> NIL
+
+ (uuid-eql 
+  (make-v5-uuid *unique-random-namespace* "bubba-8")
+  (car (assoc 
+        (make-v5-uuid *unique-random-namespace* "bubba-8")
+        *v5-uuids-in-distinct-unique-random-namespaces*
+        :test #'uuid-eql)))
+ ;=> T
+
+ (uuid-to-bit-vector *unique-random-namespace*)
+ ;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
+
+ (unique-universal-identifier-p *unique-random-namespace*)
+ ;=> T
+
+ ;; When an object is uuid-bit-vector-128-p and its appropriate version bit is
+ ;; set the bit-vector may be coerceable to a `unique-universal-identifier-p'.
+ (unique-universal-identifier-p (uuid-to-bit-vector *unique-random-namespace*))
+ ;=> NIL, (UUID-BIT-VECTOR-128 4)
+
+ (unique-universal-identifier-p (make-null-uuid))
+ ;=> T
+
+ (unicly::uuid-bit-vector-to-integer (uuid-to-bit-vector *unique-random-namespace*))
+ ;=> 159134959691145724577639637335874542674
+
+ (unicly::uuid-to-byte-array *unique-random-namespace*)
+ ;=> #(119 184 71 69 171 19 73 198 143 220 154 250 171 197 28 82)
+
+ (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*))
+ ;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
+
+ (uuid-eql *unique-random-namespace* *unique-random-namespace*)
+ ;=> T
+
+ (uuid-eql *unique-random-namespace* (uuid-to-bit-vector *unique-random-namespace*))
+ ;=> T
+
+ (let ((copy (uuid-copy-uuid *unique-random-namespace*)))
+   (uuid-eql copy *unique-random-namespace*))
+ ;=> T
+
+ ;; This is likely to change in future versions!
+ (uuid-eql (uuid-to-byte-array *unique-random-namespace*)
+           *unique-random-namespace*)
+ ;=> NIL
+  
+ (uuid-bit-vector-eql 
+  (uuid-to-bit-vector *unique-random-namespace*)
+  (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*)))
+ ;=>T
+
+ (uuid-eql 
+  (uuid-to-bit-vector *unique-random-namespace*)
+  (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*)))
+ ;=> T
+
+ ; :NOTE We can test if two uuid-bit-vectors are CL:EQUAL 
+ ; This is not true of uuid-byte-array's which must use CL:EQUALP
+ (equal
+  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))
+  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))) 
+ ;=> T
+
+ (equal
+  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))
+  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "NOT-A-bubba")))
+
+ ;; :NOTE We do not export unicly::uuid-to-byte-array b/c its implementation
+ ;; conflicts with uuid:uuid-to-byte-array
+ ;; However, we do export its equivalent uuid:get-namespace-bytes
+ (uuid-eql
+  (unicly::uuid-to-byte-array (make-v5-uuid *unique-random-namespace* "bubba"))
+  (unicly::uuid-to-byte-array (make-v5-uuid *unique-random-namespace* "bubba")))
+ ;=> NIL
+
+ (equal
+  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
+  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba")))
+ ;=> NIL
+
+ (equalp
+  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
+  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba")))
+ ;=> T
+
+ (equalp
+  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
+  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "NOT-A-BUBBA")))
+ ;=> NIL
+
+ (uuid-version *unique-random-namespace*)
+ ;=> 4
+
+ (uuid-version (make-v5-uuid *unique-random-namespace* "bubba-8"))
+ ;=> 5
+
+ (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
+ ;=> T
+ 
+ (uuid-bit-vector-v5-p (uuid-to-bit-vector *unique-random-namespace*))
+ ;=> NIL
+
+ (make-null-uuid)
+ ;=> 00000000-0000-0000-0000-000000000000
+
+ (unicly::unique-universal-identifier-null-p (make-null-uuid))
+ ;=> T
+
+ (uuid-version (make-null-uuid))
+ ;=>  0, UNICLY::NULL-UUID
+
+ (uuid-eql (make-null-uuid) (make-null-uuid))
+ ;=> T
 
 ;;; ==============================
 ;;; EOF

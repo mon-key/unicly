@@ -118,36 +118,88 @@
 ;; :PASTE-TITLE "Annotation number 2: a faster version"
 ;; :PASTED-BY stassats
 ;; :PASTE-URL (URL `http://paste.lisp.org/+2NN1/2')
-(defun uuid-bit-vector-to-integer (bit-vector) ;; (uuid-bit-vector <SIZE>)
-  (let* ((bv-length (length bit-vector))       ;; uuid-ub128-integer-length
-         (word-size 64) ;; (ash bv-length 1)   ;; uuid-ub128-integer-length
+;; (defun uuid-bit-vector-to-integer (bit-vector) ;; (uuid-bit-vector <SIZE>)
+;;   (let* ((bv-length (length bit-vector))       ;; uuid-ub128-integer-length
+;;          (word-size 64) ;; (ash bv-length 1)   ;; uuid-ub128-integer-length
+;;          (result 0)
+;;          (index -1))
+;;     (flet ((build-word ()
+;;              (loop 
+;;                 repeat word-size
+;;                 for j = 0 then (logior (bit bit-vector (incf index))
+;;                                        (ash j 1))
+;;                 finally (return j))))
+;;       (loop 
+;;          repeat (floor bv-length word-size)
+;;          do (setf result (logior (build-word)
+;;                                  (ash result (1- word-size)))))
+;;       (loop 
+;;          while (< index (1- bv-length))
+;;          do (setf result (logior (bit bit-vector (incf index))
+;;                                  (ash result 1)))))
+;;     result))
+;;; ==============================
+;; :NOTE Following modeled after Stas's version above
+(defun uuid-bit-vector-to-integer (bit-vector)
+  (declare (unicly:uuid-bit-vector bit-vector)
+           (optimize (speed 3)))
+  (let* ((bv-length (the unicly::uuid-ub128-integer-length (length bit-vector)))
+         (word-size (ash bv-length -1))
+         (repeats   (floor bv-length word-size)) ;; in this case always two?
          (result 0)
          (index -1))
-    (flet ((build-word ()
-             (loop 
-                repeat word-size
-                for j = 0 then (logior (bit bit-vector (incf index))
-                                       (ash j 1))
-                finally (return j))))
-      (loop 
-         repeat (floor bv-length word-size)
-         do (setf result (logior (build-word)
-                                 (ash result (1- word-size)))))
-      (loop 
-         while (< index (1- bv-length))
-         do (setf result (logior (bit bit-vector (incf index))
-                                 (ash result 1)))))
-    result))
-;;
-;; (fundoc 'uuid-bit-vector-to-integer
-;;   "Return BIT-VECTOR's representation as a positive integer.~%~@
-;; BIT-VECTOR is an object of type `cl:simple-bit-vector'.~%~@
-;; :EXAMPLE~%~@
-;;  { ... <EXAMPLE> ... } ~%~@
-;; :NOTE This is a modified version of a a \"BIT-VECTOR-TO-INTEGER\" function
-;; written by Stas Boukarev using `cl:flet' and `cl:loop'.
-;; :SEE :FILE unicly/unicly.lisp for additional details.~%~@
-;; :SEE-ALSO `<XREF>'.~%▶▶▶")
+    (labels ((build-word ()
+               (loop 
+                  repeat word-size
+                  for j = 0 then (logior (sbit bit-vector (incf index))
+                                         (ash j 1))
+                  finally (return j)))
+             (loop-repeats ()
+                (loop 
+                   repeat repeats ;; (floor bv-length word-size)
+                   do (setf result (logior (build-word)
+                                           (ash result (1- word-size))))))
+             (loop-less-index ()
+                (loop 
+                   while (< index (1- bv-length))
+                   do (setf result (logior (sbit bit-vector (incf index))
+                                           (ash result 1)))))
+             (loop-and-return ()
+                (loop-repeats)
+                (loop-less-index)
+                result))
+      (ecase bv-length 
+        (128 
+         (locally 
+             (declare  (unicly::uuid-bit-vector-128 bit-vector)
+                       (unicly::uuid-bit-vector-128-length bv-length)
+                       ((uuid-bit-vector-length  64) word-size))
+           (the uuid-ub128 (loop-and-return))))
+        (48 ;;  `%uuid_node'
+         (locally 
+             (declare  (unicly::uuid-bit-vector-48 bit-vector)
+                       (unicly::uuid-bit-vector-48-length bv-length)
+                       ((uuid-bit-vector-length 24) word-size))
+           (the uuid-ub48 (loop-and-return))))
+        (32 ;; `%uuid_time-low'
+         (locally 
+             (declare  (unicly::uuid-bit-vector-32 bit-vector)
+                       (unicly::uuid-bit-vector-32-length bv-length)
+                       (uuid-bit-vector-16-length word-size))
+           (the uuid-ub32 (loop-and-return))))
+
+        (16 ;;`%uuid_time-mid', `%uuid_time-high-and-version'
+         (locally 
+             (declare  (unicly::uuid-bit-vector-16 bit-vector)
+                       (unicly::uuid-bit-vector-16-length bv-length)
+                       (uuid-bit-vector-8-length word-size))
+           (the uuid-ub16 (loop-and-return))))
+        (8 ;; `%uuid_clock-seq-and-reserved', `%uuid_clock-seq-low'
+         (locally 
+             (declare  (unicly::uuid-bit-vector-8 bit-vector)
+                       (uuid-bit-vector-8-length bv-length)
+                       ((uuid-bit-vector-length 4) word-size))
+           (the uuid-ub8 (loop-and-return))))))))
 
 (declaim (inline uuid-byte-array-zeroed))
 (defun uuid-byte-array-zeroed ()
@@ -274,33 +326,44 @@
 ;; `----
 ;;
 ;; :TODO Currently not detecting v1 or v2 UUIDs at all.
+;; uuid-bit-vector-version
 (declaim (inline uuid-version))
 (defun uuid-version (uuid)
-  (declare (unique-universal-identifier uuid)
+  ;; :WAS (declare  (unique-universal-identifier uuid)
+  (declare ((or unique-universal-identifier uuid-bit-vector-128) uuid)
            (inline %unique-universal-identifier-null-p)
            (optimize (speed 3)))
-  (when (%unique-universal-identifier-null-p uuid)
-    (return-from uuid-version (values 0 'null-uuid))) 
-  (let ((uuid-thav (if (slot-boundp uuid '%uuid_time-high-and-version)
-                       (slot-value uuid '%uuid_time-high-and-version)
-                       ;; (error (make-condition 'unbound-slot 
-                       ;;                        :instance uuid
-                       ;;                        :name '%uuid_time-high-and-version))
-                       (error ';;uuid-simple-error
-                        'uuid-slot-unbound
-                              :format-control "slot %UUID_TIME-HIGH-AND-VERSION is not ~
+  ;; :NOTE !EXPERIMENTAL!
+  ;; Its entirely possible for a bit-vector of length 128 to be
+  ;; passed and for that that b-v to be contained of a bit-field that
+  ;; independent of its 48 bit in no other way resembles a UUID
+  (when (uuid-bit-vector-128-p uuid)
+    (return-from uuid-version (uuid-bit-vector-version uuid)))
+  ;;
+  (locally 
+      (declare (unique-universal-identifier uuid))
+    (when (%unique-universal-identifier-null-p uuid)
+      (return-from uuid-version (values 0 'null-uuid)))
+    (let ((uuid-thav (if (slot-boundp uuid '%uuid_time-high-and-version)
+                         (slot-value uuid '%uuid_time-high-and-version)
+                         ;; (error (make-condition 'unbound-slot 
+                         ;;                        :instance uuid
+                         ;;                        :name '%uuid_time-high-and-version))
+                         (error ' ;;uuid-simple-error
+                          'uuid-slot-unbound
+                          :format-control "slot %UUID_TIME-HIGH-AND-VERSION is not ~
                                               `cl:slot-boundp' in uuid object"))))
-    (declare (uuid-ub16 uuid-thav))
-    (%uuid-uuid-version-if uuid-thav uuid)
-    (or (and (ldb-test (byte 1 13) uuid-thav)
-             (ldb-test (byte 1 12) uuid-thav)
-             3)
-        (and (ldb-test (byte 1 14) uuid-thav)
-             (or (and (ldb-test (byte 1 12) uuid-thav) 5)
-                 (and (not (ldb-test (byte 1 13) uuid-thav)) 4)
-                 (error 'uuid-simple-error
-                        :format-control "something wrong with UUID bit field~% got: ~S"
-                        :format-arguments (list uuid-thav)))))))
+      (declare (uuid-ub16 uuid-thav))
+      (%uuid-uuid-version-if uuid-thav uuid)
+      (or (and (ldb-test (byte 1 13) uuid-thav)
+               (ldb-test (byte 1 12) uuid-thav)
+               3)
+          (and (ldb-test (byte 1 14) uuid-thav)
+               (or (and (ldb-test (byte 1 12) uuid-thav) 5)
+                   (and (not (ldb-test (byte 1 13) uuid-thav)) 4)
+                   (error 'uuid-simple-error
+                          :format-control "something wrong with UUID bit field~% got: ~S"
+                          :format-arguments (list uuid-thav))))))))
 
 ;; (let ((v4 (make-v4-uuid)))
 ;;   (slot-makunbound v4 '%uuid_time-high-and-version)
@@ -499,7 +562,7 @@
        do (uuid-deposit-octet-to-bit-vector (the uuid-ub8 byte) offset uuid-bv128)
        finally (return uuid-bv128))))
 
-;; :NOTE Keep the sxhahs/hash-table stuff here or in a file which comes after unicly-class.lisp 
+;; :NOTE Keep the sxhash/hash-table stuff here or in a file which comes after unicly-class.lisp 
 ;; otherwise the compiler complains about open coding
 (defun sxhash-uuid (uuid)
   (declare (unique-universal-identifier uuid)
@@ -832,10 +895,8 @@
 ;; | The nil UUID is special form of UUID that is specified to have all
 ;; | 128 bits set to zero.
 ;; `----
-(declaim (inline make-null-uuid))
 (defun make-null-uuid ()
   ;; (eq *uuid-null-uuid* (make-null-uuid))
-  ;; :WAS (make-instance 'unique-universal-identifier)
   (declare (inline %unique-universal-identifier-null-p))
   (if (and *uuid-null-uuid*
            (%unique-universal-identifier-null-p *uuid-null-uuid*))
