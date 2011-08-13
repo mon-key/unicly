@@ -33,17 +33,17 @@ Some notable differences between Unicly and Tzonev's uuid:
  - Unicly is developed primarily for speedy minting of v3, v4, and v5 UUIDs.
    On an x86-32 SBCL we have found Unicly's minting of v3/v4/v5 UUIDs to be
    significantly faster (at least 3-5x) than the equivalent code from uuid.
-   See unicly/unicly-timings.lisp for some timing comparions.
+   See unicly/unicly-timings.lisp for some timing comparisons.
 
  - Unicly is extended with support for creating/storing/(de)serializing UUID
    objects as bit vectors.
-   For persistence libraries which make use of hashtables to store their keys
+   For persistence libraries which make use of hash-tables to store their keys
    as UUID objects in hex-string representation there are some potentially big
    gains to be had by moving to a bit-vector base UUID representation.
    For example, on SBCL it is possible to sb-ext:define-hash-table-test which test
    for UUID bit-vector equivalence using equal instead of equalp.
 
- - Unicly is extended with support for preseriving identity of the null-uuid.
+ - Unicly is extended with support for preserving identity of the null-uuid.
    This feature is specified in RFC 4122.
 
  - Unicly prints UUID string representations in case-significant form.
@@ -62,7 +62,7 @@ Some notable differences between Unicly and Tzonev's uuid:
       need for user code to modify their slot values. Obfuscation easy access
       helps prevent this.
 
-    * Because the Unicly interface is similiar to that of the uuid library we've
+    * Because the Unicly interface is similar to that of the uuid library we've
       attempted to prevent trivial visual namespace collision with the slots of
       the uuid library.  Projects using both Unicly and the uuid library may
       benefit from being able to easily distinguish among the two.
@@ -74,18 +74,18 @@ Some notable differences between Unicly and Tzonev's uuid:
    references to the relevant portions of RFC 4122.
 
  - Unicly does not have a trivial-utf-8 dependency
-   * SBCL users can use internal features (assuming a unicode enabled SBCL)
+   * SBCL users can use internal features (assuming a Unicode enabled SBCL)
    * non-SBCL code can use flexi-streams
 
- - Unicly is not released under an LLGPL licencse.
+ - Unicly is not released under an LLGPL licenses.
 
    * If licensing issues are a concern in your project please take a moment to
      investigate unicly/LICENSE.txt
 
-    Although Unicly is initally derived from Tzonev's uuid libary we note that
+    Although Unicly is initially derived from Tzonev's uuid library we note that
     significant portions of that library were in turn strongly derived from the
     non-normative reference implementation source code included of RFC4122 Appendix
-    C as a wholly functional C language source code implemention of RFC4122.
+    C as a wholly functional C language source code implementation of RFC4122.
 
     We believe the original RFC reference implementation and license have clear
     precedent in lieu of the later LLGPL and believe it reasonable to revert to the
@@ -100,9 +100,9 @@ Some notable differences between Unicly and Tzonev's uuid:
     * It requires platform and implementation specific code;
 
     * Minting version 1 UUIDs requires interrogating the MAC address of an
-      ethernet device;
+      Ethernet device;
 
-    * Minting versino 1 UUIDS requires interrogating the system clock -- there
+    * Minting version 1 UUIDS requires interrogating the system clock -- there
       are in general some notoriously nasty bugs which spring from reliance on
       the value of the system clock e.g. cross-platform multi-boot systems...
 
@@ -118,10 +118,10 @@ Some notable differences between Unicly and Tzonev's uuid:
    [1]  RFC 4122 Section 4.5 "Node IDs that Do Not Identify the Host"
    Suggests that a v1 UUID may also be minted from a "47-bit cryptographic
    quality random number" by using it as the bottom 47 bits of the UUID Node id
-   and setting the LSB of the first octe of the UUID node id to 1.
+   and setting the LSB of the first octet of the UUID node id to 1.
    Unfortunately, when attempting to implement this alternative strategy we found that
    Tzonev's uuid library has what we believe to be a bug in uuid:get-node-id in
-   that it sets bit 0 of the the LSByte of a 48bit integer with:
+   that it sets bit 0 of the the LS-Byte of a 48bit integer with:
 
      (setf node (dpb #b01 (byte 8 0) (random #xffffffffffff *random-state-uuid*)))
 
@@ -134,10 +134,10 @@ Some notable differences between Unicly and Tzonev's uuid:
    
   :SEE unicly/unicly-compat.lisp for additional details/discussion.
 
-   We could attempt to accomodate this and propogate the error onward or do the prudent 
-   thing and simply relying on v3, v4, v5 UUIDs instead. 
+   We could attempt to accommodate this and propagate the error onward or do the
+   prudent thing and simply rely on v3, v4, v5 UUIDs instead.
 
-Examples of Common Lisp librarys which make use of UUIDs:
+Examples of Common Lisp libraries which make use of UUIDs:
 
 (URL `https://raw.github.com/kraison/vivace-graph-v2/master/triples.lisp')
 (URL `https://raw.github.com/lisp/de.setf.resource/master/resource-object.lisp')
