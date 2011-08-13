@@ -604,6 +604,16 @@ its source UUID-INSTANCE.~%~@
 :SEE-ALSO `uuid-bit-vector-zeroed', `uuid-byte-array-16-p',
 `uuid-byte-array-null-p', `uuid-byte-array-null'.~%▶▶▶")
 
+(fundoc 'uuid-bit-vector-to-integer
+  "Return BIT-VECTOR's representation as a positive integer.~%~@
+BIT-VECTOR is an object of type `cl:simple-bit-vector'.~%~@
+:EXAMPLE~%
+ \(uuid-bit-vector-to-integer \(uuid-to-bit-vector \(make-v4-uuid\)\)\)~%~@
+:NOTE This is a modified version of a a \"BIT-VECTOR-TO-INTEGER\" function
+written by Stas Boukarev using `cl:flet' and `cl:loop'.
+:SEE :FILE unicly/unicly.lisp for additional details.~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
 (fundoc 'uuid-request-integer
   "Decode an integer of LENGTH octets from ARRAY starting at OFFSET.~%~@
 The number represented by BYTE-ARRAY may be any positive integer representable
