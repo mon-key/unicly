@@ -43,6 +43,7 @@
    #:uuid-bit-vector-32-length          ; TYPE
    #:uuid-bit-vector-16-length          ; TYPE
    #:uuid-bit-vector-8-length           ; TYPE
+   #:uuid-bit-vector-valid-length       ; TYPE
    #:uuid-byte-array-16                 ; TYPE
    #:uuid-byte-array-20                 ; TYPE
    #:uuid-byte-array-null               ; TYPE
@@ -96,6 +97,10 @@
    #:uuid-byte-array-zeroed
    #:uuid-bit-vector-8-zeroed
    #:uuid-octet-to-bit-vector-8
+   #:uuid-bit-vector-48-zeroed 
+   #:uuid-bit-vector-32-zeroed 
+   #:uuid-bit-vector-16-zeroed
+   #:uuid-bit-vector-8-zeroed  
    #:uuid-byte-array-to-bit-vector
    #:uuid-to-bit-vector
    #:uuid-from-byte-array

@@ -47,6 +47,7 @@
                (:file "unicly-utils")
                (:file "unicly-types")
                (:file "unicly-class")
+               (:file "unicly-bit-vectors")
                (:file "unicly-conditions")
                (:file "unicly"      )
                (:file "unicly-docs" )
