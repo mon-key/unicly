@@ -267,28 +267,6 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;; | the second UUID.
 ;; `----
 
-;;; ==============================
-;; :NOTE For 1mil comparisons of two uuid-bit-vectors following timing support
-;; the current implementation using `sb-int:bit-vector-=':
-;; comparison with `cl:equal' completes in 251,812,778 cycles, 0.083328 run-time
-;; comparison with `sb-int:bit-vector-=' without declarations completes in in ~191,959,447 cycles, 0.063329 run-time
-;; comparison with `sb-int:bit-vector-=' with declartions completes in ~170,661,197, 0.05555199 run-time
-;; The alternative definition is not altogether inferior but can't be made surpass SBCL's internal transforms
-(defun uuid-bit-vector-eql (uuid-bv-a uuid-bv-b)
-  (declare (uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
-           (optimize (speed 3)))
-  #-sbcl 
-  (if (and (= (count 0 uuid-bv-a :test #'=) (count 0 uuid-bv-b :test #'=))
-           (= (count 1 uuid-bv-a :test #'=) (count 1 uuid-bv-b :test #'=)))
-      (loop 
-         for low-idx from 0 below 64
-         for top-idx = (logxor low-idx 127)
-         always (and (= (sbit uuid-bv-a low-idx) (sbit uuid-bv-b low-idx))
-                     (= (sbit uuid-bv-a top-idx) (sbit uuid-bv-b top-idx)))))
-  #+sbcl 
-  (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b))
- 
-
 
 ;;; ==============================
 ;; :TODO Find the best test for this and incorporate with generic fun `uuid-eql'

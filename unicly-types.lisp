@@ -111,6 +111,17 @@
 (deftype uuid-bit-vector-8-length ()
   '(uuid-bit-vector-length 8))
 
+(deftype uuid-bit-vector-valid-length ()
+  '(or 
+    uuid-bit-vector-128-length
+    uuid-bit-vector-48-length
+    uuid-bit-vector-32-length
+    uuid-bit-vector-16-length
+    uuid-bit-vector-8-length))
+
+(deftype uuid-bit-vector-index (index-range)
+  `(mod ,index-range))
+
 (deftype uuid-bit-vector-null ()
   '(and uuid-bit-vector-128
     (satisfies %uuid-bit-vector-null-p)))

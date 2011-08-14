@@ -27,6 +27,7 @@ unicly-specials.lisp
 unicly-types.lisp
 unicly-class.lisp
 unicly.lisp
+unicly-bit-vectors.lisp
 unicly-docs.lisp
 unicly-loadtime-bind.lisp
 unicly-tests.lisp
