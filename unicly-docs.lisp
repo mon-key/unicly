@@ -472,6 +472,168 @@ frob objects of type `uuid-hex-string-36'.~%~@
 
 
 ;;; ==============================
+;;; :UUID-MACRO-DOCUMENTATION
+;;; ==============================
+
+(fundoc 'def-uuid-type-definer
+        "Convenience macro for use by macros which define uuid sub-type specifiers.~%~@
+Arg PARENT-TYPE is an unquoted symbol naming a uuid-type specifer which
+accepts a positive integer value as an argument.~%~@
+FORMAT-STRING is a format-string used to generate the symbol-name of the type to be defined.
+The types defined with by expanders of this macro have an integer value as
+part of theier symbol name, as such format-string should contain the
+format-control flag \"~~D\" in an appropriate position.~%~@
+LENGTH-ARG an positive integer value. It is used as the format-argument to
+FORMAT-STRING and as the argument to its PARENT-TYPE.~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(def-uuid-type-definer uuid-bit-vector \"UUID-BIT-VECTOR-~~D\" 128\)\)~%~@
+:SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
+`def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
+`def-uuid-unsigned-byte-integer-length',
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+
+(fundoc 'def-uuid-unsigned-byte-size
+"Convenience macro for defining subtypes of type `uuid-unsigned-byte-size'.~%~@
+Arg SIZE-BYTES is an positive integer value indicating the size of an unsigned-byte.~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(def-uuid-unsigned-byte-size 128\)\)~%~@
+:SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
+`def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
+`def-uuid-unsigned-byte-integer-length',
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+
+(fundoc 'def-uuid-bit-vector-N-type
+        "Convenience macro for defining subtypes of type `uuid-bit-vector'.~%~@
+Arg BV-LENGTH-TYPE is an positive integer value indicating the number of bits in a uuid-bit-vector.~%~@
+:EXAMPLE~%
+  \(macroexpand-1 '\(def-uuid-bit-vector-N-type 16\)\)~%~@
+:SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
+`def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
+`def-uuid-unsigned-byte-integer-length',
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+
+(fundoc 'def-uuid-bit-vector-length-type
+        "Convenience macro for defining subtypes of type `uuid-bit-vector-length'.~%~@
+Arg BV-LENGTH is an positive integer value indicating the length of a uuid-bit-vector.~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(def-uuid-bit-vector-length-type 16\)\)~%~@
+:SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
+`def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
+`def-uuid-unsigned-byte-integer-length',
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+
+(fundoc 'def-uuid-byte-array-length
+        "Convenience macro for defining subtypes of type `uuid-byte-array'.~%~@
+BYTE-ARRAY-LENGTH is a positive integer indication the length of a simple-array with elements of type `uuid-ub8'.
+:EXAMPLE~%~@
+ \(macroexpand-1 '\(def-uuid-byte-array-length 16\)\)~%~@
+:SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
+`def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
+`def-uuid-unsigned-byte-integer-length',
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+
+(fundoc 'def-uuid-unsigned-byte-integer-length
+"Convenience macro for defining subtypes of type `uuid-unsigned-byte-integer-length'.~%~@
+Arg UNSIGNED-LENGTH is an positive integer value indicating the
+integer-length of the integer represetned at the upper-bounds of an
+unsigned-byte.~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(def-uuid-unsigned-byte-integer-length 16\)\)~%~@
+:SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
+`def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
+`def-uuid-unsigned-byte-integer-length',
+`def-uuid-uuid-hex-string-length'.~%▶▶▶")
+
+(fundoc 'def-uuid-uuid-hex-string-length
+"Convenience macro for defining subtypes of type `uuid-hex-string-length'.~%~@
+Arg HEX-STRING-LENGTH is an positive integer value indicating the length of a simple-array of characters.~%~@
+:EXAMPLE~%
+\(macroexpand-1 '\(def-uuid-uuid-hex-string-length 12\)\)~%~@
+:SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
+`def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
+`def-uuid-unsigned-byte-integer-length',
+`def-uuid-uuid-hex-string-length'.~%▶▶▶")
+
+(fundoc 'def-indexed-hexstring-integer-parser
+        "Convenience macro for defining functions which `cl:parse-integer' of the
+simple-array character elements returnd as nth-value 1 as an object of type
+`uuid-simple-vector-5' by `uuid-hex-string-36-p'~%~@
+FUN-NAME is a string used when generating a function-name to intern in the UNICLY package.
+String should not be preceded/trailed by #\\- or whitespace.~%~@
+Arg VEC-INDEX is an integer value of type (mod 5) indicating an index into the
+return value of `uuid-hex-string-36-p'.~%~@
+Arg STRING-TYPE-AT-INDEX is an unqouted symol naming a subtype of
+`uuid-hex-string-length'. Valid types are:~%
+ `uuid-hex-string-8' `uuid-hex-string-4' `uuid-hex-string-12'~%~@
+Arg STRING-START is a postivie integer indicating the lower bounds of the
+hex-string located at VEC-INDEX.~%~@
+Arg STRING-END is a postivie integer value indicating an upper bounds of the
+hex-string located at VEC-INDEX.~%~@
+STRING-INTEGER-TYPE Is an unquoted symbol naming an uuid unsigned-byte type to
+declare for the value returned by `cl:parse-integer' of the string at
+VEC-INDEX. Valid types are:~%
+ `uuid-ub32' `uuid-ub16' `uuid-ub8' `uuid-ub48'~%~@
+Expands to a function defining form with the following format:~%
+ \(defun <FUN-NAME> \(hex-vector-5\)
+   \(declare \(uuid-simple-vector-5 hex-vector-5\)
+            \(optimize \(speed 3\)\)\)
+   \(uuid-string-parse-integer 
+    \(uuid-svref-for-parse-integer HEX-VECTOR-5 <VEC-INDEX> <STRING-TYPE-AT-INDEX>\)
+    <STRING-START> <STRING-END> <STRING-INTEGER-TYPE> \)\)~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(def-indexed-hexstring-integer-parser
+                  \"time-low\"
+                  0
+                  uuid-hex-string-8
+                  0 8 uuid-ub32\)\)~%~@
+:SEE-ALSO `uuid-hex-vector-parse-time-low', `uuid-hex-vector-parse-time-mid',
+`uuid-hex-vector-parse-time-high-and-version',
+`uuid-hex-vector-parse-clock-seq-and-reserved',
+`uuid-hex-vector-parse-clock-seq-low', `uuid-hex-vector-parse-node'.~%▶▶▶")
+
+(fundoc 'uuid-svref-for-parse-integer
+        "Convenience macro for declared references to STRING-TYPEs at INDEX of SIMPLE-VECTOR-5.~%~@
+Wrapped by macros `def-indexed-hexstring-integer-parser' and `uuid-string-parse-integer'.~%~@
+SIMPLE-VECTOR-5 is an object of type `uuid-simple-vector-5' as returned as the
+`cl:nth-value' 1 of `uuid-hex-string-36-p'.~%~@
+STRING-TYPE is a subtype of `uuid-hex-string-length' ~%~@
+Arg STRING-TYPE is an unqouted symol naming the type of string at INDEX. It
+should be a subtype of `uuid-hex-string-length'. Valid types are:~%
+`uuid-hex-string-8' `uuid-hex-string-4' `uuid-hex-string-12'~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(uuid-svref-for-parse-integer
+                  \(nth-value 1 \(uuid-hex-string-36-p \(uuid-princ-to-string \(make-v4-uuid\)\)\)\)
+                  4 uuid-hex-string-12\)\)~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
+(fundoc 'uuid-string-parse-integer
+"Helper macro for `make-uuid-from-string' to `cl:parse-integer' a hex-string.~%~@
+Wraps macro `uuid-svref-for-parse-integer'.~%~@
+Wrapped by macro `def-indexed-hexstring-integer-parser'.~%~@
+Arg UUID-HEX-STRING is a `uuid-hex-string-36' or a subtype.~%~@
+Arg START is a lower bounds indexing into UUID-HEX-STRING.~%~@
+Arg END is an upper bounds indexing into UUID-HEX-STRING.~%~@
+INTEGER-TYPE is an unquoted symbol naming the type of uuid-unsigned-byte-size to
+declare for the value returned by `cl:parse-integer' of the hex-string at at
+index bounded by START and END Valid types are:~%
+ `uuid-ub32' `uuid-ub16' `uuid-ub8' `uuid-ub48'~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(uuid-string-parse-integer \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\" 0 8 uuid-ub32\)\)~%~@
+ \(let \(\(uuid-str \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\)
+       \(parse-specs '\(\(0   8 uuid-ub32\)
+                      \(9  13 uuid-ub16\)
+                      \(14 18 uuid-ub16\)
+                      \(19 21 uuid-ub8\)
+                      \(21 23 uuid-ub8\)
+                      \(24 36 uuid-ub48\)\)\)
+       \(gthr '\(\)\)\)
+   \(dolist \(m parse-specs \(setf gthr \(nreverse gthr\)\)\)
+     \(push \(apply #'uuid-string-parse-integer m\) gthr\)\)\)~%~@
+:SEE-ALSO `make-uuid-from-string-if'.~%▶▶▶")
+
+
+
+;;; ==============================
 ;;; :UUID-TYPE-PREDICATE-DOCUMENTATION
 ;;; ==============================
 
@@ -1076,22 +1238,6 @@ If the constraint fails signal a `mon:simple-error-mon' condition.~%~@
  \(make-uuid-from-string-if \"6ba7b810-9dad--11d1-80b4-00c04fd430c8\"\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-(fundoc 'uuid-string-parse-integer
-"Helper macro for `make-uuid-from-string'~%~@
-:EXAMPLE~%
- \(macroexpand-1 '\(uuid-string-parse-integer \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\" 0 8 uuid-ub32\)\)~%~@
- \(let \(\(uuid-str \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\)
-       \(parse-specs '\(\(0   8 uuid-ub32\)
-                      \(9  13 uuid-ub16\)
-                      \(14 18 uuid-ub16\)
-                      \(19 21 uuid-ub8\)
-                      \(21 23 uuid-ub8\)
-                      \(24 36 uuid-ub48\)\)\)
-       \(gthr '\(\)\)\)
-   \(dolist \(m parse-specs \(setf gthr \(nreverse gthr\)\)\)
-     \(push \(apply #'uuid-string-parse-integer m\) gthr\)\)\)~%~@
-:SEE-ALSO `make-uuid-from-string-if'.~%▶▶▶")
-
 (fundoc 'make-uuid-from-string ; ######
  "Create an instance of class UNIQUE-UNIVERSAL-IDENTIFIER from UUID-OR-HEX-STRING-36.~%~@
 UUID-OR-HEX-STRING-36 is an object of type UNIQUE-UNIVERSAL-IDENTIFIER or UUID-OR-HEX-STRING-36.
@@ -1157,8 +1303,6 @@ However, RFC4122 doesn't specify that any sub-value of the UUID will be 3
 octet integer so we play it safe and bump that puppy up to four.~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-
-
 #+nil
 (fundoc 'uuid-digest-uuid-string ; ######
   "Helper function producing an ironclad digest.~%~@
@@ -1172,7 +1316,6 @@ Used for the generation of UUIDv3 and UUIDv5 UUID by `make-v5-uuid' and `make-v3
 :EXAMPLE~%~@
  \(uuid-digest-uuid-string 5 \(uuid-get-bytes \(uuid-print-bytes nil *uuid-namespace-dns*\)\) \"bubba\"\)
 :SEE-ALSO `<XREF>'.~%▶▶▶")
-
 
 
 ;;; ==============================

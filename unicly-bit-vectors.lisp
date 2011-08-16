@@ -6,31 +6,6 @@
 (in-package #:unicly)
 ;; *package*
 
-(defmacro declared-uuid-array-zeroed-of-size (size array-type array-elt-type)
-  `(the ,array-type
-     (make-array ,size :element-type ',array-elt-type :initial-element 0)))
-
-;; (declared-uuid-array-zeroed-of-size 16 uuid-byte-array-16 uuid-ub8)
-
-(defmacro declared-uuid-bit-vector-zeroed-of-size (size bit-vector-type)
-  ;; (macroexpand-1 '(declared-uuid-bit-vector-zeroed-of-size 16 uuid-bit-vector-16))
-  ;; `(the ,bit-vector-type (make-array ,size :element-type 'bit :initial-element 0))
-  `(declared-uuid-array-zeroed-of-size ,size ,bit-vector-type bit))
-
-(defmacro def-uuid-bit-vector-zeroed (name size)
-  `(defun ,name ()
-     (uuid-bit-vector-zeroed-of-size ,size)))
-
-;; (defmacro @uuid-bit-vector (bit-vector-type bit-vector index)
-;;   `(sbit (the ,bit-vector-type ,bit-vector) ,index))
-
-(declaim (inline uuid-byte-array-zeroed))
-(defun uuid-byte-array-zeroed ()
-    (declare (optimize (speed 3)))
-    ;; (the uuid-byte-array-16
-    ;;   (make-array 16 :element-type 'uuid-ub8 :initial-element 0))
-    (declared-uuid-array-zeroed-of-size 16 uuid-byte-array-16 uuid-ub8))
-
 (defun uuid-bit-vector-zeroed-of-size (size)
   (declare (uuid-bit-vector-valid-length size)
            (optimize (speed 3)))
@@ -46,17 +21,26 @@
     (uuid-bit-vector-8-length 
      (declared-uuid-bit-vector-zeroed-of-size size uuid-bit-vector-8))))
 
+(declaim (inline uuid-byte-array-zeroed))
+(defun uuid-byte-array-zeroed ()
+    (declare (optimize (speed 3)))
+    ;; (the uuid-byte-array-16
+    ;;   (make-array 16 :element-type 'uuid-ub8 :initial-element 0))
+    (declared-uuid-array-zeroed-of-size 16 uuid-byte-array-16 uuid-ub8))
+
 (declaim (inline uuid-bit-vector-zeroed
                  uuid-bit-vector-32-zeroed
                  uuid-bit-vector-16-zeroed
                  uuid-bit-vector-8-zeroed))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (def-uuid-bit-vector-zeroed uuid-bit-vector-zeroed    128)
-  (def-uuid-bit-vector-zeroed uuid-bit-vector-48-zeroed 48)
-  (def-uuid-bit-vector-zeroed uuid-bit-vector-32-zeroed 32)
-  (def-uuid-bit-vector-zeroed uuid-bit-vector-16-zeroed 16)
-  (def-uuid-bit-vector-zeroed uuid-bit-vector-8-zeroed  8))
+;; (eval-when (:compile-toplevel :load-toplevel :execute)
+;;
+(def-uuid-bit-vector-zeroed uuid-bit-vector-zeroed    128)
+(def-uuid-bit-vector-zeroed uuid-bit-vector-48-zeroed 48)
+(def-uuid-bit-vector-zeroed uuid-bit-vector-32-zeroed 32)
+(def-uuid-bit-vector-zeroed uuid-bit-vector-16-zeroed 16)
+(def-uuid-bit-vector-zeroed uuid-bit-vector-8-zeroed  8)
+;; )
 
 ;;; ==============================  
 ;; :NOTE For both `uuid-bit-vector-zeroed' and `uuid-bit-vector-8-zeroed' we

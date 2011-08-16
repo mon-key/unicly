@@ -697,54 +697,32 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
                    :%uuid_clock-seq-low           %uuid_clock-seq-low
                    :%uuid_node                    %uuid_node)))
 
-(defmacro uuid-string-parse-integer (uuid-hex-string start end integer-type)
-  ;; (macroexpand-1 '(uuid-string-parse-integer "6ba7b810-9dad-11d1-80b4-00c04fd430c8" 0 8 uuid-ub32))
-  `(the ,integer-type (parse-integer ,uuid-hex-string :start ,start :end ,end :radix 16)))
-
-
-;;; ==============================
-;; (uuid-svref-for-parse-integer <VECTOR> <INDEX> <STRING-TYPE>)
+;; (eval-when (:compile-toplevel :load-toplevel :execute)
 ;;
-;; (macroexpand-1
-;;  '(uuid-svref-for-parse-integer
-;;    (nth-value 1 (uuid-hex-string-36-p (uuid-princ-to-string (make-v4-uuid))))
-;;    4 uuid-hex-string-12))
-(defmacro uuid-svref-for-parse-integer (simple-vector-5 index string-type)
-  `(the ,string-type (svref (the uuid-simple-vector-5 ,simple-vector-5) ,index)))
-
-;;; ==============================
-;; (uuid-string-parse-integer 
-;;  (uuid-svref-for-parse-integer <VECTOR> <INDEX> <STRING-TYPE>)
-;;  <START> <END> <INTEGER-TYPE> )
+(declaim (inline uuid-hex-vector-parse-time-low
+                 uuid-hex-vector-parse-time-mid
+                 uuid-hex-vector-parse-time-high-and-version
+                 uuid-hex-vector-parse-clock-seq-and-reserved
+                 uuid-hex-vector-parse-clock-seq-low
+                 uuid-hex-vector-parse-node))
 ;;
-;; (macroexpand '(def-indexed-hexstring-integer-parser
-;;                  uuid-hex-vector-parse-time-low
-;;                  0
-;;                  uuid-hex-string-8
-;;                  0 8 uuid-ub32))
-(defmacro def-indexed-hexstring-integer-parser (fun-name vec-index string-type-at-index string-start string-end string-integer-type)
-  `(defun ,fun-name (hex-vector-5)
-     (declare (uuid-simple-vector-5 hex-vector-5))
-     (uuid-string-parse-integer 
-      (uuid-svref-for-parse-integer hex-vector-5 ,vec-index ,string-type-at-index)
-      ,string-start ,string-end ,string-integer-type)))
+(def-indexed-hexstring-integer-parser  "TIME-LOW"               0 uuid-hex-string-8  0 8  UUID-UB32)
+(def-indexed-hexstring-integer-parser  "TIME-MID"               1 uuid-hex-string-4  0 4  uuid-ub16)
+(def-indexed-hexstring-integer-parser  "TIME-HIGH-AND-VERSION"  2 uuid-hex-string-4  0 4  uuid-ub16)
+(def-indexed-hexstring-integer-parser  "CLOCK-SEQ-AND-RESERVED" 3 uuid-hex-string-4  0 2  uuid-ub8)
+(def-indexed-hexstring-integer-parser  "CLOCK-SEQ-LOW"          3 uuid-hex-string-4  2 4  uuid-ub8)
+(def-indexed-hexstring-integer-parser  "NODE"                   4 uuid-hex-string-12 0 12 uuid-ub48)
+;;
+;; )
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-time-low 0 uuid-hex-string-8 0 8 uuid-ub32)
-  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-time-mid 1 uuid-hex-string-4 0 4 uuid-ub16)
-  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-time-high-and-version 2 uuid-hex-string-4 0 4 uuid-ub16)
-  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-clock-seq-and-reserved 3 uuid-hex-string-4 0 2 uuid-ub8)
-  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-clock-seq-low 3 uuid-hex-string-4 2 4 uuid-ub8)
-  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-node 4 uuid-hex-string-12 0 12 uuid-ub48))
 
 ;;; ==============================
 ;; :TODO This should also check for a uuid-hex-string-32 and return a symbol
 ;; naming the appropriate dispatch function for the correct offsets.
 (declaim (inline make-uuid-from-string-if))
 (defun make-uuid-from-string-if (uuid-hex-string-36-if)
-  (declare 
-   (inline uuid-hex-string-36-p)
-   (optimize (speed 3)))
+  (declare (inline uuid-hex-string-36-p)
+           (optimize (speed 3)))
   (multiple-value-bind (if-36 vector-5-or-null-uuid) (uuid-hex-string-36-p uuid-hex-string-36-if)
     (declare (boolean if-36)
              ((or null function uuid-simple-vector-5) vector-5-or-null-uuid))

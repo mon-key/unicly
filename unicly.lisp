@@ -852,11 +852,15 @@
 (defun make-uuid-from-string (uuid-or-hex-string-36)
   (declare ((or unique-universal-identifier string) uuid-or-hex-string-36)
            (inline make-uuid-from-string-if
-                   uuid-hex-string-36-p)
+                   uuid-hex-string-36-p
+                   uuid-hex-vector-parse-time-low uuid-hex-vector-parse-time-mid
+                   uuid-hex-vector-parse-time-high-and-version
+                   uuid-hex-vector-parse-clock-seq-and-reserved
+                   uuid-hex-vector-parse-clock-seq-low uuid-hex-vector-parse-node)
            (optimize (speed 3)))
   (let ((chk-uuid-str (etypecase uuid-or-hex-string-36
                         (unique-universal-identifier 
-                         (return-from make-uuid-from-string (uuid-copy-uuid uuid-or-hex-string-36)))
+                         (return-from make-uuid-from-string (the unique-universal-identifier (uuid-copy-uuid uuid-or-hex-string-36))))
                         (string 
                          (let ((vec-or-fun (make-uuid-from-string-if uuid-or-hex-string-36)))
                            (declare ((or function uuid-simple-vector-5) vec-or-fun))
@@ -867,24 +871,16 @@
                                 (return-from make-uuid-from-string
                                   (the unique-universal-identifier-null null-id))))
                              (uuid-simple-vector-5 (the uuid-simple-vector-5 vec-or-fun))))))))
-    (declare
-     (uuid-simple-vector-5 chk-uuid-str)
-     (optimize (speed 3)))
-    ;; (make-instance 'unique-universal-identifier
-    ;;                :%uuid_time-low               (uuid-string-parse-integer (svref chk-uuid-str 0) 0  8 uuid-ub32) 
-    ;;                :%uuid_time-mid               (uuid-string-parse-integer (svref chk-uuid-str 1) 0  4 uuid-ub16)
-    ;;                :%uuid_time-high-and-version  (uuid-string-parse-integer (svref chk-uuid-str 2) 0  4 uuid-ub16)
-    ;;                :%uuid_clock-seq-and-reserved (uuid-string-parse-integer (svref chk-uuid-str 3) 0  2 uuid-ub8)
-    ;;                :%uuid_clock-seq-low          (uuid-string-parse-integer (svref chk-uuid-str 3) 2  4 uuid-ub8)
-    ;;                :%uuid_node                   (uuid-string-parse-integer (svref chk-uuid-str 4) 0 12 uuid-ub48))
-    (make-instance 'unique-universal-identifier
-                   :%uuid_time-low               (uuid-hex-vector-parse-time-low chk-uuid-str)
-                   :%uuid_time-mid               (uuid-hex-vector-parse-time-mid chk-uuid-str)
-                   :%uuid_time-high-and-version  (uuid-hex-vector-parse-time-high-and-version  chk-uuid-str)
-                   :%uuid_clock-seq-and-reserved (uuid-hex-vector-parse-clock-seq-and-reserved chk-uuid-str)
-                   :%uuid_clock-seq-low          (uuid-hex-vector-parse-clock-seq-low chk-uuid-str)
-                   :%uuid_node                   (uuid-hex-vector-parse-node  chk-uuid-str))
-    ))
+    (declare ;;(optimize (speed 3))
+     (uuid-simple-vector-5 chk-uuid-str))
+    (the unique-universal-identifier
+      (make-instance 'unique-universal-identifier
+                     :%uuid_time-low               (uuid-hex-vector-parse-time-low               chk-uuid-str)
+                     :%uuid_time-mid               (uuid-hex-vector-parse-time-mid               chk-uuid-str)
+                     :%uuid_time-high-and-version  (uuid-hex-vector-parse-time-high-and-version  chk-uuid-str)
+                     :%uuid_clock-seq-and-reserved (uuid-hex-vector-parse-clock-seq-and-reserved chk-uuid-str)
+                     :%uuid_clock-seq-low          (uuid-hex-vector-parse-clock-seq-low          chk-uuid-str)
+                     :%uuid_node                   (uuid-hex-vector-parse-node                   chk-uuid-str)))))
 
 
 ;;; ==============================
