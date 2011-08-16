@@ -11,21 +11,6 @@
 ;; `---- :SEE http://ccs.mit.edu/papers/CCSWP150.html
 
 
-;;; ==============================
-;;; :LOGICAL-PATHNAMES
-;;; ==============================
-;;;
-;;; (logical-pathname-translations "MON")
-;;; (translate-logical-pathname  "MON:unicly;")
-;;;
-;;; (push (translate-logical-pathname  "MON:unicly;") asdf:*central-registry*)
-;;;
-;;; Finding current fasls:
-;;; (logical-pathname-translations "FASL")
-;;; (translate-logical-pathname "FASL:unicly;")
-;;;
-;;; ==============================
-
 
 (defpackage #:unicly-asd (:use #:common-lisp #:asdf))
 

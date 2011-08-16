@@ -286,9 +286,6 @@ UNICLY> (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-def
 ;=> c0f2a167-dae7-55c0-ad57-1d8bad0444d3
 
 Note that each object returned by MAKE-V5-UUID has unique identity even under CL:EQUALP:
-(equalp
- (make-v5-uuid *mon-fabulous-namespace* (namestring (user-homedir-pathname)))
- (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-defaults*)))
 
 UNICLY> (equalp (make-v5-uuid *mon-fabulous-namespace* (namestring (user-homedir-pathname)))
                 (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-defaults*)))
@@ -328,7 +325,6 @@ UNICLY> (with-open-file (persist (make-pathname :directory '(:absolute "tmp")
 
 UNICLY> (setf *mon-fabulous-namespace* nil)
 ;=> NIL
-
 
 To restore the UUID to *mon-fabulous-namespace* just read in the contents of the file:
 
