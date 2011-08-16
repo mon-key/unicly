@@ -14,21 +14,21 @@ Unicly has a similar interface to Boian Tzonev's Common Lisp library uuid:
 
 Indeed, the core of Unicly is derived from Tzonev's uuid codebase.
 
-However, Unicly deviates in some not insignificant ways Tzonev's uuid and while
-we have made to create a compatibility layer between the two libraries they UUID
-objects generated with Unicly can not be used interchangeably with those of
-Tzonev's uuid.
+However, Unicly deviates in some not insignificant ways from Tzonev's uuid and
+while we have made some attempt to create a compatibility layer between the two
+libraries the UUID objects generated with Unicly can not be used interchangeably
+with those of Tzonev's uuid.
 
 Some notable differences between Unicly and Tzonev's uuid:
 
  - Unicly is developed on SBCL 
 
-   * many routines are targeted towards making use SBCL specific features.
+   * Many routines are targeted towards making use of SBCL specific features.
 
    * It is highly declaration bound and inlined.
 
-   * I do not test on implementations other than SBCL but code for generating
-     v3, v4, and v5 UUIDs *should* run portably on others ;}
+   * I do not test on implementations other than SBCL, but code for generating
+     v3, v4, and v5 UUIDs *should* run portably on other Common Lisps ;}
 
  - Unicly is developed primarily for speedy minting of v3, v4, and v5 UUIDs.
    On an x86-32 SBCL we have found Unicly's minting of v3/v4/v5 UUIDs to be
@@ -37,11 +37,16 @@ Some notable differences between Unicly and Tzonev's uuid:
 
  - Unicly is extended with support for creating/storing/(de)serializing UUID
    objects as bit vectors.
-   For persistence libraries which make use of hash-tables to store their keys
-   as UUID objects in hex-string representation there are some potentially big
-   gains to be had by moving to a bit-vector base UUID representation.
-   For example, on SBCL it is possible to sb-ext:define-hash-table-test which test
-   for UUID bit-vector equivalence using equal instead of equalp.
+
+   * For persistence libraries which make use of hash-tables to store their keys
+     as UUID objects in hex-string-36 representation there are some potentially big
+     gains to be had by moving to a bit-vector base UUID representation.
+   
+     For example, on SBCL it is possible to SB-EXT:DEFINE-HASH-TABLE-TEST which
+     tests for UUID bit-vector equivalence using UUID-BIT-VECTOR-EQL instead of
+     CL:EQUAL instead of CL:EQUALP.
+     (Underneath the covers UUID-BIT-VECTOR-EQL invokes SB-INT:BIT-VECTOR-=
+      A nearly equivalent routine is provided for other CLs)
 
  - Unicly is extended with support for preserving identity of the null-uuid.
    This feature is specified in RFC 4122.
@@ -50,23 +55,26 @@ Some notable differences between Unicly and Tzonev's uuid:
    This feature is specified in RFC 4122 Section 3. "Namespace Registration Template"
    as follows:
 
-   ,----
-   | The hexadecimal values "a" through "f" are output as lower case characters
-   | and are case insensitive on input.
-   `----
+    ,----
+    | The hexadecimal values "a" through "f" are output as lower case characters
+    | and are case insensitive on input.
+    `----
 
- - Unicly defines its base UUID class as unique-universal-identifier instead of uuid.
+ - Unicly defines its base UUID class as UNIQUE-UNIVERSAL-IDENTIFIER instead of as the class UUID.
 
- - Unicly does not expose accessors for the slots of the UUID class unique-universal-identifier.
-   UUIDS should be considered immutable once minted and there should be no need
-   for user code to modify their slot values.
+ - Unicly does not expose accessors for the slots of the UUID class
+   UNIQUE-UNIVERSAL-IDENTIFIER.
 
- - Unicly slot-names for the base class unique-universal-identifier are strongly
+   * Our opinion is that UUIDs should be considered immutable once minted and
+     there should be no need for user code to modify their slot values.
+
+ - Unicly slot-names for the base class UNIQUE-UNIVERSAL-IDENTIFIER are strongly
    namespaced with "%uuid_". This intent here is twofold:
 
-    * UUIDS should be considered immutable once minted and there should be no
-      need for user code to modify their slot values. Obfuscation easy access
-      helps prevent this.
+    * Again, UUIDs should be considered immutable once minted. There should be
+      no need for user code to directly modify a UUIDs slot values. Obfuscating
+      easy access to the class slots of UNIQUE-UNIVERSAL-IDENTIFIER helps
+      prevent this.
 
     * Because the Unicly interface is similar to that of the uuid library we've
       attempted to prevent trivial visual namespace collision with the slots of
@@ -74,14 +82,19 @@ Some notable differences between Unicly and Tzonev's uuid:
       benefit from being able to easily distinguish among the two.
 
  - Unicly's printing of a UUIDs string representation is not always conformant with ANSI spec. 
-   The UUID CL:PRINT-OBJECT method is not wrapped around PRINT-UNREADABLE-OBJECT.
 
- - Unicly interface is extensively documented and source-code is commented with
-   references to the relevant portions of RFC 4122.
+    * The UUID CL:PRINT-OBJECT method for the class UNIQUE-UNIVERSAL-IDENTIFIER is
+      not wrapped around PRINT-UNREADABLE-OBJECT.
 
- - Unicly does not have a trivial-utf-8 dependency
+ - Unicly's interface is extensively documented 
+
+ - Unicly's source-code is commented with references to the relevant portions of RFC 4122.
+
+ - Unicly does not have a dependency on trivial-utf-8
+
    * SBCL users can use internal features (assuming a Unicode enabled SBCL)
-   * non-SBCL code can use flexi-streams
+
+   * non-SBCL code can (and should) use flexi-streams instead 
 
  - Unicly is not released under an LLGPL licenses.
 
@@ -300,10 +313,9 @@ forms other than strings and illustrate some cleaner ways to interrogate UUID
 equality.
 
 So, now that you've got a handle on a fabulous UUID namespace how do you persist it?
-The quick an dirty way is to write the UUID string representation of
+The quick and dirty way is to write the UUID string representation of
 *MON-FABULOUS-NAMESPACE* to a file somewhere.
 
-(Here we prin1 the UUID string representation. there are other ways)
 UNICLY> (with-open-file (persist (make-pathname :directory '(:absolute "tmp") 
                                                 :name "persisted-fabulous-namespace"
                                                 :type "uuid")
@@ -314,29 +326,26 @@ UNICLY> (with-open-file (persist (make-pathname :directory '(:absolute "tmp")
           (prin1 *MON-FABULOUS-NAMESPACE*  persist))
 ;=> "e5c2a048-863f-5c7d-a894-607070d2d299"
 
-(setf *MON-FABULOUS-NAMESPACE* (make-uuid-from-string "e5c2a048-863f-5c7d-a894-607070d2d299"))
-
 UNICLY> (setf *mon-fabulous-namespace* nil)
 ;=> NIL
 
-;; (setq *mon-fabulous-namespace* (make-uuid-from-string "e5c2a048-863f-5c7d-a894-607070d2d299"))
 
-To restore the UUID to *mon-fabulous-namespace* just read in the contents of the
-file:
+To restore the UUID to *mon-fabulous-namespace* just read in the contents of the file:
+
 UNICLY> (with-open-file (persist (make-pathname :directory
                                                 '(:absolute "tmp")
                                                 :name "persisted-fabulous-namespace"
                                                 :type "uuid")
                                  :direction :input
                                  :if-does-not-exist :error)
-          ;;"e5c2a048-863f-5c7d-a894-607070d2d299")
           (setf *mon-fabulous-namespace* 
                 (make-uuid-from-string (read-line  persist))))
 ;=> e5c2a048-863f-5c7d-a894-607070d2d299
 
-Following examples illustrate some more of uses of the Unicly interface.  We use
-the value of the v4-uuid in the variable *UNIQUE-RANDOM-NAMESPACE* defined
-earlier above, but feel free to substitute *MON-FABULOUS-NAMESPACE* (or
+Following examples illustrate some more uses of the Unicly interface. 
+
+We use the value of the v4-uuid in the variable *UNIQUE-RANDOM-NAMESPACE*
+defined earlier above, but feel free to substitute *MON-FABULOUS-NAMESPACE* (or
 equivalent).
 
 UNICLY> (uuid-eql 
