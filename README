@@ -48,6 +48,12 @@ Some notable differences between Unicly and Tzonev's uuid:
 
  - Unicly prints UUID string representations in case-significant form.
    This feature is specified in RFC 4122 Section 3. "Namespace Registration Template"
+   as follows:
+
+   ,----
+   | The hexadecimal values "a" through "f" are output as lower case characters
+   | and are case insensitive on input.
+   `----
 
  - Unicly defines its base UUID class as unique-universal-identifier instead of uuid.
 
@@ -153,202 +159,359 @@ RFC 4122:
 
 (URL `http://www.ietf.org/rfc/rfc4122.txt')
 
-Usage
+Installlation:
 
- (make-v4-uuid)
- ;=> 2f20bdfa-cd67-4150-8500-80c94821bbda
+SHELL> cd /parent/dir/where/you/put/cl-repos/
+SHELL> git clone git://github.com/mon-key/unicly.git 
+SHELL> cd unicly
 
- (defparameter *unique-random-namespace* 
-   (format nil "~S" (unicly:make-v4-uuid)))
- ;=> *UNIQUE-RANDOM-NAMESPACE*
+Usage 
 
- *UNIQUE-RANDOM-NAMESPACE*
- ;=> "77b84745-ab13-49c6-8fdc-9afaabc51c52"
+Unicly is loadable by Quicklisp assuming your directory containing unicly.asd is
+present in ASDF:*CENTRAL-REGISTRY*
 
- (setf *unique-random-namespace* 
-       (make-uuid-from-string *unique-random-namespace*))
- ;=> 77b84745-ab13-49c6-8fdc-9afaabc51c52
+CL-USER> (push #P"/parent/dir/where/you/put/cl-repos/unicly/" asdf:*central-registry*)
 
- *unique-random-namespace*
- ;=> 77b84745-ab13-49c6-8fdc-9afaabc51c52
+CL-USER> (quicklisp:quickload 'unicly)
 
- (uuid-as-urn-string nil *unique-random-namespace*)
- ;=> "urn:uuid:77b84745-ab13-49c6-8fdc-9afaabc51c52"
+Or for the perverse who'd like to see what their lisp can't optimize away:
 
- (make-v5-uuid *unique-random-namespace* "bubba")
- ;=> 065944a4-7566-53b2-811b-11a20e0bfed2
+CL-USER> (quicklisp:quickload 'unicly :verbose t :explain t)
 
- (uuid-eql 
-  (make-v5-uuid *unique-random-namespace* "bubba")
-  (make-v5-uuid *unique-random-namespace* "bubba"))
- ;=> T
+CL-USER> (in-package #:unicly)
 
- (uuid-princ-to-string (make-v5-uuid *unique-random-namespace* "bubba"))
- ;=> "065944a4-7566-53b2-811b-11a20e0bfed2"
+As per RFC 4122 "Appendix C - Some Name Space IDs" the Unicly package exports
+four "namespaces", these are:
 
- (uuid-eql 
-  (make-v5-uuid *unique-random-namespace* "bubba")
-  (make-uuid-from-string "065944a4-7566-53b2-811b-11a20e0bfed2"))
- ;=> T
+UNICLY> *uuid-namespace-dns*
+;=> 6ba7b810-9dad-11d1-80b4-00c04fd430c8
 
- (defparameter *another-unique-random-namespace* 
-   (format nil "~S" (unicly:make-v4-uuid)))
- ;=> *ANOTHER-UNIQUE-RANDOM-NAMESPACE*
+UNICLY> *uuid-namespace-url* 
+;=> 6ba7b811-9dad-11d1-80b4-00c04fd430c8
+
+UNICLY> *uuid-namespace-oid*
+;=> 6ba7b812-9dad-11d1-80b4-00c04fd430c8
+
+UNICLY> *uuid-namespace-x500*
+;=> 6ba7b814-9dad-11d1-80b4-00c04fd430c8
+
+The above "namespaces" are "canonical" in so much as they are presented by the RFC.
+However, one is free to define any number of other "namespaces" as need requires.
+The easiest way to create a new "namespace" is with MAKE-V4-UUID.
+Note, a v4 uuid is the random UUID. It is reasonably unique, so if you evaluate
+the following form you return value will obv. be somewhat differernt :)
+
+UNICLY> (make-v4-uuid)
+;=> 2f20bdfa-cd67-4150-8500-80c94821bbda
+
+To cache a namespace we need to bind it to a special variable.
+Below we use a defparameter form to do this but longer running applications
+would prob. use CL:DEFVAR or CL:DEFCONSTANT.
+
+The easiest way to persist a UUID is to bind its printed string representation.
+To get the string representation of a UUID we use UUID-PRINC-TO-STRING.
+Note, per RFC 411 case is significant when the string representation of a UUID
+is output, IOW, sticklers should be careful when using CL printing function
+which depend on dynamic value of *PRINT-CASE*!
+
+UNICLY> (defparameter *unique-random-namespace* 
+	   (uuid-princ-to-string  (unicly:make-v4-uuid))) 
+;=> *UNIQUE-RANDOM-NAMESPACE*
+
+UNICLY> *UNIQUE-RANDOM-NAMESPACE*
+;=> "77b84745-ab13-49c6-8fdc-9afaabc51c52"
+
+To convert this string back to a UUID use MAKE-UUID-FROM-STRING:
+
+UNICLY> (setf *unique-random-namespace* 
+	      (make-uuid-from-string *unique-random-namespace*))
+;=> 77b84745-ab13-49c6-8fdc-9afaabc51c52
+
+UNICLY> *unique-random-namespace*
+;=> 77b84745-ab13-49c6-8fdc-9afaabc51c52
+
+To print a UUID with a URN quailifier use UUID-AS-URN-STRING:
+
+UNICLY> (uuid-as-urn-string nil *unique-random-namespace*)
+;=> "urn:uuid:77b84745-ab13-49c6-8fdc-9afaabc51c52"
+
+v4 UUIDs are fine so long as you don't need to persist an objects
+identity and simply need a throw away or single session UUID.
+Indeed, one could serialize/deserialize v4 UUIDs from a string to object
+representation with each session if desired.
+
+However, v4 are best used as a "seed-value" for generating a namespace which is
+unique to your application. 
+
+For persistentent UUID solutions it is recommended to use MAKE-V5-UUID by
+providing a persisted UUID namespace for an object to reside in.
+
+You can make your own fabulous namespace like this:
+
+UNICLY> (defparameter *mon-fabulous-namespace* 
+	 (make-v5-uuid *unique-random-namespace* "com.bubba.namespace"))
+;=> *MON-FABULOUS-NAMESPACE*
+
+UNICLY> *MON-FABULOUS-NAMESPACE*
+;=> e5c2a048-863f-5c7d-a894-607070d2d299
+
+Now lets create some objects in our new namespace:
+
+UNICLY> (make-v5-uuid *mon-fabulous-namespace* (namestring (user-homedir-pathname)))
+;=> c0f2a167-dae7-55c0-ad57-1d8bad0444d3
+
+UNICLY> (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-defaults*))
+;=> a5ace91c-d657-5f5c-abef-81bbef52d27c
+
+UNICLY> (setf *default-pathname-defaults* (user-homedir-pathname))
+;=> #P/home/you/
+
+You should now find that the UUID for the CL:NAMESTRING of *DEFAULT-PATHNAME-DEFAULTS*
+is the same as that of the namestring of USER-HOMEDIR-PATHNAME:
+
+UNICLY> (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-defaults*))
+;=> c0f2a167-dae7-55c0-ad57-1d8bad0444d3
+
+Note that each object returned by MAKE-V5-UUID has unique identity even under CL:EQUALP:
+(equalp
+ (make-v5-uuid *mon-fabulous-namespace* (namestring (user-homedir-pathname)))
+ (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-defaults*)))
+
+UNICLY> (equalp (make-v5-uuid *mon-fabulous-namespace* (namestring (user-homedir-pathname)))
+                (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-defaults*)))
+;=> NIL
+
+To equality amount two UUIDs (even where their CL:PRINT-OBJECT is identical) one
+must either first convert the UUID to an intermediary format and compare that
+instead.
+
+UNICLY> (equal (uuid-princ-to-string 
+		 (make-v5-uuid *mon-fabulous-namespace* (namestring (user-homedir-pathname))))
+		(uuid-princ-to-string 
+		 (make-v5-uuid *mon-fabulous-namespace* (namestring *default-pathname-defaults*))))
+;=> T
+
+CL:EQUAL finds the two UUIDs above as having identical string representations.
+However checking strinng values for object identity is ugly esp. b/c internally
+UUID objects are reprentated as unsigned integer values and this is Common Lisp
+not C or javascript we needn't limit ourselves to string bound paradigms...
+Further below we present some examples of Unicly's representations of UUIDs in
+forms other than strings and illustrate some cleaner ways to interrogate UUID
+equality.
+
+So, now that you've got a handle on a fabulous UUID namespace how do you persist it?
+The quick an dirty way is to write the UUID string representation of
+*MON-FABULOUS-NAMESPACE* to a file somewhere.
+
+(Here we prin1 the UUID string representation. there are other ways)
+UNICLY> (with-open-file (persist (make-pathname :directory '(:absolute "tmp") 
+                                                :name "persisted-fabulous-namespace"
+                                                :type "uuid")
+                                 :direction :output
+                                 :if-exists :supersede
+                                 :if-does-not-exist :create)
+          ;; Here we CL:PRIN1 the UUID string representation. there are other ways
+          (prin1 *MON-FABULOUS-NAMESPACE*  persist))
+;=> "e5c2a048-863f-5c7d-a894-607070d2d299"
+
+(setf *MON-FABULOUS-NAMESPACE* (make-uuid-from-string "e5c2a048-863f-5c7d-a894-607070d2d299"))
+
+UNICLY> (setf *mon-fabulous-namespace* nil)
+;=> NIL
+
+;; (setq *mon-fabulous-namespace* (make-uuid-from-string "e5c2a048-863f-5c7d-a894-607070d2d299"))
+
+To restore the UUID to *mon-fabulous-namespace* just read in the contents of the
+file:
+UNICLY> (with-open-file (persist (make-pathname :directory
+                                                '(:absolute "tmp")
+                                                :name "persisted-fabulous-namespace"
+                                                :type "uuid")
+                                 :direction :input
+                                 :if-does-not-exist :error)
+          ;;"e5c2a048-863f-5c7d-a894-607070d2d299")
+          (setf *mon-fabulous-namespace* 
+                (make-uuid-from-string (read-line  persist))))
+;=> e5c2a048-863f-5c7d-a894-607070d2d299
+
+Following examples illustrate some more of uses of the Unicly interface.  We use
+the value of the v4-uuid in the variable *UNIQUE-RANDOM-NAMESPACE* defined
+earlier above, but feel free to substitute *MON-FABULOUS-NAMESPACE* (or
+equivalent).
+
+UNICLY> (uuid-eql 
+         (make-v5-uuid *unique-random-namespace* "bubba")
+         (make-v5-uuid *unique-random-namespace* "bubba"))
+;=> T
+
+UNICLY> (uuid-princ-to-string (make-v5-uuid *unique-random-namespace* "bubba"))
+;=> "065944a4-7566-53b2-811b-11a20e0bfed2"
+
+UNICLY> (uuid-eql 
+         (make-v5-uuid *unique-random-namespace* "bubba")
+         (make-uuid-from-string "065944a4-7566-53b2-811b-11a20e0bfed2"))
+;=> T
+
+UNICLY> (defparameter *another-unique-random-namespace* 
+          (uuid-princ-to-string (unicly:make-v4-uuid)))
+;=> *ANOTHER-UNIQUE-RANDOM-NAMESPACE*
  
- (setf *another-unique-random-namespace*
-       (make-uuid-from-string *another-unique-random-namespace*))
- ;=> f65c8371-0c41-4913-96e6-8a917666aa51
+UNICLY> (setf *another-unique-random-namespace*
+              (make-uuid-from-string *another-unique-random-namespace*))
+;=> f65c8371-0c41-4913-96e6-8a917666aa51
 
- (defparameter *v5-uuids-in-distinct-unique-random-namespaces* '()) 
- ;=> *V5-UUIDS-IN-DISTINCT-UNIQUE-RANDOM-NAMESPACES*
+UNICLY> (defparameter *v5-uuids-in-distinct-unique-random-namespaces* '()) 
+;=> *V5-UUIDS-IN-DISTINCT-UNIQUE-RANDOM-NAMESPACES*
 
- (loop
-    initially (setf *v5-uuids-in-distinct-unique-random-namespaces* nil)
-    for bubba in (loop
-                    for cnt from 0 below 16  
-                    collect (format nil "bubba-~D" cnt))
-    do (push (cons (make-v5-uuid *unique-random-namespace*  bubba) bubba)
-             *v5-uuids-in-distinct-unique-random-namespaces*)
-    (push (cons (make-v5-uuid *another-unique-random-namespace*  bubba) bubba)
-          *v5-uuids-in-distinct-unique-random-namespaces*)
-    finally (return *v5-uuids-in-distinct-unique-random-namespaces* ))
+UNICLY> (loop
+           initially (setf *v5-uuids-in-distinct-unique-random-namespaces* nil)
+           for bubba in (loop
+                           for cnt from 0 below 16  
+                           collect (format nil "bubba-~D" cnt))
+           do (push (cons (make-v5-uuid *unique-random-namespace*  bubba) bubba)
+                    *v5-uuids-in-distinct-unique-random-namespaces*)
+           (push (cons (make-v5-uuid *another-unique-random-namespace*  bubba) bubba)
+                 *v5-uuids-in-distinct-unique-random-namespaces*)
+           finally (return *v5-uuids-in-distinct-unique-random-namespaces* ))
 
- ;=> ((7c34b05e-d7a0-573e-baa2-7cc407532609 . "bubba-15")
- ;     (f7922a16-0b67-5329-87c9-71fdaa52c6c1 . "bubba-15")
- ;     { ... }
- ;     (7af9b747-e1f4-59b1-8f05-0acb70220817 . "bubba-0")
- ;     (f3228291-0a24-5a46-a9e2-7963d4671069 . "bubba-0"))
+;=> ((7c34b05e-d7a0-573e-baa2-7cc407532609 . "bubba-15")
+;     (f7922a16-0b67-5329-87c9-71fdaa52c6c1 . "bubba-15")
+;     { ... }
+;     (7af9b747-e1f4-59b1-8f05-0acb70220817 . "bubba-0")
+;     (f3228291-0a24-5a46-a9e2-7963d4671069 . "bubba-0"))
 
- (assoc 
-  (make-v5-uuid *unique-random-namespace* "bubba-8")
-  *v5-uuids-in-distinct-unique-random-namespaces*
-  :test #'uuid-eql)
- ;=> (8e64c855-70fd-5d53-82ce-67e545f724a1 . "bubba-8")
+UNICLY> (assoc 
+         (make-v5-uuid *unique-random-namespace* "bubba-8")
+         *v5-uuids-in-distinct-unique-random-namespaces*
+         :test #'uuid-eql)
+;=> (8e64c855-70fd-5d53-82ce-67e545f724a1 . "bubba-8")
 
- (assoc 
-  (make-v5-uuid *another-unique-random-namespace* "bubba-8")
-  *v5-uuids-in-distinct-unique-random-namespaces*
-  :test #'uuid-eql)
- ;=> (ef74e326-4ecc-5edc-9b55-e69e6069610a . "bubba-8")
+UNICLY> (assoc 
+         (make-v5-uuid *another-unique-random-namespace* "bubba-8")
+         *v5-uuids-in-distinct-unique-random-namespaces*
+         :test #'uuid-eql)
+;=> (ef74e326-4ecc-5edc-9b55-e69e6069610a . "bubba-8")
 
- (uuid-eql 
-  (make-v5-uuid *unique-random-namespace* "bubba-8")
-  (make-v5-uuid *another-unique-random-namespace* "bubba-8"))
- ;=> NIL
+UNICLY> (uuid-eql 
+         (make-v5-uuid *unique-random-namespace* "bubba-8")
+         (make-v5-uuid *another-unique-random-namespace* "bubba-8"))
+;=> NIL
 
- (uuid-eql 
-  (make-v5-uuid *unique-random-namespace* "bubba-8")
-  (car (assoc 
-        (make-v5-uuid *unique-random-namespace* "bubba-8")
-        *v5-uuids-in-distinct-unique-random-namespaces*
-        :test #'uuid-eql)))
- ;=> T
+UNICLY> (uuid-eql 
+         (make-v5-uuid *unique-random-namespace* "bubba-8")
+         (car (assoc 
+               (make-v5-uuid *unique-random-namespace* "bubba-8")
+               *v5-uuids-in-distinct-unique-random-namespaces*
+               :test #'uuid-eql)))
+;=> T
 
- (uuid-to-bit-vector *unique-random-namespace*)
- ;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
+UNICLY> (uuid-to-bit-vector *unique-random-namespace*)
+;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
 
- (unique-universal-identifier-p *unique-random-namespace*)
- ;=> T
+UNICLY> (unique-universal-identifier-p *unique-random-namespace*)
+;=> T
 
  ;; When an object is uuid-bit-vector-128-p and its appropriate version bit is
  ;; set the bit-vector may be coerceable to a `unique-universal-identifier-p'.
- (unique-universal-identifier-p (uuid-to-bit-vector *unique-random-namespace*))
- ;=> NIL, (UUID-BIT-VECTOR-128 4)
+UNICLY> (unique-universal-identifier-p (uuid-to-bit-vector *unique-random-namespace*))
+;=> NIL, (UUID-BIT-VECTOR-128 4)
 
- (unique-universal-identifier-p (make-null-uuid))
- ;=> T
+UNICLY> (unique-universal-identifier-p (make-null-uuid))
+;=> T
 
- (unicly::uuid-bit-vector-to-integer (uuid-to-bit-vector *unique-random-namespace*))
- ;=> 159134959691145724577639637335874542674
+UNICLY> (unicly::uuid-bit-vector-to-integer (uuid-to-bit-vector *unique-random-namespace*))
+;=> 159134959691145724577639637335874542674
 
- (unicly::uuid-to-byte-array *unique-random-namespace*)
- ;=> #(119 184 71 69 171 19 73 198 143 220 154 250 171 197 28 82)
+UNICLY> (unicly::uuid-to-byte-array *unique-random-namespace*)
+;=> #(119 184 71 69 171 19 73 198 143 220 154 250 171 197 28 82)
 
- (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*))
- ;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
+UNICLY> (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*))
+;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
 
- (uuid-eql *unique-random-namespace* *unique-random-namespace*)
- ;=> T
+UNICLY> (uuid-eql *unique-random-namespace* *unique-random-namespace*)
+;=> T
 
- (uuid-eql *unique-random-namespace* (uuid-to-bit-vector *unique-random-namespace*))
- ;=> T
+UNICLY> (uuid-eql *unique-random-namespace* (uuid-to-bit-vector *unique-random-namespace*))
+;=> T
 
- (let ((copy (uuid-copy-uuid *unique-random-namespace*)))
-   (uuid-eql copy *unique-random-namespace*))
- ;=> T
+UNICLY> (let ((copy (uuid-copy-uuid *unique-random-namespace*)))
+          (uuid-eql copy *unique-random-namespace*))
+;=> T
 
  ;; This is likely to change in future versions!
- (uuid-eql (uuid-to-byte-array *unique-random-namespace*)
-           *unique-random-namespace*)
- ;=> NIL
+UNICLY> (uuid-eql (uuid-to-byte-array *unique-random-namespace*)
+                  *unique-random-namespace*)
+;=> NIL
   
- (uuid-bit-vector-eql 
-  (uuid-to-bit-vector *unique-random-namespace*)
-  (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*)))
- ;=>T
+UNICLY> (uuid-bit-vector-eql 
+         (uuid-to-bit-vector *unique-random-namespace*)
+         (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*)))
+;=>T
 
- (uuid-eql 
-  (uuid-to-bit-vector *unique-random-namespace*)
-  (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*)))
- ;=> T
+UNICLY> (uuid-eql 
+         (uuid-to-bit-vector *unique-random-namespace*)
+         (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*)))
+;=> T
 
- ; :NOTE We can test if two uuid-bit-vectors are CL:EQUAL 
- ; This is not true of uuid-byte-array's which must use CL:EQUALP
- (equal
-  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))
-  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))) 
- ;=> T
+:NOTE We can test if two uuid-bit-vectors are CL:EQUAL 
+This is not true of uuid-byte-array's which must use CL:EQUALP
 
- (equal
-  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))
-  (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "NOT-A-bubba")))
+UNICLY> (equal
+         (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))
+         (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))) 
+;=> T
 
- ;; :NOTE We do not export unicly::uuid-to-byte-array b/c its implementation
- ;; conflicts with uuid:uuid-to-byte-array
- ;; However, we do export its equivalent uuid:get-namespace-bytes
- (uuid-eql
-  (unicly::uuid-to-byte-array (make-v5-uuid *unique-random-namespace* "bubba"))
-  (unicly::uuid-to-byte-array (make-v5-uuid *unique-random-namespace* "bubba")))
- ;=> NIL
+UNICLY> (equal
+         (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))
+         (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "NOT-A-bubba")))
 
- (equal
-  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
-  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba")))
- ;=> NIL
+:NOTE We do not export unicly::uuid-to-byte-array b/c its implementation
+conflicts with uuid:uuid-to-byte-array
+However, we do export its equivalent uuid:get-namespace-bytes
 
- (equalp
-  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
-  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba")))
- ;=> T
+UNICLY> (uuid-eql
+         (unicly::uuid-to-byte-array (make-v5-uuid *unique-random-namespace* "bubba"))
+         (unicly::uuid-to-byte-array (make-v5-uuid *unique-random-namespace* "bubba")))
+;=> NIL
 
- (equalp
-  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
-  (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "NOT-A-BUBBA")))
- ;=> NIL
+UNICLY> (equal
+         (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
+         (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba")))
+;=> NIL
 
- (uuid-version *unique-random-namespace*)
- ;=> 4
+UNICLY> (equalp
+         (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
+         (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba")))
+;=> T
 
- (uuid-version (make-v5-uuid *unique-random-namespace* "bubba-8"))
- ;=> 5
+UNICLY> (equalp
+         (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
+         (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "NOT-A-BUBBA")))
+;=> NIL
 
- (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
- ;=> T
+UNICLY> (uuid-version *unique-random-namespace*)
+;=> 4
+
+UNICLY> (uuid-version (make-v5-uuid *unique-random-namespace* "bubba-8"))
+;=> 5
+
+UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
+;=> T
  
- (uuid-bit-vector-v5-p (uuid-to-bit-vector *unique-random-namespace*))
- ;=> NIL
+UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector *unique-random-namespace*))
+;=> NIL
 
- (make-null-uuid)
- ;=> 00000000-0000-0000-0000-000000000000
+UNICLY> (make-null-uuid)
+;=> 00000000-0000-0000-0000-000000000000
 
- (unicly::unique-universal-identifier-null-p (make-null-uuid))
- ;=> T
+UNICLY> (unicly::unique-universal-identifier-null-p (make-null-uuid))
+;=> T
 
- (uuid-version (make-null-uuid))
- ;=>  0, UNICLY::NULL-UUID
+UNICLY> (uuid-version (make-null-uuid))
+;=>  0, UNICLY::NULL-UUID
 
- (uuid-eql (make-null-uuid) (make-null-uuid))
- ;=> T
+UNICLY> (uuid-eql (make-null-uuid) (make-null-uuid))
+;=> T
 
 ;;; ==============================
 ;;; EOF
