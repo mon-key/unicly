@@ -277,53 +277,101 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;;; ==============================
 
 ;;; ==============================
-;; :SOURCE kyoto-persistence/uuid.lisp :AUTHOR KevinRaison@chatsubo.net ???
-;; :SEE (URL `git://github.com/kraison/kyoto-persistence.git') 
-;; :NOTE The original tested `equalp' on the byte-arrray representation of
-;; UUID-A and UUID-B e.g.:
+;; :NOTE Following equivialence tests are influenced bye the uuid methods in
+;; Kevin Raison's CL libraryr kyoto-persistence which tests `equalp' on the
+;; byte-arrray representation of UUID-A and UUID-B e.g.:
 ;;  (equalp (uuid-get-namespace-bytes uuid-a) (uuid-get-namespace-bytes uuid-b))
-;; By converting both ARGS to their bit-vector representation we can test `equal'.
+;; We eschew the byte-array representation and instead take an alternative
+;; approach and convert both ARGS to their bit-vector representation allowing
+;; for tests with `uuid-bit-vector-eql'.
+;;
+;; :SEE :FILE kyoto-persistence/uuid.lisp :AUTHOR KevinRaison@chatsubo.net ???
+;; :SEE (URL `git://github.com/kraison/kyoto-persistence.git') 
+;;
+;; :NOTE There is a tension around whether we should consider two objects
+;; returned from `uuid-bit-vector-zeroed' to be `uuid-eql'.
+;; Currenlty we treat two identical uuid-bit-vector-128s to be `uuid-eql' if
+;; they satisfy `uuid-bit-vector-eql'. The issue is that elsewhere we special case the null-id
+;; to be considered uuid-eql only if it is the object at `unicly::*uuid-null-uuid*'.
+;;
 (defgeneric uuid-eql (uuid-a uuid-b)
   (:method ((uuid-a (eql *uuid-null-uuid*)) (uuid-b (eql *uuid-null-uuid*)))
     ;; Only allow the object at variable `*uuid-null-uuid*' to be considered the
     ;; true null-uuid.
     ;; (values t "(eql *uuid-null-uuid*) (eql *uuid-null-uuid*)"))
      t)
+
   (:method ((uuid-a (eql *uuid-null-uuid*)) (uuid-b unique-universal-identifier-null))
     ;; (values nil "(eql *uuid-null-uuid*) unique-universal-identifier-null"))    
-    nil)
+    ;;
+    ;; nil)
+    ;;
+    (unique-universal-identifier-null-p uuid-b))
+    
   (:method ((uuid-a unique-universal-identifier-null) (uuid-b (eql *uuid-null-uuid*)))
     ;; (values nil "unique-universal-identifier-null (eql *uuid-null-uuid*)"))
-    nil)
+    ;;
+    ;; nil)  
+    ;;
+    (unique-universal-identifier-null-p uuid-a))
+  
   (:method ((uuid-a unique-universal-identifier-null) (uuid-b unique-universal-identifier-null))    
     ;; (values nil "unique-universal-identifier-null unique-universal-identifier-null"))
-     nil)
+    ;;
+    ;; nil)
+    ;;
+    (and (unique-universal-identifier-null-p uuid-a) (unique-universal-identifier-null-p uuid-b)))
+
   ;; Following four methods prevent the initial null uuid returned from:
   ;;  (make-instance 'unique-universal-identifier) 
-  ;; from matching either of the values for returned for objects:
+  ;; from matching either of the values returned for objects:
   ;;  *uuid-null-uuid* and (make-instance 'unique-universal-identifier-null)
   (:method ((uuid-a (eql *uuid-null-uuid*)) (uuid-b unique-universal-identifier))
     ;; (values nil "(eql *uuid-null-uuid*) unique-universal-identifier"))
-    nil)
+    ;;
+    ;; nil)
+    ;;
+    (unique-universal-identifier-null-p uuid-b))
+
   (:method ((uuid-a unique-universal-identifier) (uuid-b (eql *uuid-null-uuid*)))
     ;; (values nil "unique-universal-identifier (eql *uuid-null-uuid*)"))
-     nil)
+    ;;
+    ;; nil)
+    ;;
+    (unique-universal-identifier-null-p uuid-a))
+
   (:method ((uuid-a unique-universal-identifier-null) (uuid-b unique-universal-identifier))
     ;; (values nil "unique-universal-identifier-null unique-universal-identifier"))
-     nil)
+    ;;
+    ;; nil)    
+    ;;
+    (and (unique-universal-identifier-null-p uuid-a) (unique-universal-identifier-null-p uuid-b)))
+
   (:method ((uuid-a unique-universal-identifier) (uuid-b unique-universal-identifier-null))
     ;; (values nil "unique-universal-identifier unique-universal-identifier-null"))
-     nil)
+    ;;
+    ;; nil)
+    ;;
+    (and (unique-universal-identifier-null-p uuid-b) (unique-universal-identifier-null-p uuid-a)))
+
   (:method ((uuid-a t) (uuid-b unique-universal-identifier-null))
     ;; (values nil "t unique-universal-identifier-null"))
-    nil)
+    ;; 
+    ;; nil)
+    (and (unique-universal-identifier-null-p uuid-b) (unique-universal-identifier-null-p uuid-a)))
+  
   (:method ((uuid-a unique-universal-identifier-null) (uuid-b t))
+    ;;
     ;; (values nil "unique-universal-identifier-null t"))
-    nil)
+    ;;
+    ;; nil)
+    (and (unique-universal-identifier-null-p uuid-a) (unique-universal-identifier-null-p uuid-b)))
+
   (:method ((uuid-a unique-universal-identifier) (uuid-b unique-universal-identifier))
     (uuid-bit-vector-eql (uuid-to-bit-vector uuid-a) (uuid-to-bit-vector uuid-b)))
+  
   ;; :NOTE Following method is correct but should not be enabled until we have
-  ;;implemented a reliable `uuid-bit-vector-to-uuid'
+  ;; implemented a reliable `uuid-bit-vector-to-uuid' uuid-byte-
   (:method ((uuid-a bit-vector) (uuid-b bit-vector))
     (if (and (uuid-bit-vector-128-p uuid-a) 
              (uuid-bit-vector-128-p uuid-b))
@@ -333,18 +381,24 @@ Instance of this class return T for both `unicly:uuid-eql' and
                     (ignore-errors (uuid-bit-vector-version uuid-b)))
                (uuid-bit-vector-eql uuid-a uuid-b)))
         nil))
+
   (:method ((uuid-a bit-vector) (uuid-b unique-universal-identifier))
     (and (uuid-bit-vector-128-p uuid-a)
          (uuid-eql uuid-a  (uuid-to-bit-vector uuid-b))))
+  
   (:method ((uuid-a unique-universal-identifier) (uuid-b bit-vector))
     (and (uuid-bit-vector-128-p uuid-b)
          (uuid-eql (uuid-to-bit-vector uuid-a) uuid-b)))
+  
   (:method ((uuid-a unique-universal-identifier) (uuid-b t))
     nil)
+  
   (:method ((uuid-a t) (uuid-b unique-universal-identifier))
     nil)
+  
   (:method ((uuid-a t) (uuid-b t))
     nil)
+  
   (:documentation 
    #.(format nil 
              "Whether object UUID-A is eql UUID-B.~%~@
@@ -597,7 +651,6 @@ UUID should be an object of type `uuid-bit-vector-128', sigal an error if not.~%
   ;; #-sbcl (etypecase bv2 (uuid-bit-vector-128 t))
   (with-standard-io-syntax (write uuid :stream stream)))
 
-
 (defmethod uuid-print-bit-vector (stream ;; (stream stream)
                                   (uuid unique-universal-identifier))
   #.(format nil
@@ -644,9 +697,45 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
                    :%uuid_clock-seq-low           %uuid_clock-seq-low
                    :%uuid_node                    %uuid_node)))
 
-(defmacro uuid-string-parse-integer (str start end type)
+(defmacro uuid-string-parse-integer (uuid-hex-string start end integer-type)
   ;; (macroexpand-1 '(uuid-string-parse-integer "6ba7b810-9dad-11d1-80b4-00c04fd430c8" 0 8 uuid-ub32))
-  `(the ,type (parse-integer ,str :start ,start :end ,end :radix 16)))
+  `(the ,integer-type (parse-integer ,uuid-hex-string :start ,start :end ,end :radix 16)))
+
+
+;;; ==============================
+;; (uuid-svref-for-parse-integer <VECTOR> <INDEX> <STRING-TYPE>)
+;;
+;; (macroexpand-1
+;;  '(uuid-svref-for-parse-integer
+;;    (nth-value 1 (uuid-hex-string-36-p (uuid-princ-to-string (make-v4-uuid))))
+;;    4 uuid-hex-string-12))
+(defmacro uuid-svref-for-parse-integer (simple-vector-5 index string-type)
+  `(the ,string-type (svref (the uuid-simple-vector-5 ,simple-vector-5) ,index)))
+
+;;; ==============================
+;; (uuid-string-parse-integer 
+;;  (uuid-svref-for-parse-integer <VECTOR> <INDEX> <STRING-TYPE>)
+;;  <START> <END> <INTEGER-TYPE> )
+;;
+;; (macroexpand '(def-indexed-hexstring-integer-parser
+;;                  uuid-hex-vector-parse-time-low
+;;                  0
+;;                  uuid-hex-string-8
+;;                  0 8 uuid-ub32))
+(defmacro def-indexed-hexstring-integer-parser (fun-name vec-index string-type-at-index string-start string-end string-integer-type)
+  `(defun ,fun-name (hex-vector-5)
+     (declare (uuid-simple-vector-5 hex-vector-5))
+     (uuid-string-parse-integer 
+      (uuid-svref-for-parse-integer hex-vector-5 ,vec-index ,string-type-at-index)
+      ,string-start ,string-end ,string-integer-type)))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-time-low 0 uuid-hex-string-8 0 8 uuid-ub32)
+  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-time-mid 1 uuid-hex-string-4 0 4 uuid-ub16)
+  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-time-high-and-version 2 uuid-hex-string-4 0 4 uuid-ub16)
+  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-clock-seq-and-reserved 3 uuid-hex-string-4 0 2 uuid-ub8)
+  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-clock-seq-low 3 uuid-hex-string-4 2 4 uuid-ub8)
+  (def-indexed-hexstring-integer-parser uuid-hex-vector-parse-node 4 uuid-hex-string-12 0 12 uuid-ub48))
 
 ;;; ==============================
 ;; :TODO This should also check for a uuid-hex-string-32 and return a symbol
@@ -656,17 +745,21 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
   (declare 
    (inline uuid-hex-string-36-p)
    (optimize (speed 3)))
-  (or (and (uuid-hex-string-36-p uuid-hex-string-36-if)
-           (the uuid-string-36 uuid-hex-string-36-if))
-      #-mon (error "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'~% ~
+  (multiple-value-bind (if-36 vector-5-or-null-uuid) (uuid-hex-string-36-p uuid-hex-string-36-if)
+    (declare (boolean if-36)
+             ((or null function uuid-simple-vector-5) vector-5-or-null-uuid))
+    (if if-36
+        vector-5-or-null-uuid
+        #-mon (error "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'~% ~
              got: ~S~% ~
              type-of: ~S~%" uuid-hex-string-36-if (type-of uuid-hex-string-36-if))
-      #+mon (MON:SIMPLE-ERROR-MON :w-sym  'make-uuid-from-string-if
-                                  :w-type 'function
-                                  :w-spec "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'"
-                                  :w-got uuid-hex-string-36-if
-                                  :w-type-of t
-                                  :signal-or-only nil)))
+        #+mon (MON:SIMPLE-ERROR-MON :w-sym  'make-uuid-from-string-if
+                                    :w-type 'function
+                                    :w-spec "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'"
+                                    :w-got uuid-hex-string-36-if
+                                    :w-type-of t
+                                    :signal-or-only nil))))
+
 
 ;;; ==============================
 
