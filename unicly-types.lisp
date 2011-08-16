@@ -8,57 +8,76 @@
 
 (deftype uuid-unsigned-byte-size (byte-size)
   `(unsigned-byte ,byte-size))
-
-(deftype uuid-ub128 ()
- '(uuid-unsigned-byte-size 128))
-
-(deftype uuid-ub64 ()
- '(uuid-unsigned-byte-size 64))
-
-(deftype uuid-ub48 ()
- '(uuid-unsigned-byte-size 48))
-
-(deftype uuid-ub32 ()
- '(uuid-unsigned-byte-size 32))
-
-(deftype uuid-ub24 ()
-  '(uuid-unsigned-byte-size 24))
-
-(deftype uuid-ub16 ()
-  '(uuid-unsigned-byte-size 16))
-
-(deftype uuid-ub8 ()
-  '(uuid-unsigned-byte-size 8))
-
+;;
+(def-uuid-unsigned-byte-size 128)
+(def-uuid-unsigned-byte-size 64)
+(def-uuid-unsigned-byte-size 48)
+(def-uuid-unsigned-byte-size 32)
+(def-uuid-unsigned-byte-size 24)
+(def-uuid-unsigned-byte-size 16)
+(def-uuid-unsigned-byte-size 8)
+;;
+;; (deftype uuid-ub128 ()
+;;  '(uuid-unsigned-byte-size 128))
+;;
+;; (deftype uuid-ub64 ()
+;;  '(uuid-unsigned-byte-size 64))
+;;
+;; (deftype uuid-ub48 ()
+;;  '(uuid-unsigned-byte-size 48))
+;;
+;; (deftype uuid-ub32 ()
+;;  '(uuid-unsigned-byte-size 32))
+;;
+;; (deftype uuid-ub24 ()
+;;   '(uuid-unsigned-byte-size 24))
+;;
+;; (deftype uuid-ub16 ()
+;;   '(uuid-unsigned-byte-size 16))
+;;
+;; (deftype uuid-ub8 ()
+;;   '(uuid-unsigned-byte-size 8))
+;;
 ;; 128 8 bits
 ;; 64  7 bits
 ;; 32  6 bits
 ;; 16  5 bits
 ;; 8   nibble
+;;; ==============================
 
+
+;;; ==============================
 (deftype uuid-unsigned-byte-integer-length (integer)
   `(mod ,integer))
-
-(deftype uuid-ub128-integer-length ()
-  '(uuid-unsigned-byte-integer-length 129))
-
-(deftype uuid-ub64-integer-length ()
-  '(uuid-unsigned-byte-integer-length 65))
-
-(deftype uuid-ub48-integer-length ()
-  '(uuid-unsigned-byte-integer-length 49))
-
-(deftype uuid-ub32-integer-length ()
-  '(uuid-unsigned-byte-integer-length 33))
-
-(deftype uuid-ub24-integer-length ()
-  '(uuid-unsigned-byte-integer-length 24))
-
-(deftype uuid-ub16-integer-length ()
-  '(uuid-unsigned-byte-integer-length 17))
-
-(deftype uuid-ub8-integer-length ()
-  '(uuid-unsigned-byte-integer-length 9))
+;;
+(def-uuid-unsigned-byte-integer-length 128)
+(def-uuid-unsigned-byte-integer-length  64)
+(def-uuid-unsigned-byte-integer-length  49)
+(def-uuid-unsigned-byte-integer-length  33)
+(def-uuid-unsigned-byte-integer-length  25)
+(def-uuid-unsigned-byte-integer-length   9)
+;;
+;; (deftype uuid-ub128-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 129))
+;;
+;; (deftype uuid-ub64-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 65))
+;;
+;; (deftype uuid-ub48-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 49))
+;;
+;; (deftype uuid-ub32-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 33))
+;;
+;; (deftype uuid-ub24-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 25))
+;;
+;; (deftype uuid-ub16-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 17))
+;;
+;; (deftype uuid-ub8-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 9))
+;;; ==============================
 
 ;; 
 ;; (deftype uuid-fixnum-bit-width ()
@@ -73,43 +92,60 @@
 ;;   ;; I'm assuming this is correct for other procs/architectures...
 ;;   #+sbcl '(integer #.sb-vm:n-positive-fixnum-bits #.(1- sb-bignum::maximum-bignum-length)))
 
+;;; ==============================
 ;; :NOTE (upgraded-array-element-type (type-of (make-array 128 :element-type 'bit :initial-element 0))) => T
 (deftype uuid-bit-vector (&optional size)
    (let ((sz (or size '*)))
      `(simple-bit-vector ,sz)))
+;;
+(def-uuid-bit-vector-N-type 128)
+(def-uuid-bit-vector-N-type 48)
+(def-uuid-bit-vector-N-type 32)
+(def-uuid-bit-vector-N-type 16)
+(def-uuid-bit-vector-N-type 8)
+;;
+;; (deftype uuid-bit-vector-128 ()
+;;   '(uuid-bit-vector 128))
+;;
+;; (deftype uuid-bit-vector-48 ()
+;;   '(uuid-bit-vector 48))
+;;
+;; (deftype uuid-bit-vector-32 ()
+;;   '(uuid-bit-vector 32))
+;;
+;; (deftype uuid-bit-vector-16 ()
+;;   '(uuid-bit-vector 16))
+;;
+;; (deftype uuid-bit-vector-8 ()
+;;   '(uuid-bit-vector 8))
+;;; ==============================
 
-(deftype uuid-bit-vector-128 ()
-  '(uuid-bit-vector 128))
 
-(deftype uuid-bit-vector-48 ()
-  '(uuid-bit-vector 48))
-
-(deftype uuid-bit-vector-32 ()
-  '(uuid-bit-vector 32))
-
-(deftype uuid-bit-vector-16 ()
-  '(uuid-bit-vector 16))
-
-(deftype uuid-bit-vector-8 ()
-  '(uuid-bit-vector 8))
-
+;;; ==============================
 (deftype uuid-bit-vector-length (size)
   `(integer ,size ,size))
-
-(deftype uuid-bit-vector-128-length ()
-  '(uuid-bit-vector-length 128))
-
-(deftype uuid-bit-vector-48-length ()
-  '(uuid-bit-vector-length 48))
-
-(deftype uuid-bit-vector-32-length ()
-  '(uuid-bit-vector-length 32))
-
-(deftype uuid-bit-vector-16-length ()
-  '(uuid-bit-vector-length 16))
-
-(deftype uuid-bit-vector-8-length ()
-  '(uuid-bit-vector-length 8))
+;;
+(def-uuid-bit-vector-length-type 128)
+(def-uuid-bit-vector-length-type 48)
+(def-uuid-bit-vector-length-type 32)
+(def-uuid-bit-vector-length-type 16)
+(def-uuid-bit-vector-length-type 8)
+;;
+;; (deftype uuid-bit-vector-128-length ()
+;;   '(uuid-bit-vector-length 128))
+;;
+;; (deftype uuid-bit-vector-48-length ()
+;;   '(uuid-bit-vector-length 48))
+;;
+;; (deftype uuid-bit-vector-32-length ()
+;;   '(uuid-bit-vector-length 32))
+;;
+;; (deftype uuid-bit-vector-16-length ()
+;;   '(uuid-bit-vector-length 16))
+;;
+;; (deftype uuid-bit-vector-8-length ()
+;;   '(uuid-bit-vector-length 8))
+;;; ==============================
 
 (deftype uuid-bit-vector-valid-length ()
   '(or 
@@ -126,56 +162,78 @@
   '(and uuid-bit-vector-128
     (satisfies %uuid-bit-vector-null-p)))
 
-(deftype uuid-byte-string ()
-  '(simple-array character (16)))
-
+;;; ==============================
 (deftype uuid-byte-array (&optional size)
   (let ((sz (or size '*)))
     `(simple-array uuid-ub8 (,sz))))
-
+;;
+(def-uuid-byte-array-length 20)
+(def-uuid-byte-array-length 16)
+;;
+;; UUID v5 SHA1 returns an array of type: (simple-array (unsigned-byte 8) (20))
+;; (deftype uuid-byte-array-20 ()
+;;   ;; expands to: (simple-array (unsigned-byte 8) (20))
+;;   '(uuid-byte-array 20))
+;;
 ;; UUID v3 MD5 returns an array of type: (simple-array (unsigned-byte 8) (16))
-(deftype uuid-byte-array-16 ()
-  ;; expands to: (simple-array (unsigned-byte 8) (16)))
-  '(uuid-byte-array 16))
+;; (deftype uuid-byte-array-16 ()
+;;   ;; expands to: (simple-array (unsigned-byte 8) (16)))
+;;   '(uuid-byte-array 16))
+;;; ==============================
 
 (deftype uuid-byte-array-null ()
   ;; expands to: (simple-array (unsigned-byte 8) (16)))
   '(and uuid-byte-array-16 (satisfies %uuid-byte-array-null-p)))
 
-;; UUID v5 SHA1 returns an array of type: (simple-array (unsigned-byte 8) (20))
-(deftype uuid-byte-array-20 ()
-  ;; expands to: (simple-array (unsigned-byte 8) (20))
-  '(uuid-byte-array 20))
+(deftype uuid-simple-vector-5 ()
+  '(simple-vector 5))
 
+;;; ==============================
 (deftype uuid-string-32 ()
   '(array character (32)))
 
 (deftype uuid-string-36 ()
   '(array character (36)))
 
+(deftype uuid-byte-string ()
+  '(simple-array character (16)))
+
 (deftype uuid-hex-string-32 ()
   '(and uuid-string-32 (satisfies string-all-hex-char-p)))
 
+;; :NOTE The satisfies check for `uuid-hex-string-36-p' is somewhat costly and
+;; need only be evaluated once...
+;; Forms which rely on declaring `uuid-hex-string-12', `uuid-hex-string-8',
+;; `uuid-hex-string-4', and `uuid-hex-string-2' do so as in-body
+;; micro-optimizations and should have a prior declarartion of
+;; `uuid-hex-string-36' earlier in the call chain such that, if/when necessary,
+;; some later form in its body will then coerce a subseq of the declared
+;; `uuid-hex-string-36' to a simple-string and therafter we only need to declare
+;; a uuid-hex-string-length for subseqs of the uuid-hex-string-36.
 (deftype uuid-hex-string-36 ()
   '(and uuid-string-36 (satisfies uuid-hex-string-36-p)))
 
-(deftype uuid-simple-vector-5 ()
-  '(simple-vector 5))
-
+;;; ==============================
 (deftype uuid-hex-string-length (string-length)
   `(simple-array character (,string-length)))
-
-(deftype uuid-hex-string-12 ()
-  `(uuid-hex-string-length 12))
-
-(deftype uuid-hex-string-8 ()
-  `(uuid-hex-string-length 8))
-
-(deftype uuid-hex-string-4 ()
-  `(uuid-hex-string-length 4))
-
-(deftype uuid-hex-string-2 ()
-  `(uuid-hex-string-length 2))
+;;
+(def-uuid-uuid-hex-string-length 12)
+(def-uuid-uuid-hex-string-length  8)
+(def-uuid-uuid-hex-string-length  4)
+(def-uuid-uuid-hex-string-length  2)
+;;
+;; (deftype uuid-hex-string-12 ()
+;;   `(uuid-hex-string-length 12))
+;;
+;; (deftype uuid-hex-string-8 ()
+;;   `(uuid-hex-string-length 8))
+;;
+;; (deftype uuid-hex-string-4 ()
+;;   `(uuid-hex-string-length 4))
+;;
+;; (deftype uuid-hex-string-2 ()
+;;   `(uuid-hex-string-length 2))
+;;; ==============================
 
 
 ;;; ==============================
@@ -231,11 +289,12 @@
 (defun uuid-hex-string-32-p (maybe-uuid-hex-string-32)
   (typep maybe-uuid-hex-string-32 'uuid-hex-string-32))
 
+(declaim (inline uuid-delimited-string-36-p))
 (defun uuid-delimited-string-36-p (maybe-delim-string-36)
   (declare (inline uuid-string-36-p)
            (optimize (speed 3)))
   (unless (uuid-string-36-p maybe-delim-string-36)
-    (return-from uuid-delimited-string-36-p nil))
+    (return-from uuid-delimited-string-36-p (the boolean nil)))
   (labels ((char-dash-p (maybe-dash)
              (declare (character maybe-dash))
              (char= #\- maybe-dash))
@@ -257,11 +316,12 @@
              (the uuid-simple-vector-5
                (make-array 5 
                            :element-type 'simple-string
-                           :initial-contents (list (delimit-seq string-for-subs 0  8)
-                                                   (delimit-seq string-for-subs 9  4)
-                                                   (delimit-seq string-for-subs 14 4)
-                                                   (delimit-seq string-for-subs 19 4)
-                                                   (delimit-seq string-for-subs 24 12))))))
+                           :initial-contents (list 
+                                              (the uuid-hex-string-8  (delimit-seq string-for-subs 0  8))
+                                              (the uuid-hex-string-4  (delimit-seq string-for-subs 9  4))
+                                              (the uuid-hex-string-4  (delimit-seq string-for-subs 14 4))
+                                              (the uuid-hex-string-4  (delimit-seq string-for-subs 19 4))
+                                              (the uuid-hex-string-12 (delimit-seq string-for-subs 24 12)))))))
     (declare (uuid-string-36 maybe-delim-string-36))
     (loop 
        initially  (unless (loop
@@ -278,10 +338,13 @@
        ;; the return-value of (make-string 36 :initial-element #\-)
        count delim-char into cnt of-type (unsigned-byte 6)
        and sum idx into psns of-type (unsigned-byte 10)
-       finally (return (and (= cnt 4)
-                            (= psns 62)
-                            (values t (the uuid-simple-vector-5
-                                        (delimited-subseqs maybe-delim-string-36))))))))
+       finally (return 
+                 (if (and (= cnt 4)
+                          (= psns 62))
+                     (values (the boolean t)
+                             (the uuid-simple-vector-5
+                               (delimited-subseqs maybe-delim-string-36)))
+                     (the boolean nil))))))
 
 (declaim (inline %uuid-hex-string-36-null-string-p))
 (defun %uuid-hex-string-36-null-string-p (split-vec)
@@ -307,6 +370,7 @@
   (declare (inline string-all-hex-char-p
                    uuid-string-36-p
                    %uuid-hex-string-36-null-string-p
+                   uuid-delimited-string-36-p
                    )
            (optimize (speed 3)))
   (when (uuid-string-36-p maybe-uuid-hex-string-36)
@@ -318,8 +382,8 @@
                for split of-type simple-string across (the uuid-simple-vector-5 split-36)
                always (string-all-hex-char-p split))
           (if (%uuid-hex-string-36-null-string-p  split-36)
-              (values t #'make-null-uuid)
-              (values t split-36)))))))
+              (values (the boolean t) #'make-null-uuid);; (the function #'make-null-uuid))
+              (values (the boolean t) (the uuid-simple-vector-5 split-36))))))))
 
 ;; (uuid-hex-string-36-p (uuid-princ-to-string (make-v4-uuid)))
 ;; (type-of (svref #("e3115c49" "6e13" "4d21" "9a37" "a1af250a8f88") 0))

@@ -45,6 +45,7 @@
   :components ((:file "package")
                (:file "unicly-specials")
                (:file "unicly-utils")
+               (:file "unicly-macros")
                (:file "unicly-types")
                (:file "unicly-class")
                (:file "unicly-bit-vectors")

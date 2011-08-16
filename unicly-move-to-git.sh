@@ -24,6 +24,7 @@ UNICLY_FILES="unicly.asd
 package.lisp
 unicly-utils.lisp
 unicly-specials.lisp
+unicly-macros.lisp
 unicly-types.lisp
 unicly-class.lisp
 unicly.lisp
