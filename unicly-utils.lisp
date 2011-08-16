@@ -75,7 +75,6 @@
           for chk-hex across (the simple-string maybe-hex-string)
           always (hexadecimal-char-p chk-hex))))
 
-
 ;; :SOURCE sbcl/src/code/stream.lisp
 (declaim (inline vector-with-fill-pointer))
 (defun vector-with-fill-pointer-p (object)

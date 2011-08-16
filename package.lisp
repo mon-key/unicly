@@ -9,11 +9,18 @@
   (:use #:common-lisp)
   (:export 
    ;;
+   ;;
+   ;; unicly/unicly-specials.lisp
+   ;;
    #:*uuid-namespace-dns* 
    #:*uuid-namespace-url* 
    #:*uuid-namespace-oid* 
    #:*uuid-namespace-x500*
-   ;; #:*uuid-null-uuid*
+   ;; 
+   ;; #:*uuid-null-uuid*                ; Not exported, Bound at loadtime with `make-null-uuid-loadtime' 
+   ;;                                   ; and treated as a special case thereafter
+   ;;
+   ;; unicly/unicly-types.lisp
    ;;
    #:uuid-byte-string                   ; TYPE
    #:uuid-unsigned-byte-size            ; TYPE
@@ -52,27 +59,56 @@
    #:uuid-string-36                     ; TYPE
    #:uuid-hex-string-32                 ; TYPE
    #:uuid-hex-string-36                 ; TYPE
+   #:uuid-hex-string-length             ; TYPE
+   #:uuid-hex-string-12                 ; TYPE
+   #:uuid-hex-string-8                  ; TYPE
+   #:uuid-hex-string-4                  ; TYPE
+   #:uuid-hex-string-2                  ; TYPE
    ;;
    #:uuid-bit-vector-128-p
    #:uuid-byte-array-16-p
    #:uuid-byte-array-20-p
-   #:uuid-bit-vector-null-p
+
    #:uuid-byte-array-null-p
    #:uuid-byte-string-p
    #:uuid-string-32-p
    #:uuid-string-36-p
+   #:uuid-delimited-string-36-p
+   ;; #:%uuid-hex-string-36-null-string-p
    #:uuid-hex-string-32-p
    #:uuid-hex-string-36-p
-   #:unique-universal-identifier-p
-   #:uuid-eql
+   ;;
+   ;;
+   ;; unicly/unicly-bit-vectors.lisp
+   ;;
+   #:uuid-bit-vector-zeroed
+   #:uuid-bit-vector-48-zeroed
+   #:uuid-bit-vector-32-zeroed 
+   #:uuid-bit-vector-16-zeroed
+   #:uuid-bit-vector-8-zeroed
    #:uuid-bit-vector-eql
+   #:uuid-bit-vector-null-p
+   ;; #:uuid-bit-vector-to-integer
+   ;;
+   ;; unicly/unicly-class.lisp   
+   ;;
+   #:unique-universal-identifier       ; <CLASS>
+   #:unique-universal-identifier-p     ; <GENERIC>
+   #:uuid-eql                          ; <GENERIC>
+   #:uuid-print-bit-vector             ; <GENERIC>
+   #:uuid-print-bytes-to-string        ; <GENERIC>
+   #:uuid-princ-to-string              ; <GENERIC> 
+   #:uuid-copy-uuid
+   ;;
+   ;;
+   ;;
+   ;; unicly/unicly-conditions.lisp
    ;;
    ;; #:uuid-error                     ; CONDITION
    ;; #:uuid-simple-error              ; CONDITION
    ;; #:uuid-slot-unbound-error        ; CONDITION
    ;; #:uuid-bit-48-error              ; CONDITION
    ;;
-   #:unique-universal-identifier
    #:make-v3-uuid
    #:make-v4-uuid
    #:make-v5-uuid
@@ -80,27 +116,24 @@
    ;; #:%unique-universal-identifier-null-p
    ;; #:%make-null-uuid-loadtime
    ;; #:unique-universal-identifier-null
+   ;;
+   ;; #:uuid-hex-vector-parse-time-low
+   ;; #:uuid-hex-vector-parse-time-mid
+   ;; #:uuid-hex-vector-parse-time-high-and-version
+   ;; #:uuid-hex-vector-parse-clock-seq-and-reserved
+   ;; #:uuid-hex-vector-parse-clock-seq-low
+   ;; #:uuid-hex-vector-parse-node
    #:make-uuid-from-string
-   #:uuid-copy-uuid
    #:serialize-uuid
    ;; #:deserialize-uuid                 ;(UNIMPLEMENTED)
    #:sxhash-uuid
    #:make-hash-table-uuid
-   #:uuid-print-bit-vector
-   #:uuid-princ-to-string
-   #:uuid-print-bytes-to-string
    #:uuid-as-urn-string
    #:uuid-get-bytes-for-integer
    #:uuid-get-namespace-bytes
    #:uuid-string-to-sha1-byte-array
-   #:uuid-bit-vector-zeroed
    #:uuid-byte-array-zeroed
-   #:uuid-bit-vector-8-zeroed
    #:uuid-octet-to-bit-vector-8
-   #:uuid-bit-vector-48-zeroed 
-   #:uuid-bit-vector-32-zeroed 
-   #:uuid-bit-vector-16-zeroed
-   #:uuid-bit-vector-8-zeroed  
    #:uuid-byte-array-to-bit-vector
    #:uuid-to-bit-vector
    #:uuid-from-byte-array
