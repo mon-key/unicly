@@ -110,20 +110,20 @@ UUID-BIT-48-ERROR-DATUM is the object of the offending error.~%~% ~
 UUID-BIT-48-ERROR-EXPECTED-TYPE is a type specifier, it is defaulted to (mod 1).~%~@
 :EXAMPLE~%~% ~
  \(error \(make-condition 'uuid-bit-48-error :uuid-bit-48-error-datum \(make-v4-uuid\)\)\)~%~% ~
- \(error \(make-condition 'uuid-bit-48-error :uuid-bit-48-error-datum \(uuid-bit-vector-zeroed\)\)\)~%~% ~
+ \(error \(make-condition 'uuid-bit-48-error :uuid-bit-48-error-datum \(uuid-bit-vector-128-zeroed\)\)\)~%~% ~
  \(error \(make-condition 'uuid-bit-48-error :uuid-bit-48-error-datum \(make-null-uuid\)\)\)~%~%~
 :NOTE Above examples are for illustrative purposes only, the reported objects
 are in fact valid. Following examples are for legitimately invalid objects.~%~% ~
  \(let \(\(v4uuid \(make-v4-uuid\)\)\)
    \(setf \(slot-value v4uuid '%uuid_time-high-and-version\) #xFFFF\)
-   \(%uuid-uuid-version-if \(slot-value v4uuid '%uuid_time-high-and-version\) v4uuid\)\)~%
+   \(%uuid-version-uuid-if \(slot-value v4uuid '%uuid_time-high-and-version\) v4uuid\)\)~%
  \(let* \(\(v4uuid \(make-v4-uuid\)\)
         \(v4-bv  \(uuid-to-bit-vector v4uuid\)\)\)
    \(setf \(sbit v4-bv 48\) 1\)
-   \(%uuid-bit-vector-version-if v4-bv\)\)~%~@
+   \(%uuid-version-bit-vector-if v4-bv\)\)~%~@
 :NOTE Intended callers of this condition are internal unicly dispatching functions:~% ~
- - `unicly::%uuid-uuid-version-if'
- - `unicly::%uuid-bit-vector-version-if'~%~@
+ - `unicly::%uuid-version-uuid-if'
+ - `unicly::%uuid-version-bit-vector-if'~%~@
 Under normal circumstances, neither of these functions likely to ever siganl
 so long as their arguments are uuid objects properly instantiated via the exposed
 unicly API, e.g. with `unicly:make-v[345]-uuid'.  However, it is possible for an
@@ -138,7 +138,7 @@ the equivalent UUID API esp. where it may create spurious uuid objects by way of
 `uuid:make-v1-uuid' which sets the wrong bits of the class uuid's
 time-high-and-version slot-value.  It is wrong to propogate the errors of that implementations
 API further and we make some attempt to identify them.~%~@
-:SEE-ALSO `uuid-version', `uuid-bit-vector-version'.~%▶▶▶")))
+:SEE-ALSO `uuid-version-uuid', `uuid-version-bit-vector'.~%▶▶▶")))
 
 ;;; ==============================
 

@@ -259,7 +259,7 @@ And satisfies `mon:string-all-hex-char-p'.~%~@
 Objects of this type are capable of representing as bit-vectors the integer
 values of slots of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%
- \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector\)~%~@
+ \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
 `uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
 
@@ -270,7 +270,7 @@ Objects of this type have a length of type `uuid-bit-vector-128-length' and may
 be used to represent the integer value of the combined slots of class
 `unique-universal-identifier'.~%~@
 :EXAMPLE~%
- \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
+ \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
 `uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
 
@@ -281,8 +281,8 @@ Objects of this type have a length of type `uuid-bit-vector-48-length', and may
 be used to represent the integer values of the slot `%uuid_node' of class
 `unique-universal-identifier'.~%~@
 :EXAMPLE~%
- \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 48) 'uuid-bit-vector-48\)~%
- \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%
+ \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 48) 'uuid-bit-vector-48\)~%
+ \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
 `uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
 
@@ -293,8 +293,8 @@ Objects of this type have a length of type `uuid-bit-vector-32-length', and may
 be used to represent the integer values of the slot `%uuid_time-low' of class
 `unique-universal-identifier'.~%~@
 :EXAMPLE~%
- \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 32) 'uuid-bit-vector-32\)~%
- \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-32\)~%~@
+ \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 32) 'uuid-bit-vector-32\)~%
+ \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-32\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
 `uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
 
@@ -305,8 +305,8 @@ Objects of this type have a length of type `uuid-bit-vector-16-length', and may
 be used to represent the integer values of the slots `%uuid_time-mid' and
 `%uuid_time-mid' of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%
- \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 16) 'uuid-bit-vector-16\)~%
- \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
+ \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 16) 'uuid-bit-vector-16\)~%
+ \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
 `uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
 
@@ -319,8 +319,8 @@ be used to represent an `uuid-ub8' value of any sub-sequence of bits in a
 `%uuid_clock-seq-and-reserved' and `%uuid_clock-seq-low' of class
 `unique-universal-identifier'.~%~@
 :EXAMPLE~%
- \(typep  (subseq \(uuid-bit-vector-zeroed\) 0 8) 'uuid-bit-vector-8\)~%
- \(typep  \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
+ \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 8) 'uuid-bit-vector-8\)~%
+ \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
 `uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
 
@@ -413,17 +413,17 @@ Objects of this type correspond with the length of a simple-bit-vector of type
  \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-null\)~%
  \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\) 'uuid-byte-array-null\)~%
  \(not \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\) 'uuid-byte-array-null\)\)~%
- \(not \(typep \(uuid-bit-vector-zeroed\) 'uuid-byte-array-null\)\)~%
+ \(not \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-byte-array-null\)\)~%
 :SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
 
 (typedoc 'uuid-bit-vector-null
 "An object of type `unicly:uuid-bit-vector-128' and satisfying
 `unicly:uuid-bit-vector-eql'.~%~@
 :EXAMPLE~%
-  \(typep \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-null\)~%
+  \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-null\)~%
   \(typep \(make-array 128 :element-type 'bit :initial-element 1\) 'uuid-bit-vector-null\)~%
   \(not \(typep \(uuid-byte-array-zeroed\) 'uuid-bit-vector-null\)\)~%~@
-:SEE-ALSO `uuid-bit-vector-128', `uuid-bit-vector-zeroed',
+:SEE-ALSO `uuid-bit-vector-128', `uuid-bit-vector-128-zeroed',
 `uuid-byte-array-zeroed', `uuid-byte-array-null'.~%▶▶▶")
 
 (typedoc 'uuid-simple-vector-5
@@ -730,7 +730,7 @@ Return T when object has the type signature:~%
 " <DOCSTR> ~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `uuid-bit-vector-version', `uuid-bit-vector-v3-p',
+:SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
 `uuid-eql'.~%▶▶▶")
 
@@ -738,7 +738,7 @@ Return T when object has the type signature:~%
 " <DOCSTR> ~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `uuid-bit-vector-version', `uuid-bit-vector-v3-p',
+:SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
 `uuid-eql'.~%▶▶▶")
 
@@ -746,17 +746,17 @@ Return T when object has the type signature:~%
 " <DOCSTR> ~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `uuid-bit-vector-version', `uuid-bit-vector-v3-p',
+:SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
 `uuid-eql'.~%▶▶▶")
 
 (fundoc 'uuid-bit-vector-null-p
 "Whether BIT-VECTOR-MAYBE-NULL is of type `unicly:uuid-bit-vector-null'.~%~@
 :EXAMPLE~%
- \(uuid-bit-vector-null-p \(uuid-bit-vector-zeroed\)\)~%
+ \(uuid-bit-vector-null-p \(uuid-bit-vector-128-zeroed\)\)~%
  \(uuid-bit-vector-null-p \(make-array 128 :element-type 'bit :initial-element 1\)\)~%
  \(null \(uuid-bit-vector-null-p \(uuid-byte-array-zeroed\)\)\)~%~@
-:SEE-ALSO `unicly:uuid-bit-vector-eql', `unicly:uuid-bit-vector-zeroed',
+:SEE-ALSO `unicly:uuid-bit-vector-eql', `unicly:uuid-bit-vector-128-zeroed',
 `unicly:uuid-bit-vector-128', `unicly:uuid-bit-vector-128-p'.~%▶▶▶")
 
 (fundoc 'uuid-byte-array-null-p
@@ -765,7 +765,7 @@ Return T when object has the type signature:~%
  \(uuid-byte-array-null-p \(uuid-byte-array-zeroed\)\)~%
  \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\)\)~%
  \(not \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\)\)\)~%
- \(not \(uuid-byte-array-null-p \(uuid-bit-vector-zeroed\)\)\)~%~@
+ \(not \(uuid-byte-array-null-p \(uuid-bit-vector-128-zeroed\)\)\)~%~@
 :SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
 
 
@@ -773,24 +773,24 @@ Return T when object has the type signature:~%
 ;;; UUID-FUNCTIONS-DOCUMENTATION
 ;;; ==============================
 
-(fundoc 'uuid-bit-vector-version
+(fundoc 'uuid-version-bit-vector
 "Return the version of uuid version of UUID-BIT-VECTOR.~%~@
 UUID-BIT-VECTOR is on object of type `uuid-bit-vector-128'.~%~@
 When object is the null uuid return as if by `cl:values':
  0,null-uuid~%~@
 If for some reason bit 48 of object is not `cl:zerop' an error is signaled.~%~@
 :EXAMPLE~%
- \(uuid-bit-vector-version \(uuid-to-bit-vector \(make-v4-uuid\)\)\)~%
- \(uuid-bit-vector-version \(uuid-to-bit-vector 
+ \(uuid-version-bit-vector \(uuid-to-bit-vector \(make-v4-uuid\)\)\)~%
+ \(uuid-version-bit-vector \(uuid-to-bit-vector 
                            \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%
- \(uuid-bit-vector-version \(uuid-to-bit-vector 
+ \(uuid-version-bit-vector \(uuid-to-bit-vector 
                            \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%
- \(uuid-bit-vector-version \(uuid-to-bit-vector \(make-null-uuid\)\)\)~%~@
+ \(uuid-version-bit-vector \(uuid-to-bit-vector \(make-null-uuid\)\)\)~%~@
 ;; Following successfully signals an error:~%
- \(let \(\(bv-z \(uuid-bit-vector-zeroed\)\)\)
+ \(let \(\(bv-z \(uuid-bit-vector-128-zeroed\)\)\)
    \(setf \(sbit bv-z 48\) 1\)
-   \(uuid-bit-vector-version bv-z\)\)~%~@
-:SEE-ALSO `uuid-bit-vector-version', `uuid-bit-vector-v3-p',
+   \(uuid-version-bit-vector bv-z\)\)~%~@
+:SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
 `uuid-eql'.~%▶▶▶")
 
@@ -828,11 +828,11 @@ not satisfy `unique-universal-identifier-null-p'. For example:~%
  \(type-of \(uuid-copy-uuid \(make-null-uuid\)\)\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-(fundoc 'uuid-bit-vector-zeroed
+(fundoc 'uuid-bit-vector-128-zeroed
 "Return a bit vector of 128 elements with all elements zeroed.~%~@
 :EXAMPLE~%
- \(uuid-bit-vector-zeroed\)~%
- \(typep \(uuid-bit-vector-zeroed\) 'uuid-bit-vector-128\)~%~@
+ \(uuid-bit-vector-128-zeroed\)~%
+ \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector-128', `uuid-deposit-octet-to-bit-vector',
 `uuid-byte-array-to-bit-vector', `make-null-uuid'.~%▶▶▶")
 
@@ -842,7 +842,7 @@ not satisfy `unique-universal-identifier-null-p'. For example:~%
  \(uuid-byte-array-zeroed\)~%
  \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-16\)~%
  \(uuid-byte-array-16-p \(uuid-byte-array-zeroed\)\)~%~@
-:SEE-ALSO `uuid-bit-vector-zeroed', `uuid-byte-array-16-p',
+:SEE-ALSO `uuid-bit-vector-128-zeroed', `uuid-byte-array-16-p',
 `uuid-byte-array-null-p', `uuid-byte-array-null'.~%▶▶▶")
 
 (fundoc 'uuid-bit-vector-to-integer
@@ -1190,7 +1190,7 @@ uuid-bit-vector-128 format:~%
  \(uuid-eql
   \(make-instance 'unique-universal-identifier\) 
   \(make-instance 'unique-universal-identifier\)\)~%~@
-:SEE-ALSO `uuid-bit-vector-zeroed'.~%▶▶▶")
+:SEE-ALSO `uuid-bit-vector-128-zeroed'.~%▶▶▶")
 
 (fundoc 'unique-universal-identifier-null-p
 "Whether object is an instance of the class

@@ -34,6 +34,38 @@ Some notable differences between Unicly and Tzonev's uuid:
    On an x86-32 SBCL we have found Unicly's minting of v3/v4/v5 UUIDs to be
    significantly faster (at least 3-5x) than the equivalent code from uuid.
    See unicly/unicly-timings.lisp for some timing comparisons.
+   
+   * Unicly is not particlulary faster than uuid when minting v4 UUIDS. 
+   This is to be expected as both systems depend on frobbing *random-state*
+   and there is little room for optimization beyond some internal declarations.
+   
+   * Unicly does however have different performace characteristcs when comparing
+   timings of UNICLY:MAKE-V5-UUID with UUID:MAKE-V5-UUID for 1mil invocations
+   with 1mil randomly generated strings with from 1-36 randomly chosen UTF-8
+   characaters pooled from to a set of 360 and using equivalent namespaces and
+   the same array of 1mil strings on an x86-32 SBCL:
+
+    unicly:make-v5-uuid 
+     18.251 seconds of real time
+     54,614,814,653 processor cycles
+     961,242,536 bytes consed
+   
+   uuid:make-v5-uuid
+     57.404 seconds of real time
+     171,781,583,768 processor cycles
+     5,356,186,536 bytes consed
+   
+   The above ratios are similar for the equivalent MAKE-V3-UUID functions
+   
+   Other significant performace differences can be seen between Unicly and uuid
+   around the respective system's UUID-TO-BYTE-ARRAY, UUID-FROM-BYTE-ARRAY,
+   MAKE-UUID-FROM-STRING functions.
+   
+   However, Unicly's biggest performance gains don't become apparent until using
+   Unicly for equivalence tests and hash-table lookups using Unicly's extended
+   interface as provided by UUID-EQL, UUID-BIT-VECTOR-EQL, etc.
+
+ Coupled with Unicly's 
 
  - Unicly is extended with support for creating/storing/(de)serializing UUID
    objects as bit vectors.
@@ -494,10 +526,10 @@ UNICLY> (equalp
          (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "NOT-A-BUBBA")))
 ;=> NIL
 
-UNICLY> (uuid-version *unique-random-namespace*)
+UNICLY> (uuid-version-uuid *unique-random-namespace*)
 ;=> 4
 
-UNICLY> (uuid-version (make-v5-uuid *unique-random-namespace* "bubba-8"))
+UNICLY> (uuid-version-uuid (make-v5-uuid *unique-random-namespace* "bubba-8"))
 ;=> 5
 
 UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
@@ -512,7 +544,7 @@ UNICLY> (make-null-uuid)
 UNICLY> (unicly::unique-universal-identifier-null-p (make-null-uuid))
 ;=> T
 
-UNICLY> (uuid-version (make-null-uuid))
+UNICLY> (uuid-version-uuid (make-null-uuid))
 ;=>  0, UNICLY::NULL-UUID
 
 UNICLY> (uuid-eql (make-null-uuid) (make-null-uuid))

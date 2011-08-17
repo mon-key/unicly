@@ -37,7 +37,7 @@
   nil) 
 
 ;; (defparameter *uuid-v1-imitation-seed* (make-v4-uuid))
-;; (uuid-version *uuid-namespace-dns*) (make-v5-uuid *uuid-namespace-oid*)
+;; (uuid-version-uuid *uuid-namespace-dns*) (make-v5-uuid *uuid-namespace-oid*)
 ;; (unicly
 )
 
