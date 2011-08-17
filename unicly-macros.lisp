@@ -64,22 +64,21 @@
 
 ;;; ==============================
 ;;; Following macros expanded in :FILE unicly/unicly-bit-vectors.lisp
-;;; `declared-uuid-array-zeroed-of-size',
-;;; `declared-uuid-bit-vector-zeroed-of-size', `def-uuid-bit-vector-zeroed'
-;;
-(defmacro declared-uuid-array-zeroed-of-size (size array-type array-elt-type)
-  ;; (macroexpand-1 '(declared-uuid-array-zeroed-of-size 16 uuid-byte-array-16 uuid-ub8))
-  `(the ,array-type
-     (make-array ,size :element-type ',array-elt-type :initial-element 0)))
-;;
-(defmacro declared-uuid-bit-vector-zeroed-of-size (size bit-vector-type)
-  ;; (macroexpand-1 '(declared-uuid-bit-vector-zeroed-of-size 16 uuid-bit-vector-16))
-  ;; `(the ,bit-vector-type (make-array ,size :element-type 'bit :initial-element 0))
-  `(declared-uuid-array-zeroed-of-size ,size ,bit-vector-type bit))
-;;
-(defmacro def-uuid-bit-vector-zeroed (name size)
-  `(defun ,name ()
-     (uuid-bit-vector-zeroed-of-size ,size)))
+;;; `def-uuid-bit-vector-zeroed'
+(defmacro def-uuid-bit-vector-zeroed (zeroed-size)
+  ;; (macroexpand-1 '(def-uuid-bit-vector-zeroed 32))
+  (let ((interned-bv-zeroed-name (%def-uuid-format-and-intern-symbol "UUID-BIT-VECTOR-~D-ZEROED" zeroed-size))
+        (bv-int-size-and-type
+         (etypecase zeroed-size
+           (uuid-bit-vector-128-length (cons 'uuid-bit-vector-128-length 'uuid-bit-vector-128))
+           (uuid-bit-vector-48-length  (cons 'uuid-bit-vector-48-length  'uuid-bit-vector-48))
+           (uuid-bit-vector-32-length  (cons 'uuid-bit-vector-32-length  'uuid-bit-vector-32))
+           (uuid-bit-vector-16-length  (cons 'uuid-bit-vector-16-length  'uuid-bit-vector-16))
+           (uuid-bit-vector-8-length   (cons 'uuid-bit-vector-8-length   'uuid-bit-vector-8)))))
+    `(defun ,interned-bv-zeroed-name ()
+       (declare (optimize (speed 3)))
+       (the ,(cdr bv-int-size-and-type)
+         (make-array (the ,(car bv-int-size-and-type) ,zeroed-size) :element-type 'bit :initial-element 0)))))
 ;;
 ;; (defmacro @uuid-bit-vector (bit-vector-type bit-vector index)
 ;;   `(sbit (the ,bit-vector-type ,bit-vector) ,index))
@@ -128,6 +127,7 @@
 ;;; ==============================
 
 ;;; ==============================
+
 
 
 ;; Local Variables:

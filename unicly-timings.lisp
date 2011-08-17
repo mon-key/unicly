@@ -26,6 +26,10 @@
 
 #| Uncomment the section below to run the timings code following this block:
 
+
+ (defpackage #:unicly-timings (:use #:common-lisp))
+ (in-package #:unicly-timings)
+
  (defvar *random-chars*  ; SBCL specific ;
    (make-array 282 :element-type 'character :initial-contents
                (loop 
@@ -135,6 +139,18 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 ;;; :UNICLY-TIMINGS
 ;;; ==============================
 (defparameter *tt--rnd* (make-array 1000000))
+
+(loop for x from 0 below 1000000
+   do (setf (aref *tt--rnd* x) (make-random-string 36)))
+
+(sb-ext:gc :full t)
+(time
+ (loop 
+    for x across *tt--rnd*
+    do (uuid:make-v5-uuid uuid:+NAMESPACE-OID+ x)))
+
+(sb-ext:gc :full t)
+
 
 (progn 
   (loop for x from 0 below 1000000

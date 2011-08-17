@@ -479,7 +479,7 @@
 
  (and
   (equal (uuid-to-bit-vector (make-null-uuid))
-         (uuid-bit-vector-zeroed))
+         (uuid-bit-vector-128-zeroed))
   (equalp (uuid-get-namespace-bytes (make-null-uuid))
           (make-array 16 :element-type 'uuid-ub8 :initial-element 0))
   (string=  (uuid-princ-to-string (make-null-uuid)) "00000000-0000-0000-0000-000000000000")
@@ -494,16 +494,16 @@
 
 ;;; ==============================
 ;; (uuid-bit-vector-v5-p (uuid-to-bit-vector (make-v4-uuid)))
-;; (uuid-bit-vector-version (uuid-to-bit-vector (make-v3-uuid *uuid-namespace-dns* "bubba")))
-;; (uuid-bit-vector-version (uuid-to-bit-vector (make-null-uuid)))
+;; (uuid-version-bit-vector (uuid-to-bit-vector (make-v3-uuid *uuid-namespace-dns* "bubba")))
+;; (uuid-version-bit-vector (uuid-to-bit-vector (make-null-uuid)))
 ;; (uuid-bit-vector-v3-p (uuid-to-bit-vector (make-v3-uuid *uuid-namespace-dns* "bubba")))
 ;;
-;; `uuid-bit-vector-version'/`make-null-uuid'
- (and (eq (uuid-bit-vector-version (uuid-to-bit-vector (make-null-uuid))) 0)
-      (eq (nth-value 1 (uuid-bit-vector-version (uuid-to-bit-vector (make-null-uuid)))) 'null-uuid))
+;; `uuid-version-bit-vector'/`make-null-uuid'
+ (and (eq (uuid-version-bit-vector (uuid-to-bit-vector (make-null-uuid))) 0)
+      (eq (nth-value 1 (uuid-version-bit-vector (uuid-to-bit-vector (make-null-uuid)))) 'null-uuid))
 
 ;;; ==============================
-;; `uuid-bit-vector-version'/`uuid-bit-vector-v3-p'/`uuid-bit-vector-v4-p'/`uuid-bit-vector-v5-p'
+;; `uuid-version-bit-vector'/`uuid-bit-vector-v3-p'/`uuid-bit-vector-v4-p'/`uuid-bit-vector-v5-p'
 
  (let ((v3 (make-v3-uuid *uuid-namespace-dns* "bubba"))
        (v5 (make-v5-uuid *uuid-namespace-dns* "bubba"))
@@ -513,7 +513,7 @@
    (setf v5 (uuid-to-bit-vector v5))
    (loop 
       with bvs = (list v3 v4 v5)
-      for version in bvs collect (uuid-bit-vector-version version) into get-version
+      for version in bvs collect (uuid-version-bit-vector version) into get-version
       finally (return
                 (loop 
                    for chk-preds in get-version 
@@ -558,10 +558,10 @@
            v3))
 
 ;;; ==============================
-;; `uuid-version'
- (and (eq (uuid-version (make-v3-uuid *uuid-namespace-dns* "bubbb")) 3)
-      (eq (uuid-version (make-v4-uuid)) 4)
-      (eq (uuid-version (make-v5-uuid *uuid-namespace-dns* "bubbb")) 5))
+;; `uuid-version-uuid'
+ (and (eq (uuid-version-uuid (make-v3-uuid *uuid-namespace-dns* "bubbb")) 3)
+      (eq (uuid-version-uuid (make-v4-uuid)) 4)
+      (eq (uuid-version-uuid (make-v5-uuid *uuid-namespace-dns* "bubbb")) 5))
 
 ;;; ==============================
 ;; `serialize-uuid' serialization/deserilization

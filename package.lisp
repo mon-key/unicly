@@ -51,6 +51,7 @@
    #:uuid-bit-vector-16-length          ; TYPE
    #:uuid-bit-vector-8-length           ; TYPE
    #:uuid-bit-vector-valid-length       ; TYPE
+   ;; #:uuid-simple-vector-5            : TYPE
    #:uuid-byte-array-16                 ; TYPE
    #:uuid-byte-array-20                 ; TYPE
    #:uuid-byte-array-null               ; TYPE
@@ -65,32 +66,21 @@
    #:uuid-hex-string-4                  ; TYPE
    #:uuid-hex-string-2                  ; TYPE
    ;;
-   #:uuid-bit-vector-128-p
-   #:uuid-byte-array-16-p
-   #:uuid-byte-array-20-p
-
-   #:uuid-byte-array-null-p
-   #:uuid-byte-string-p
-   #:uuid-string-32-p
-   #:uuid-string-36-p
-   #:uuid-delimited-string-36-p
-   ;; #:%uuid-hex-string-36-null-string-p
+   #:uuid-bit-vector-128-p              ; PREDICATE
+   #:uuid-byte-array-16-p               ; PREDICATE
+   #:uuid-byte-array-20-p               ; PREDICATE  
+   #:uuid-byte-array-null-p             ; PREDICATE
+   #:uuid-byte-string-p                 ; PREDICATE  
+   #:uuid-string-32-p                   ; PREDICATE 
+   #:uuid-string-36-p                   ; PREDICATE
+   #:uuid-delimited-string-36-p         ; PREDICATE
+   ;;
+   ;; #:%uuid-hex-string-36-null-string-p ; INTERNAL-PREDICATE
    #:uuid-hex-string-32-p
    #:uuid-hex-string-36-p
    ;;
    ;;
-   ;; unicly/unicly-bit-vectors.lisp
-   ;;
-   #:uuid-bit-vector-zeroed
-   #:uuid-bit-vector-48-zeroed
-   #:uuid-bit-vector-32-zeroed 
-   #:uuid-bit-vector-16-zeroed
-   #:uuid-bit-vector-8-zeroed
-   #:uuid-bit-vector-eql
-   #:uuid-bit-vector-null-p
-   ;; #:uuid-bit-vector-to-integer
-   ;;
-   ;; unicly/unicly-class.lisp   
+ ;; unicly/unicly-class.lisp   
    ;;
    #:unique-universal-identifier       ; <CLASS>
    #:unique-universal-identifier-p     ; <GENERIC>
@@ -99,23 +89,53 @@
    #:uuid-print-bytes-to-string        ; <GENERIC>
    #:uuid-princ-to-string              ; <GENERIC> 
    #:uuid-copy-uuid
+   #:unique-universal-identifier-null-p
+   ;; 
+   ;; #:%unique-universal-identifier-null-p  ; INTERNAL
+   ;; #:%make-null-uuid-loadtime             ; INTERNAL
+   ;; #:unique-universal-identifier-null     ; INTERNAL  
+   ;; #:%verify-slot-boundp-and-type         ; INTERNAL
+   ;; #:uuid-print-bytes                     ; <GENERIC>-INTERNA
    ;;
-   ;;
-   ;;
-   ;; unicly/unicly-conditions.lisp
+ ;; unicly/unicly-conditions.lisp
    ;;
    ;; #:uuid-error                     ; CONDITION
    ;; #:uuid-simple-error              ; CONDITION
    ;; #:uuid-slot-unbound-error        ; CONDITION
    ;; #:uuid-bit-48-error              ; CONDITION
    ;;
+ ;; unicly/unicly-integers.lisp
+   ;;
+
+ ;; unicly/unicly-bit-vectors.lisp
+   ;;
+   ;; #:uuid-bit-vector-128-zeroed       ; INTERNAL
+   ;; #:uuid-bit-vector-48-zeroed        ; INTERNAL
+   ;; #:uuid-bit-vector-32-zeroed        ; INTERNAL
+   ;; #:uuid-bit-vector-16-zeroed        ; INTERNAL
+   ;; #:uuid-bit-vector-8-zeroed         ; INTERNAL
+   ;;
+   ;; %uuid-version-bit-vector-if        ; INTERNAL
+   ;; #:uuid-version-bit-vector          ; INTERNAL
+   #:uuid-bit-vector-v3-p
+   #:uuid-bit-vector-v4-p
+   #:uuid-bit-vector-v5-p
+   ;;
+   ;; #:uuid-octet-to-bit-vector-8       ; INTERNAL
+   ;; #:uuid-bit-vector-to-integer
+   #:uuid-deposit-octet-to-bit-vector
+   ;;
+   #:uuid-bit-vector-eql
+   #:uuid-bit-vector-null-p
+   ;;
+   ;;
+ ;; unicly.lisp
+   ;;
    #:make-v3-uuid
    #:make-v4-uuid
    #:make-v5-uuid
    #:make-null-uuid
-   ;; #:%unique-universal-identifier-null-p
-   ;; #:%make-null-uuid-loadtime
-   ;; #:unique-universal-identifier-null
+   ;;
    ;;
    ;; #:uuid-hex-vector-parse-time-low
    ;; #:uuid-hex-vector-parse-time-mid
@@ -129,23 +149,20 @@
    #:sxhash-uuid
    #:make-hash-table-uuid
    #:uuid-as-urn-string
-   #:uuid-get-bytes-for-integer
+   ;; #:uuid-get-bytes-for-integer        ; <DEPRECATED>
    #:uuid-get-namespace-bytes
-   #:uuid-string-to-sha1-byte-array
+   ; #:uuid-string-to-sha1-byte-array
    #:uuid-byte-array-zeroed
-   #:uuid-octet-to-bit-vector-8
    #:uuid-byte-array-to-bit-vector
    #:uuid-to-bit-vector
    #:uuid-from-byte-array
-   #:uuid-deposit-octet-to-bit-vector
-   #:uuid-bit-vector-version
-   #:uuid-version
+   #:uuid-version-bit-vector
+   #:uuid-version-uuid
    #:uuid-bit-vector-v3-p
    #:uuid-bit-vector-v4-p
    #:uuid-bit-vector-v5-p
    ;; #:*random-state-uuid*                  ; INTERNAL
    ;; #:make-uuid-from-string-if             ; INTERNAL
-   ;; #:%verify-slot-boundp-and-type         ; INTERNAL
    ;; #:%uuid_time-mid-request               ; INTERNAL
    ;; #:%uuid_time-low-request               ; INTERNAL
    ;; #:%uuid_time-high-and-version-request  ; INTERNAL
@@ -174,6 +191,10 @@
    ;; #:uuid-to-byte-array                   ; INTERNAL DEPRECATED
    ;; #:uuid-number-to-byte-array            ; INTERNAL DEPRECATED
    ;; 
+   ;;
+ ;; unicly/unicly-hash-table.lisp
+   ;;
+
  ;; unicly/unicly-utils.lisp
    ;;
    ;; #:string-all-hex-char-p

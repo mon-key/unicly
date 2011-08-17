@@ -289,7 +289,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;; :SEE (URL `git://github.com/kraison/kyoto-persistence.git') 
 ;;
 ;; :NOTE There is a tension around whether we should consider two objects
-;; returned from `uuid-bit-vector-zeroed' to be `uuid-eql'.
+;; returned from `uuid-bit-vector-128-zeroed' to be `uuid-eql'.
 ;; Currenlty we treat two identical uuid-bit-vector-128s to be `uuid-eql' if
 ;; they satisfy `uuid-bit-vector-eql'. The issue is that elsewhere we special case the null-id
 ;; to be considered uuid-eql only if it is the object at `unicly::*uuid-null-uuid*'.
@@ -377,8 +377,8 @@ Instance of this class return T for both `unicly:uuid-eql' and
              (uuid-bit-vector-128-p uuid-b))
         (locally (declare (uuid-bit-vector-128 uuid-a uuid-b))
           ;; don't signal if we have a poorly formed uuid-bit-vector-128
-          (and (eql (ignore-errors (uuid-bit-vector-version uuid-a))
-                    (ignore-errors (uuid-bit-vector-version uuid-b)))
+          (and (eql (ignore-errors (uuid-version-bit-vector uuid-a))
+                    (ignore-errors (uuid-version-bit-vector uuid-b)))
                (uuid-bit-vector-eql uuid-a uuid-b)))
         nil))
 
@@ -432,7 +432,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
     t)
   (:method ((object bit-vector))
     (if (uuid-bit-vector-128-p object)
-        (let ((chk-version (ignore-errors (uuid-bit-vector-version object))))
+        (let ((chk-version (ignore-errors (uuid-version-bit-vector object))))
           (if chk-version 
               (values nil (list 'uuid-bit-vector-128 chk-version))
               nil))
@@ -452,7 +452,7 @@ one of its subclasses.~%~@
 ;;; ==============================
 ;; We can speed up make-v5-uuid/make-v3-uuid if an objects is routinely used as
 ;; namespace arg to and UUID-DIGEST-UUID-INSTANCE is given access to a cached
-;; slot value of that objects byte-array representation using as yet an as yet
+;; slot value of that objects byte-array representation using as yet
 ;; unspecified slot(s) in the class UNICLY:UNIQUE-UNIVERSAL-IDENTIFIER.
 ;; We should also populate the UUIDs bit-vector representation while were at it :)
 ;;
@@ -499,16 +499,6 @@ one of its subclasses.~%~@
                  :datum (slot-value verify-uuid chk-bnd)
                  :expected-type chk-type)
        finally (return t))))
-
-;; (let (slots #(make-array 5 :element-type 
-;; %uuid_time-low
-;;   %uuid_time-mid
-;;   %uuid_time-high-and-version
-;;   %uuid_clock-seq-and-reserved
-;;   %uuid_clock-seq-low
-;;   %uuid_node)
-
-;;  (loop for chk-bnd across 
       
 ;; :NOTE Following is likely a violation of the spec as we are printing ID
 ;; without consideration to a complete conformant implementation of `cl:print-object'
@@ -568,7 +558,7 @@ one of its subclasses.~%~@
     (format stream "~(~8,'0X-~4,'0X-~4,'0X-~2,'0X~2,'0X-~12,'0X~)" 
             %uuid_time-low %uuid_time-mid %uuid_time-high-and-version 
             %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)))
-;; (print-object (make-v4-uuid) nil)
+
 (defmethod uuid-print-bytes (stream (uuid unique-universal-identifier))
   #.(format nil
 "Print the raw bytes of UUID in hexadecimal format to STREAM.~%~@
@@ -644,7 +634,7 @@ Default method speciaclized on instances of class `unique-universal-identifier'.
             "Print the bit-vector reprsentation of UUID to STREAM.~%~@
 UUID should be an object of type `uuid-bit-vector-128', sigal an error if not.~%~@
 :EXAMPLE~%
- \(uuid-print-bit-vector nil (uuid-bit-vector-zeroed))~%
+ \(uuid-print-bit-vector nil (uuid-bit-vector-128-zeroed))~%
  \(find-method #'uuid-print-bit-vector nil '\(t simple-bit-vector\)\)~%~@
 :SEE-ALSO `uuid-to-bit-vector'.~%▶▶▶~%")
   (declare (uuid-bit-vector-128 uuid))
@@ -667,7 +657,30 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
 
 (defmethod uuid-print-bit-vector (stream ;; (stream stream)
                                   (uuid unique-universal-identifier-null))
-  (uuid-print-bit-vector stream (the uuid-bit-vector-128 (uuid-bit-vector-zeroed))))
+  #.(format nil
+     "If UUID is `unique-universal-identifier-null-p' print its bit-vector representation.~%~@
+If not, an error is signaled.~%~@
+:EXAMPLE~%
+ \(uuid-print-bit-vector nil \(make-null-uuid\)\)~%~@
+;; Following fails successfully:~%
+ \(uuid-print-bit-vector nil \(make-instance 'unique-universal-identifier-null\)\)~%
+ \(find-method \(fdefinition 'uuid-print-bit-vector\) nil '\(T unique-universal-identifier-null\)\)~%~@
+:NOTE Only the null-UUID created as if by `make-null-uuid' may have its
+uuid-bit-vector-128 representation printed with this method.
+IOW, it is an error to attempe to create objects instantiated as if by:~%
+ \(make-instance 'unique-universal-identifier-null\)~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+  (if (unique-universal-identifier-null-p uuid)
+      (uuid-print-bit-vector stream (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed)))
+      (let ((streamed (make-string-output-stream))
+            (got-streamed '()))
+        (unwind-protect
+             (progn
+               (print-unreadable-object (uuid streamed :type t :identity t)
+                 (format nil "~A" uuid))
+               (setf got-streamed (get-output-stream-string streamed)))
+          (close streamed))
+        (error "Arg UUID not eql `uniquely::*uuid-null-uuid*', got: ~A" got-streamed))))
 
 (defun uuid-copy-uuid (uuid-instance)
   (declare (unique-universal-identifier uuid-instance)
@@ -696,47 +709,6 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
                    :%uuid_clock-seq-and-reserved  %uuid_clock-seq-and-reserved
                    :%uuid_clock-seq-low           %uuid_clock-seq-low
                    :%uuid_node                    %uuid_node)))
-
-;; (eval-when (:compile-toplevel :load-toplevel :execute)
-;;
-(declaim (inline uuid-hex-vector-parse-time-low
-                 uuid-hex-vector-parse-time-mid
-                 uuid-hex-vector-parse-time-high-and-version
-                 uuid-hex-vector-parse-clock-seq-and-reserved
-                 uuid-hex-vector-parse-clock-seq-low
-                 uuid-hex-vector-parse-node))
-;;
-(def-indexed-hexstring-integer-parser  "TIME-LOW"               0 uuid-hex-string-8  0 8  UUID-UB32)
-(def-indexed-hexstring-integer-parser  "TIME-MID"               1 uuid-hex-string-4  0 4  uuid-ub16)
-(def-indexed-hexstring-integer-parser  "TIME-HIGH-AND-VERSION"  2 uuid-hex-string-4  0 4  uuid-ub16)
-(def-indexed-hexstring-integer-parser  "CLOCK-SEQ-AND-RESERVED" 3 uuid-hex-string-4  0 2  uuid-ub8)
-(def-indexed-hexstring-integer-parser  "CLOCK-SEQ-LOW"          3 uuid-hex-string-4  2 4  uuid-ub8)
-(def-indexed-hexstring-integer-parser  "NODE"                   4 uuid-hex-string-12 0 12 uuid-ub48)
-;;
-;; )
-
-
-;;; ==============================
-;; :TODO This should also check for a uuid-hex-string-32 and return a symbol
-;; naming the appropriate dispatch function for the correct offsets.
-(declaim (inline make-uuid-from-string-if))
-(defun make-uuid-from-string-if (uuid-hex-string-36-if)
-  (declare (inline uuid-hex-string-36-p)
-           (optimize (speed 3)))
-  (multiple-value-bind (if-36 vector-5-or-null-uuid) (uuid-hex-string-36-p uuid-hex-string-36-if)
-    (declare (boolean if-36)
-             ((or null function uuid-simple-vector-5) vector-5-or-null-uuid))
-    (if if-36
-        vector-5-or-null-uuid
-        #-mon (error "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'~% ~
-             got: ~S~% ~
-             type-of: ~S~%" uuid-hex-string-36-if (type-of uuid-hex-string-36-if))
-        #+mon (MON:SIMPLE-ERROR-MON :w-sym  'make-uuid-from-string-if
-                                    :w-type 'function
-                                    :w-spec "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'"
-                                    :w-got uuid-hex-string-36-if
-                                    :w-type-of t
-                                    :signal-or-only nil))))
 
 
 ;;; ==============================

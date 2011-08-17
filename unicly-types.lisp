@@ -8,7 +8,7 @@
 
 (deftype uuid-unsigned-byte-size (byte-size)
   `(unsigned-byte ,byte-size))
-;;
+;; uuid-ub<N>
 (def-uuid-unsigned-byte-size 128)
 (def-uuid-unsigned-byte-size 64)
 (def-uuid-unsigned-byte-size 48)
@@ -16,69 +16,18 @@
 (def-uuid-unsigned-byte-size 24)
 (def-uuid-unsigned-byte-size 16)
 (def-uuid-unsigned-byte-size 8)
-;;
-;; (deftype uuid-ub128 ()
-;;  '(uuid-unsigned-byte-size 128))
-;;
-;; (deftype uuid-ub64 ()
-;;  '(uuid-unsigned-byte-size 64))
-;;
-;; (deftype uuid-ub48 ()
-;;  '(uuid-unsigned-byte-size 48))
-;;
-;; (deftype uuid-ub32 ()
-;;  '(uuid-unsigned-byte-size 32))
-;;
-;; (deftype uuid-ub24 ()
-;;   '(uuid-unsigned-byte-size 24))
-;;
-;; (deftype uuid-ub16 ()
-;;   '(uuid-unsigned-byte-size 16))
-;;
-;; (deftype uuid-ub8 ()
-;;   '(uuid-unsigned-byte-size 8))
-;;
-;; 128 8 bits
-;; 64  7 bits
-;; 32  6 bits
-;; 16  5 bits
-;; 8   nibble
-;;; ==============================
 
-
-;;; ==============================
 (deftype uuid-unsigned-byte-integer-length (integer)
   `(mod ,integer))
-;;
+;; uuid-ub<N>-integer-length
 (def-uuid-unsigned-byte-integer-length 128)
 (def-uuid-unsigned-byte-integer-length  64)
 (def-uuid-unsigned-byte-integer-length  49)
 (def-uuid-unsigned-byte-integer-length  33)
 (def-uuid-unsigned-byte-integer-length  25)
 (def-uuid-unsigned-byte-integer-length   9)
-;;
-;; (deftype uuid-ub128-integer-length ()
-;;   '(uuid-unsigned-byte-integer-length 129))
-;;
-;; (deftype uuid-ub64-integer-length ()
-;;   '(uuid-unsigned-byte-integer-length 65))
-;;
-;; (deftype uuid-ub48-integer-length ()
-;;   '(uuid-unsigned-byte-integer-length 49))
-;;
-;; (deftype uuid-ub32-integer-length ()
-;;   '(uuid-unsigned-byte-integer-length 33))
-;;
-;; (deftype uuid-ub24-integer-length ()
-;;   '(uuid-unsigned-byte-integer-length 25))
-;;
-;; (deftype uuid-ub16-integer-length ()
-;;   '(uuid-unsigned-byte-integer-length 17))
-;;
-;; (deftype uuid-ub8-integer-length ()
-;;   '(uuid-unsigned-byte-integer-length 9))
-;;; ==============================
 
+;;; ==============================
 ;; 
 ;; (deftype uuid-fixnum-bit-width ()
 ;;   #-sbcl '(integer 0 #.(integer-length most-positive-fixnum))
@@ -97,55 +46,21 @@
 (deftype uuid-bit-vector (&optional size)
    (let ((sz (or size '*)))
      `(simple-bit-vector ,sz)))
-;;
+;; uuid-bit-vector-<N>
 (def-uuid-bit-vector-N-type 128)
-(def-uuid-bit-vector-N-type 48)
-(def-uuid-bit-vector-N-type 32)
-(def-uuid-bit-vector-N-type 16)
-(def-uuid-bit-vector-N-type 8)
-;;
-;; (deftype uuid-bit-vector-128 ()
-;;   '(uuid-bit-vector 128))
-;;
-;; (deftype uuid-bit-vector-48 ()
-;;   '(uuid-bit-vector 48))
-;;
-;; (deftype uuid-bit-vector-32 ()
-;;   '(uuid-bit-vector 32))
-;;
-;; (deftype uuid-bit-vector-16 ()
-;;   '(uuid-bit-vector 16))
-;;
-;; (deftype uuid-bit-vector-8 ()
-;;   '(uuid-bit-vector 8))
-;;; ==============================
+(def-uuid-bit-vector-N-type  48)
+(def-uuid-bit-vector-N-type  32)
+(def-uuid-bit-vector-N-type  16)
+(def-uuid-bit-vector-N-type   8)
 
-
-;;; ==============================
 (deftype uuid-bit-vector-length (size)
   `(integer ,size ,size))
-;;
+;; uuid-bit-vector-<N>-length
 (def-uuid-bit-vector-length-type 128)
-(def-uuid-bit-vector-length-type 48)
-(def-uuid-bit-vector-length-type 32)
-(def-uuid-bit-vector-length-type 16)
-(def-uuid-bit-vector-length-type 8)
-;;
-;; (deftype uuid-bit-vector-128-length ()
-;;   '(uuid-bit-vector-length 128))
-;;
-;; (deftype uuid-bit-vector-48-length ()
-;;   '(uuid-bit-vector-length 48))
-;;
-;; (deftype uuid-bit-vector-32-length ()
-;;   '(uuid-bit-vector-length 32))
-;;
-;; (deftype uuid-bit-vector-16-length ()
-;;   '(uuid-bit-vector-length 16))
-;;
-;; (deftype uuid-bit-vector-8-length ()
-;;   '(uuid-bit-vector-length 8))
-;;; ==============================
+(def-uuid-bit-vector-length-type  48)
+(def-uuid-bit-vector-length-type  32)
+(def-uuid-bit-vector-length-type  16)
+(def-uuid-bit-vector-length-type   8)
 
 (deftype uuid-bit-vector-valid-length ()
   '(or 
@@ -162,24 +77,12 @@
   '(and uuid-bit-vector-128
     (satisfies %uuid-bit-vector-null-p)))
 
-;;; ==============================
 (deftype uuid-byte-array (&optional size)
   (let ((sz (or size '*)))
     `(simple-array uuid-ub8 (,sz))))
 ;;
 (def-uuid-byte-array-length 20)
 (def-uuid-byte-array-length 16)
-;;
-;; UUID v5 SHA1 returns an array of type: (simple-array (unsigned-byte 8) (20))
-;; (deftype uuid-byte-array-20 ()
-;;   ;; expands to: (simple-array (unsigned-byte 8) (20))
-;;   '(uuid-byte-array 20))
-;;
-;; UUID v3 MD5 returns an array of type: (simple-array (unsigned-byte 8) (16))
-;; (deftype uuid-byte-array-16 ()
-;;   ;; expands to: (simple-array (unsigned-byte 8) (16)))
-;;   '(uuid-byte-array 16))
-;;; ==============================
 
 (deftype uuid-byte-array-null ()
   ;; expands to: (simple-array (unsigned-byte 8) (16)))
@@ -188,7 +91,6 @@
 (deftype uuid-simple-vector-5 ()
   '(simple-vector 5))
 
-;;; ==============================
 (deftype uuid-string-32 ()
   '(array character (32)))
 
@@ -213,27 +115,19 @@
 (deftype uuid-hex-string-36 ()
   '(and uuid-string-36 (satisfies uuid-hex-string-36-p)))
 
-;;; ==============================
 (deftype uuid-hex-string-length (string-length)
   `(simple-array character (,string-length)))
-;;
+;; uuid-hex-string-<N>
 (def-uuid-uuid-hex-string-length 12)
 (def-uuid-uuid-hex-string-length  8)
 (def-uuid-uuid-hex-string-length  4)
 (def-uuid-uuid-hex-string-length  2)
-;;
-;; (deftype uuid-hex-string-12 ()
-;;   `(uuid-hex-string-length 12))
-;;
-;; (deftype uuid-hex-string-8 ()
-;;   `(uuid-hex-string-length 8))
-;;
-;; (deftype uuid-hex-string-4 ()
-;;   `(uuid-hex-string-length 4))
-;;
-;; (deftype uuid-hex-string-2 ()
-;;   `(uuid-hex-string-length 2))
-;;; ==============================
+
+;; (typep 3 'uuid-v3or5-int)
+;; (typep 5 'uuid-v3or5-int)
+;; (and (null (typep 4 'uuid-v3or5-int)))
+(deftype uuid-v3or5-int ()
+  '(and (integer 3 5) (not (integer 4 4))))
 
 
 ;;; ==============================
@@ -278,9 +172,13 @@
            (optimize (speed 3)))
   (loop for x across byte-array-maybe-null always (zerop x)))
 
+;; 
 ;; (uuid-byte-array-null-p (make-array 20 :element-type 'uuid-ub8 :initial-element 1))
 
+(declaim (inline uuid-byte-array-null-p))
 (defun uuid-byte-array-null-p (byte-array-maybe-null)
+  (declare (inline %uuid-byte-array-null-p)
+           (optimize (speed 3)))
   (typep byte-array-maybe-null 'uuid-byte-array-null))
 
 (defun uuid-byte-string-p (maybe-uuid-byte-string)
@@ -388,6 +286,82 @@
 ;; (uuid-hex-string-36-p (uuid-princ-to-string (make-v4-uuid)))
 ;; (type-of (svref #("e3115c49" "6e13" "4d21" "9a37" "a1af250a8f88") 0))
 ;; (simple-array-chacter (8)) 8 4 4 4 12)
+
+;;; ==============================
+;;
+;;
+;; (deftype uuid-ub128 ()
+;;  '(uuid-unsigned-byte-size 128))
+;; (deftype uuid-ub64 ()
+;;  '(uuid-unsigned-byte-size 64))
+;; (deftype uuid-ub48 ()
+;;  '(uuid-unsigned-byte-size 48))
+;; (deftype uuid-ub32 ()
+;;  '(uuid-unsigned-byte-size 32))
+;; (deftype uuid-ub24 ()
+;;   '(uuid-unsigned-byte-size 24))
+;; (deftype uuid-ub16 ()
+;;   '(uuid-unsigned-byte-size 16))
+;; (deftype uuid-ub8 ()
+;;   '(uuid-unsigned-byte-size 8))
+;;; ==============================
+;; (deftype uuid-ub128-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 129))
+;; (deftype uuid-ub64-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 65))
+;; (deftype uuid-ub48-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 49))
+;; (deftype uuid-ub32-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 33))
+;; (deftype uuid-ub24-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 25))
+;; (deftype uuid-ub16-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 17))
+;; (deftype uuid-ub8-integer-length ()
+;;   '(uuid-unsigned-byte-integer-length 9))
+;;; ==============================
+;; UUID v5 SHA1 returns an array of type: (simple-array (unsigned-byte 8) (20))
+;; (deftype uuid-byte-array-20 ()
+;;   ;; expands to: (simple-array (unsigned-byte 8) (20))
+;;   '(uuid-byte-array 20))
+;;
+;; UUID v3 MD5 returns an array of type: (simple-array (unsigned-byte 8) (16))
+;; (deftype uuid-byte-array-16 ()
+;;   ;; expands to: (simple-array (unsigned-byte 8) (16)))
+;;   '(uuid-byte-array 16))
+;;; ==============================
+;; (deftype uuid-bit-vector-128 ()
+;;   '(uuid-bit-vector 128))
+;; (deftype uuid-bit-vector-48 ()
+;;   '(uuid-bit-vector 48))
+;; (deftype uuid-bit-vector-32 ()
+;;   '(uuid-bit-vector 32))
+;; (deftype uuid-bit-vector-16 ()
+;;   '(uuid-bit-vector 16))
+;; (deftype uuid-bit-vector-8 ()
+;;   '(uuid-bit-vector 8))
+;;; ==============================
+;; (deftype uuid-bit-vector-128-length ()
+;;   '(uuid-bit-vector-length 128))
+;; (deftype uuid-bit-vector-48-length ()
+;;   '(uuid-bit-vector-length 48))
+;; (deftype uuid-bit-vector-32-length ()
+;;   '(uuid-bit-vector-length 32))
+;; (deftype uuid-bit-vector-16-length ()
+;;   '(uuid-bit-vector-length 16))
+;; (deftype uuid-bit-vector-8-length ()
+;;   '(uuid-bit-vector-length 8))
+;;; ==============================
+;; (deftype uuid-hex-string-12 ()
+;;   `(uuid-hex-string-length 12))
+;; (deftype uuid-hex-string-8 ()
+;;   `(uuid-hex-string-length 8))
+;; (deftype uuid-hex-string-4 ()
+;;   `(uuid-hex-string-length 4))
+;; (deftype uuid-hex-string-2 ()
+;;   `(uuid-hex-string-length 2))
+;;; ==============================
+
 
 ;;; ==============================
 
