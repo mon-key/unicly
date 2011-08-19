@@ -6,19 +6,18 @@
 (in-package #:unicly)
 ;; *package*
 
-;; Needs check-type?
-(declaim (inline uuid-byte-array-zeroed))
-(defun uuid-byte-array-zeroed ()
+(declaim (inline uuid-byte-array-16-zeroed))
+(defun uuid-byte-array-16-zeroed ()
   (declare (optimize (speed 3)))
   (the uuid-byte-array-16
     (make-array (the uuid-bit-vector-16-length 16) :element-type 'uuid-ub8 :initial-element 0)))
 
 (defun uuid-get-namespace-bytes (uuid)
   (declare (type unique-universal-identifier uuid)
-           (inline uuid-byte-array-zeroed  %unique-universal-identifier-null-p)
+           (inline uuid-byte-array-16-zeroed  %unique-universal-identifier-null-p)
            (optimize (speed 3)))
   (when (%unique-universal-identifier-null-p uuid)
-    (return-from uuid-get-namespace-bytes (the uuid-byte-array-16 (uuid-byte-array-zeroed))))
+    (return-from uuid-get-namespace-bytes (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))))
   (the uuid-byte-array-16
     (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                                 %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
@@ -86,22 +85,6 @@
                    :%uuid_clock-seq-and-reserved (the uuid-ub8 (aref byte-array 8))
                    :%uuid_clock-seq-low (the uuid-ub8 (aref byte-array 9))
                    :%uuid_node (the uuid-ub48 (arr-to-bytes 10 15 byte-array)))))
-
-;;; ==============================
-;; :TODO `deserialize-uuid'... 
-;; :NOTE Should there be a generic function which dispatches on the UUID's
-;; representation , e.g. uuid-bit-vector-128, uuid-byte-array-20array-16,
-;; unique-universal-identifier, uuid-string-32, uuid-string-36?
-;; :NOTE Consider renaming this to `serialize-uuid-byte-array' and calling the
-;; G-F in body.
-(defun serialize-uuid (uuid stream)
-  (declare (type unique-universal-identifier uuid)
-           (type stream stream)
-           (optimize (speed 3)))
-  (loop 
-     with bv = (the uuid-byte-array-16 (uuid-get-namespace-bytes uuid))
-     for i from 0 below 16
-     do (write-byte (aref bv i) stream)))
 
 ;;; ==============================
 ;;; :TODO Finish `uuid-byte-array-version'

@@ -198,7 +198,7 @@
 
 (declaim (inline %uuid-byte-array-null-p))
 (defun %uuid-byte-array-null-p (byte-array-maybe-null)
-  ;; (%uuid-byte-array-null-p (uuid-byte-array-zeroed))
+  ;; (%uuid-byte-array-null-p (uuid-byte-array-16-zeroed))
   ;; (%uuid-byte-array-null-p (make-array 16 :element-type 'uuid-ub8 :initial-element 1))
   (declare (inline uuid-byte-array-16-check-type)
            (optimize (speed 3)))

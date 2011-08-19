@@ -412,11 +412,11 @@ Objects of this type correspond with the length of a simple-bit-vector of type
 (typedoc 'uuid-byte-array-null
         "An object of type `unicly:uuid-byte-array-16' with each element `cl:zerop'.~%~@
 :EXAMPLE~%~@
- \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-null\)~%
+ \(typep \(uuid-byte-array-16-zeroed\) 'uuid-byte-array-null\)~%
  \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\) 'uuid-byte-array-null\)~%
  \(not \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\) 'uuid-byte-array-null\)\)~%
  \(not \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-byte-array-null\)\)~%
-:SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
+:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
 
 (typedoc 'uuid-bit-vector-null
 "An object of type `unicly:uuid-bit-vector-128' and satisfying
@@ -424,9 +424,9 @@ Objects of this type correspond with the length of a simple-bit-vector of type
 :EXAMPLE~%
   \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-null\)~%
   \(typep \(make-array 128 :element-type 'bit :initial-element 1\) 'uuid-bit-vector-null\)~%
-  \(not \(typep \(uuid-byte-array-zeroed\) 'uuid-bit-vector-null\)\)~%~@
+  \(not \(typep \(uuid-byte-array-16-zeroed\) 'uuid-bit-vector-null\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-128', `uuid-bit-vector-128-zeroed',
-`uuid-byte-array-zeroed', `uuid-byte-array-null'.~%▶▶▶")
+`uuid-byte-array-16-zeroed', `uuid-byte-array-null'.~%▶▶▶")
 
 (typedoc 'uuid-simple-vector-5
         "Objects of this type are passed as the cl:nth-value 1 by funcitions which
@@ -783,18 +783,18 @@ Return T when object has the type signature:~%
 :EXAMPLE~%
  \(uuid-bit-vector-null-p \(uuid-bit-vector-128-zeroed\)\)~%
  \(uuid-bit-vector-null-p \(make-array 128 :element-type 'bit :initial-element 1\)\)~%
- \(null \(uuid-bit-vector-null-p \(uuid-byte-array-zeroed\)\)\)~%~@
+ \(null \(uuid-bit-vector-null-p \(uuid-byte-array-16-zeroed\)\)\)~%~@
 :SEE-ALSO `unicly:uuid-bit-vector-eql', `unicly:uuid-bit-vector-128-zeroed',
 `unicly:uuid-bit-vector-128', `unicly:uuid-bit-vector-128-p'.~%▶▶▶")
 
 (fundoc 'uuid-byte-array-null-p
         "Whether object is of type `unicly:uuid-byte-array-null'.~%~@
 :EXAMPLE~%~@
- \(uuid-byte-array-null-p \(uuid-byte-array-zeroed\)\)~%
+ \(uuid-byte-array-null-p \(uuid-byte-array-16-zeroed\)\)~%
  \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\)\)~%
  \(not \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\)\)\)~%
  \(not \(uuid-byte-array-null-p \(uuid-bit-vector-128-zeroed\)\)\)~%~@
-:SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
+:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
 
 
 ;;; ==============================
@@ -864,12 +864,12 @@ not satisfy `unique-universal-identifier-null-p'. For example:~%
 :SEE-ALSO `uuid-bit-vector-128', `uuid-deposit-octet-to-bit-vector',
 `uuid-byte-array-to-bit-vector', `make-null-uuid'.~%▶▶▶")
 
-(fundoc 'uuid-byte-array-zeroed
+(fundoc 'uuid-byte-array-16-zeroed
 "Return an array of type `uuid-byte-array-16' with all elements zeroed.~%~@
 :EXAMPLE~%~@
- \(uuid-byte-array-zeroed\)~%
- \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-16\)~%
- \(uuid-byte-array-16-p \(uuid-byte-array-zeroed\)\)~%~@
+ \(uuid-byte-array-16-zeroed\)~%
+ \(typep \(uuid-byte-array-16-zeroed\) 'uuid-byte-array-16\)~%
+ \(uuid-byte-array-16-p \(uuid-byte-array-16-zeroed\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-128-zeroed', `uuid-byte-array-16-p',
 `uuid-byte-array-null-p', `uuid-byte-array-null'.~%▶▶▶")
 
