@@ -963,37 +963,6 @@ UUID is an instance of the class `unique-universal-identifier'.~%~@
             \(sxhash-uuid \(uuid-copy-uuid v4-instance\)\)\)\)\)~%~@
 :SEE-ALSO `uuid-eql', `uuid-copy-uuid', `uuid-to-bit-vector', `sb-int:bit-vector-='.~%▶▶▶")
 
-(fundoc 'uuid-serialize-byte-array
-"Serialize UUID to STREAM.~%~@
-Bytes of UUID are written to STREAM.~%~@
-Stream should have an :element-type '\(unsigned-byte 8\).~%~@
-:EXAMPLE~%
- \(let \(\(file \(make-pathname :directory '\(:absolute \"tmp\"\)
-                            :name \"temp-bytes\"\)\)
-       \(w-uuid \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
-       \(gthr '\(\)\)\)
-   \(with-open-file \(s file
-                      :if-exists :supersede
-                      :if-does-not-exist :create
-                      :direction :output
-                      :element-type 'uuid-ub8)
-     \(uuid-serialize-byte-array w-uuid s\)\)
-  ;; :NOTE basis for deserializing to file \(defun deuuid-serialize-byte-array \(file\) ;
-   \(with-open-file \(stream file :element-type 'uuid-ub8\)
-     \(do \(\(code \(read-byte stream nil :eof\) \(read-byte stream nil :eof\)\)\)
-         \(\(eql code :eof\)\)
-       \(push code gthr\)\)\)
-   \(and gthr
-        \(setf gthr \(uuid-from-byte-array \(make-array 16
-                                                     :element-type 'uuid-ub8
-                                                     :initial-contents \(nreverse gthr\)\)\)\)\)
-   \(unwind-protect 
-        \(list \(uuid-eql w-uuid gthr\)
-              gthr
-              w-uuid\)
-     \(delete-file file\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
-
 (fundoc '%uuid_time-low-request
 "Step three of RFC4122 Section 4.3:~%~@
  - Set octets zero through 3 of the time_low field to octets zero through 3 of the digest hash.~%~@
@@ -1272,6 +1241,87 @@ It should satisfy one of `unique-universal-identifier-p' or
 Keywords DATUM and EXPECTED-TYPE are as per condition class CL:TYPE-ERROR.~%~@
 :EXAMPLE~%
  \(uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
+(fundoc 'uuid-valid-stream-p
+"Whether STREAM is `cl:streamp' and `cl:open-stream-p'.
+Return as if by `cl:values':~%
+ cl:nth-value 0 is a boolean
+ cl:nth-value 1 is value of STREAM arg~%~@
+:EXAMPLE~%
+ \(let \(\(os \(make-string-output-stream\)\)\)
+   \(unwind-protect
+        \(uuid-valid-stream-p os\)
+     \(close os\)\)\)~%
+ \(uuid-valid-stream-p \"bubba\"\)~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type',
+`uuid-valid-stream-verify-for-input',
+`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+
+(fundoc 'uuid-valid-stream-verify-io-type
+"Return STREAM if it is valid for use as when writing a UUID representation.~%~@
+Keyword DIRECTION is as per `cl:open'. Valid values are either:~%
+ :INPUT :OUTPUT~%~@
+An error is signaled if STREAM is not `uuid-valid-stream-p'.~%~@
+When DIRECTION is :OUTPUT and stream is not `cl:output-stream-p' an error is signaled.~%~@
+When DIRECTION is :INPUT and stream is not `cl:input-stream-p' an error is signaled.~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type',
+`uuid-valid-stream-verify-for-input',
+`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+
+(fundoc 'uuid-valid-stream-verify-for-output
+"Return STREAM if it is valid for use as when writing a UUID representation.~%~@
+Signal an error if STREAM is not true for either `uuid-valid-stream-p' or `cl:outpu-stream-p'.~%~@
+:EXAMPLE~%
+ \(with-output-to-string \(bubba\)
+   \(and \(uuid-valid-stream-verify-for-output bubba\)
+        \(princ \"bubba is ok\" bubba\)\)\)~%~@
+;; Following fails succesfully:~%
+  \(uuid-valid-stream-verify-for-output \"bubba\"\)~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type', `uuid-valid-stream-verify-for-input'.~%▶▶▶")
+;;
+(fundoc 'uuid-valid-stream-verify-for-input
+"Return STREAM if it is valid for use as when reading a UUID representation.~%~@
+Signal an error if STREAM is not true for either `uuid-valid-stream-p' or `cl:input-stream-p'.~%~@
+:EXAMPLE~%
+ \(let \(\(stream-in   \(make-string-input-stream \"bubba is ok\"\)\)
+       \(stream-read \(make-array 11 :element-type 'character\)\)\)
+   \(values \(uuid-valid-stream-verify-for-input stream-in\)
+           \(progn \(read-sequence stream-read stream-in \)
+                  stream-read\)\)\)~%~@
+;; Following fails succesfully:~%
+ \(uuid-valid-stream-verify-for-input \"bubba\"\)~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type',
+`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+
+(fundoc 'uuid-serialize-byte-array-bytes
+"Serialize UUID to STREAM.~%~@
+Bytes of UUID are written to STREAM.~%~@
+Stream should have an :element-type '\(unsigned-byte 8\).~%~@
+:EXAMPLE~%
+ \(let \(\(file \(make-pathname :directory '\(:absolute \"tmp\"\)
+                            :name \"temp-bytes\"\)\)
+       \(w-uuid \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+       \(gthr '\(\)\)\)
+   \(with-open-file \(s file
+                      :if-exists :supersede
+                      :if-does-not-exist :create
+                      :direction :output
+                      :element-type 'uuid-ub8)
+     \(uuid-serialize-byte-array-bytes  w-uuid s\)\)
+   \(with-open-file \(stream file :element-type 'uuid-ub8\)
+     \(do \(\(code \(read-byte stream nil :eof\) \(read-byte stream nil :eof\)\)\)
+         \(\(eql code :eof\)\)
+       \(push code gthr\)\)\)
+   \(and gthr
+        \(setf gthr \(uuid-from-byte-array \(make-array 16
+                                                     :element-type 'uuid-ub8
+                                                     :initial-contents \(nreverse gthr\)\)\)\)\)
+   \(unwind-protect 
+        \(list \(uuid-eql w-uuid gthr\)
+              gthr
+              w-uuid\)
+     \(delete-file file\)\)\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
 
