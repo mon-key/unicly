@@ -61,8 +61,9 @@
     (setf b4 (ldb (byte 8 16) (the uuid-ub24 u48)))
     (setf b5 (ldb (byte 8  8) (the uuid-ub24 u48)))
     (setf b6 (ldb (byte 8  0) (the uuid-ub24 u48)))
-    (locally (declare (uuid-ub8 b1 b2 b3 b4 b5 b6))
-            (values b1 b2 b3 b4 b5 b6))))
+    (locally 
+        (declare (uuid-ub8 b1 b2 b3 b4 b5 b6))
+      (values b1 b2 b3 b4 b5 b6))))
 
 ;;; ==============================
 ;; :SOURCE Zach Beane's usenet-legend/io.lisp :WAS `disassemble-u32'
@@ -86,7 +87,23 @@
     (declare (uuid-ub8 b1 b2))
     (values b1 b2)))
 
+;; (uuid-u48-from-bytes (b5 b4 b3 b2 b1 b0)
+;; (declare optimize
 
+;;; ==============================
+;; (defun uuid-ub32-from-bytes (b3 b2 b1 b0)
+;;   ;; (declare (optimize (speed 3))
+;;   ;; 	   (uuid-ub8 b3 b2 b1 b0))
+;;   (logxor (ash b3 24)
+;; 	     (ash b2 16)
+;; 	     (ash b1 8)
+;;      b0))
+
+;; (defun uuid-ub16-from-bytes (b1 b0)
+;; (declare (uuid-ub8 b3 b2 b1 b0)
+;; 	   (optimize (speed 3)))
+;; (the uuid-ub16 (logxor (ash b1 8) b0))
+;; (logxor (ash 255 8) 255)
 
 ;;; ==============================
 
