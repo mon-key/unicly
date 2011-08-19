@@ -74,7 +74,7 @@
   ;;    (eval-when (:compile-toplevel)
   ;;      (declaim (inline ,predicate-name)))
   `(defun ,predicate-name (maybe-object-of-type)
-       (declare (optimized (speed 3)))
+       (declare (optimize (speed 3)))
        (typep maybe-object-of-type ',type-to-check)))
     
 (defmacro def-uuid-type-check-definer (type-check-name name-predicate checked-type)

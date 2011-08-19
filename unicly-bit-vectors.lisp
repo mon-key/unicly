@@ -129,7 +129,7 @@
                    %uuid-byte-array-null-p)
            (optimize (speed 3)))
   ;; (uuid-byte-array-16-check-type uuid-byte-array))
-  (let ((uuid-bv128  (the uuid-bv128 (uuid-bit-vector-128-zeroed))))
+  (let ((uuid-bv128  (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed))))
     (declare (uuid-bit-vector-128 uuid-bv128))
     (when (%uuid-byte-array-null-p uuid-byte-array)
       (return-from uuid-byte-array-to-bit-vector uuid-bv128))
@@ -137,7 +137,7 @@
        for byte across uuid-byte-array
        for offset upfrom 0 by 8 below 128
        do (uuid-deposit-octet-to-bit-vector byte offset uuid-bv128)
-       finally (return (the uuid-bit-vector-128 uuid-bv128))))
+       finally (return (the uuid-bit-vector-128 uuid-bv128)))))
 
 ;;; ==============================
 ;; :NOTE Return value has the integer representation: 267678999922476945140730988764022209929
@@ -255,7 +255,7 @@
   (let ((v5-if (uuid-version-bit-vector uuid-bit-vector)))
     (declare (uuid-version-int v5-if))
     (the boolean
-      (and (logbitp 2 v5-if) (logbitp 0 v5-if)) t)))
+      (and (logbitp 2 v5-if) (logbitp 0 v5-if) t))))
 
 ;;; ==============================
 ;; :NOTE Following modeled after Stas's inclued at bottom of file:

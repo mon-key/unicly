@@ -13,7 +13,7 @@
 ;; :NOTE Consider renaming this to `serialize-uuid-byte-array' and calling the
 ;; G-F in body.
 (defun uuid-serialize-byte-array (uuid-or-byte-array-16 stream)
-  (declare ((or uuid-or-byte-array-16 unique-universal-identifier) uuid-or-byte-array-16)
+  (declare ((or uuid-byte-array-16 unique-universal-identifier) uuid-or-byte-array-16)
            (type stream stream)
            (optimize (speed 3)))
   (loop 
