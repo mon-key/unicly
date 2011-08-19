@@ -17,65 +17,112 @@
    #:*uuid-namespace-oid* 
    #:*uuid-namespace-x500*
    ;; 
+   ;; #:*random-state-uuid*
    ;; #:*uuid-null-uuid*                ; Not exported, Bound at loadtime with `make-null-uuid-loadtime' 
    ;;                                   ; and treated as a special case thereafter
    ;;
+ ;; unicly/macros.lisp
+   ;;
+   ;; #:%def-uuid-format-and-intern-symbol                ; FUNCTION
+   ;; #:%def-uuid-format-and-intern-symbol-type-predicate ; FUNCTION
+   ;; #:%def-uuid-format-and-intern-symbol-type-checker   ; FUNCTION
+   ;;
+   ;; #:def-uuid-type-definer                             ; MACRO
+   ;; #:def-uuid-unsigned-byte-size                       ; MACRO
+   ;; #:def-uuid-byte-array-length                        ; MACRO
+   ;; #:def-uuid-unsigned-byte-integer-length             ; MACRO
+   ;; #:def-uuid-bit-vector-N-type                        ; MACRO
+   ;; #:def-uuid-bit-vector-length-type                   ; MACRO
+   ;; #:def-uuid-uuid-hex-string-length                   ; MACRO
+   ;; #:def-uuid-type-predicate-definer                   ; MACRO
+   ;; #:def-uuid-type-check-definer                       ; MACRO
+   ;; #:def-uuid-predicate-and-type-check-definer         ; MACRO
+   ;;
+   ;; #:def-uuid-bit-vector-zeroed                        ; MACRO
+   ;; #:uuid-string-parse-integer                         ; MACRO
+   ;; #:uuid-svref-for-parse-integer                      ; MACRO
+   ;; #:def-indexed-hexstring-integer-parser              ; MACRO
+   ;;
    ;; unicly/unicly-types.lisp
    ;;
-   #:uuid-byte-string                   ; TYPE
-   #:uuid-unsigned-byte-size            ; TYPE
-   #:uuid-ub128                         ; TYPE
-   #:uuid-ub64                          ; TYPE
-   #:uuid-ub48                          ; TYPE
-   #:uuid-ub32                          ; TYPE
-   #:uuid-ub24                          ; TYPE
-   #:uuid-ub16                          ; TYPE
-   #:uuid-ub8                           ; TYPE
-   #:uuid-ub128-integer-length          ; TYPE  
-   #:uuid-ub64-integer-length           ; TYPE
-   #:uuid-ub48-integer-length           ; TYPE
-   #:uuid-ub32-integer-length           ; TYPE
-   #:uuid-ub24-integer-length           ; TYPE
-   #:uuid-ub16-integer-length           ; TYPE
-   #:uuid-ub8-integer-length            ; TYPE
-   #:uuid-bit-vector                    ; TYPE
-   #:uuid-bit-vector-128                ; TYPE   
-   #:uuid-bit-vector-48                 ; TYPE
-   #:uuid-bit-vector-32                 ; TYPE
-   #:uuid-bit-vector-16                 ; TYPE
-   #:uuid-bit-vector-8                  ; TYPE
-   #:uuid-bit-vector-length             ; TYPE
-   #:uuid-bit-vector-128-length         ; TYPE
-   #:uuid-bit-vector-48-length          ; TYPE
-   #:uuid-bit-vector-32-length          ; TYPE
-   #:uuid-bit-vector-16-length          ; TYPE
-   #:uuid-bit-vector-8-length           ; TYPE
-   #:uuid-bit-vector-valid-length       ; TYPE
-   ;; #:uuid-simple-vector-5            : TYPE
-   #:uuid-byte-array-16                 ; TYPE
-   #:uuid-byte-array-20                 ; TYPE
-   #:uuid-byte-array-null               ; TYPE
-   #:uuid-bit-vector-null               ; TYPE 
-   #:uuid-string-32                     ; TYPE
-   #:uuid-string-36                     ; TYPE
-   #:uuid-hex-string-32                 ; TYPE
-   #:uuid-hex-string-36                 ; TYPE
-   #:uuid-hex-string-length             ; TYPE
-   #:uuid-hex-string-12                 ; TYPE
-   #:uuid-hex-string-8                  ; TYPE
-   #:uuid-hex-string-4                  ; TYPE
-   #:uuid-hex-string-2                  ; TYPE
+   #:uuid-unsigned-byte-size            ; SIMPLE-TYPE
+   #:uuid-ub128                         ; SIMPLE-TYPE
+   #:uuid-ub64                          ; SIMPLE-TYPE
+   #:uuid-ub48                          ; SIMPLE-TYPE
+   #:uuid-ub32                          ; SIMPLE-TYPE
+   #:uuid-ub24                          ; SIMPLE-TYPE
+   #:uuid-ub16                          ; SIMPLE-TYPE
+   #:uuid-ub8                           ; SIMPLE-TYPE
+   #:uuid-ub128-integer-length          ; SIMPLE-TYPE  
+   #:uuid-ub64-integer-length           ; SIMPLE-TYPE
+   #:uuid-ub48-integer-length           ; SIMPLE-TYPE
+   #:uuid-ub32-integer-length           ; SIMPLE-TYPE
+   #:uuid-ub24-integer-length           ; SIMPLE-TYPE
+   #:uuid-ub16-integer-length           ; SIMPLE-TYPE
+   #:uuid-ub8-integer-length            ; SIMPLE-TYPE
+   ;; #:uuid-version-int                ; SIMPLE-TYPE
+   ;; #:uuid-v3or5-int                  ; SIMPLE-TYPE
+   #:uuid-bit-vector                    ; COMPLEX-TYPE
+   #:uuid-bit-vector-128                ; COMPLEX-TYPE   
+   #:uuid-bit-vector-48                 ; COMPLEX-TYPE
+   #:uuid-bit-vector-32                 ; COMPLEX-TYPE
+   #:uuid-bit-vector-16                 ; COMPLEX-TYPE
+   #:uuid-bit-vector-8                  ; COMPLEX-TYPE
+   #:uuid-bit-vector-length             ; SIMPLE-TYPE
+   #:uuid-bit-vector-128-length         ; SIMPLE-TYPE
+   #:uuid-bit-vector-48-length          ; SIMPLE-TYPE
+   #:uuid-bit-vector-32-length          ; SIMPLE-TYPE
+   #:uuid-bit-vector-16-length          ; SIMPLE-TYPE
+   #:uuid-bit-vector-8-length           ; SIMPLE-TYPE
+   #:uuid-bit-vector-valid-length       ; SIMPLE-TYPE
+   ;; #:uuid-simple-vector-5            : COMPLEX-TYPE
+   #:uuid-byte-array-16                 ; COMPLEX-TYPE
+   #:uuid-byte-array-20                 ; COMPLEX-TYPE
+   #:uuid-byte-string                   ; COMPLEX-TYPE
+   #:uuid-byte-array-null               ; COMPLEX-TYPE
+   #:uuid-bit-vector-null               ; COMPLEX-TYPE 
+   #:uuid-string-32                     ; COMPLEX-TYPE
+   #:uuid-string-36                     ; COMPLEX-TYPE
+   #:uuid-hex-string-32                 ; COMPLEX-TYPE
+   #:uuid-hex-string-36                 ; SIMPLE-TYPE
+   #:uuid-hex-string-length             ; SIMPLE-TYPE
+   #:uuid-hex-string-12                 ; SIMPLE-TYPE
+   #:uuid-hex-string-8                  ; SIMPLE-TYPE
+   #:uuid-hex-string-4                  ; SIMPLE-TYPE
+   #:uuid-hex-string-2                  ; SIMPLE-TYPE
    ;;
-   #:uuid-bit-vector-128-p              ; PREDICATE
-   #:uuid-byte-array-16-p               ; PREDICATE
-   #:uuid-byte-array-20-p               ; PREDICATE  
-   #:uuid-byte-array-null-p             ; PREDICATE
-   #:uuid-byte-string-p                 ; PREDICATE  
-   #:uuid-string-32-p                   ; PREDICATE 
-   #:uuid-string-36-p                   ; PREDICATE
-   #:uuid-delimited-string-36-p         ; PREDICATE
+   #:uuid-bit-vector-128-p
+   ;; #:uuid-bit-vector-48-p
+   ;; #:uuid-bit-vector-32-p
+   ;; #:uuid-bit-vector-16-p
+   ;; #:uuid-bit-vector-8-p
+   ;; #:uuid-bit-vector-128-check-type
+   ;; #:uuid-bit-vector-48-check-type
+   ;; #:uuid-bit-vector-32-check-type
+   ;; #:uuid-bit-vector-16-check-type
+   ;; #:uuid-bit-vector-8-check-type
    ;;
-   ;; #:%uuid-hex-string-36-null-string-p ; INTERNAL-PREDICATE
+   ;; #:uuid-simple-vector-5-p
+   ;; #:uuid-simple-vector-5-check-type
+   #:uuid-string-32-p
+   ;; #:uuid-string-32-check-type
+   #:uuid-string-36-p
+   ;; #:uuid-string-36-check-type
+   ;; #:uuid-byte-array-p
+   ;; #:uuid-byte-array-check-type
+   #:uuid-byte-array-16-p
+   ;; #:uuid-byte-array-16-check-type
+   #:uuid-byte-array-20-p
+   ;; #:uuid-byte-array-20-check-type
+   #:uuid-byte-string-p
+   ;; #:uuid-byte-string-check-type
+   #:uuid-byte-array-null-p
+
+   ;; 
+   ;; #:uuid-byte-array-null-check-type
+   #:uuid-delimited-string-36-p
+   ;;
+   ;; #:%uuid-hex-string-36-null-string-p
    #:uuid-hex-string-32-p
    #:uuid-hex-string-36-p
    ;;
@@ -91,110 +138,117 @@
    #:uuid-copy-uuid
    #:unique-universal-identifier-null-p
    ;; 
-   ;; #:%unique-universal-identifier-null-p  ; INTERNAL
-   ;; #:%make-null-uuid-loadtime             ; INTERNAL
-   ;; #:unique-universal-identifier-null     ; INTERNAL  
-   ;; #:%verify-slot-boundp-and-type         ; INTERNAL
-   ;; #:uuid-print-bytes                     ; <GENERIC>-INTERNA
+   ;; #:%unique-universal-identifier-null-p
+   ;; #:%make-null-uuid-loadtime
+   ;; #:unique-universal-identifier-null
+   ;; #:%verify-slot-boundp-and-type
+   ;; #:uuid-print-bytes                     ; <GENERIC>-INTERNAL
    ;;
  ;; unicly/unicly-conditions.lisp
    ;;
    ;; #:uuid-error                     ; CONDITION
    ;; #:uuid-simple-error              ; CONDITION
    ;; #:uuid-slot-unbound-error        ; CONDITION
+   ;; #:uuid-simple-type-error         ; CONDITION & FUNCTION
    ;; #:uuid-bit-48-error              ; CONDITION
    ;;
  ;; unicly/unicly-integers.lisp
    ;;
-
+   ;; #:uuid-request-integer
+   ;; #:uuid-disassemble-ub48
+   ;; #:uuid-disassemble-ub32
+   ;; #:uuid-disassemble-ub16
+   ;;
  ;; unicly/unicly-bit-vectors.lisp
    ;;
-   ;; #:uuid-bit-vector-128-zeroed       ; INTERNAL
-   ;; #:uuid-bit-vector-48-zeroed        ; INTERNAL
-   ;; #:uuid-bit-vector-32-zeroed        ; INTERNAL
-   ;; #:uuid-bit-vector-16-zeroed        ; INTERNAL
-   ;; #:uuid-bit-vector-8-zeroed         ; INTERNAL
+   ;; #:uuid-bit-vector-128-zeroed
+   ;; #:uuid-bit-vector-48-zeroed
+   ;; #:uuid-bit-vector-32-zeroed
+   ;; #:uuid-bit-vector-16-zeroed
+   ;; #:uuid-bit-vector-8-zeroed
    ;;
-   ;; %uuid-version-bit-vector-if        ; INTERNAL
-   ;; #:uuid-version-bit-vector          ; INTERNAL
+   ;; #:%uuid-version-bit-vector-if
+   ;; #:uuid-version-bit-vector
    #:uuid-bit-vector-v3-p
    #:uuid-bit-vector-v4-p
    #:uuid-bit-vector-v5-p
    ;;
-   ;; #:uuid-octet-to-bit-vector-8       ; INTERNAL
+   ;; #:uuid-octet-to-bit-vector-8
    ;; #:uuid-bit-vector-to-integer
    #:uuid-deposit-octet-to-bit-vector
+   #:uuid-byte-array-to-bit-vector
    ;;
    #:uuid-bit-vector-eql
    #:uuid-bit-vector-null-p
    ;;
+   #:uuid-to-bit-vector
    ;;
- ;; unicly.lisp
+ ;; unicly/unicly-byte-arrays.lisp
+   ;;
+   #:uuid-get-namespace-bytes
+   #:uuid-byte-array-zeroed   
+   #:uuid-from-byte-array
+   ;;
+   ;;
+   ;;
+ ;; unicly/unicly.lisp
    ;;
    #:make-v3-uuid
    #:make-v4-uuid
    #:make-v5-uuid
    #:make-null-uuid
+   #:uuid-as-urn-string
+   #:uuid-version-uuid
    ;;
+   ;; #:%uuid_time-mid-request
+   ;; #:%uuid_time-low-request
+   ;; #:%uuid_time-high-and-version-request
+   ;; #:%uuid_clock-seq-and-reserved-request
+   ;; #:%uuid_clock-seq-low-request
+   ;; #:%uuid_node-request
+   ;; #:uuid-digest-uuid-instance
+   ;; #:%uuid-digest-uuid-instance-md5
+   ;; #:%uuid-digest-uuid-instance-sha1
+   ;; #:%verify-digest-version
+   ;; #:%verify-version-3-or-5
+   ;; #:digested-v3or5-uuid
+   ;; #:digested-v3-uuid
+   ;; #:digested-v5-uuid
    ;;
+   ;; #:uuid-get-bytes-for-integer           ; DEPRECATED
+   ;; #:uuid-integer-length                  ; DEPRECATED
+   ;; #:uuid-digest-uuid-string              ; DEPRECATED
+   ;; #:uuid-get-bytes                       ; DEPRECATED
+   ;; #:uuid-load-bytes                      ; DEPRECATED
+   ;; #:%uuid-get-bytes-if                   ; DEPRECATED
+   ;; #:uuid-to-byte-array                   ; DEPRECATED
+   ;; #:uuid-number-to-byte-array            ; DEPRECATED
+   ;; 
+   ;;
+ ;; unicly/unicly-string-uuid.lisp
+   ;;
+   #:make-uuid-from-string
+   ;; #:make-uuid-from-string-if
    ;; #:uuid-hex-vector-parse-time-low
    ;; #:uuid-hex-vector-parse-time-mid
    ;; #:uuid-hex-vector-parse-time-high-and-version
    ;; #:uuid-hex-vector-parse-clock-seq-and-reserved
    ;; #:uuid-hex-vector-parse-clock-seq-low
    ;; #:uuid-hex-vector-parse-node
-   #:make-uuid-from-string
-   #:serialize-uuid
-   ;; #:deserialize-uuid                 ;(UNIMPLEMENTED)
-   #:sxhash-uuid
-   #:make-hash-table-uuid
-   #:uuid-as-urn-string
-   ;; #:uuid-get-bytes-for-integer        ; <DEPRECATED>
-   #:uuid-get-namespace-bytes
-   ; #:uuid-string-to-sha1-byte-array
-   #:uuid-byte-array-zeroed
-   #:uuid-byte-array-to-bit-vector
-   #:uuid-to-bit-vector
-   #:uuid-from-byte-array
-   #:uuid-version-bit-vector
-   #:uuid-version-uuid
-   #:uuid-bit-vector-v3-p
-   #:uuid-bit-vector-v4-p
-   #:uuid-bit-vector-v5-p
-   ;; #:*random-state-uuid*                  ; INTERNAL
-   ;; #:make-uuid-from-string-if             ; INTERNAL
-   ;; #:%uuid_time-mid-request               ; INTERNAL
-   ;; #:%uuid_time-low-request               ; INTERNAL
-   ;; #:%uuid_time-high-and-version-request  ; INTERNAL
-   ;; #:%uuid_clock-seq-and-reserved-request ; INTERNAL
-   ;; #:%uuid_clock-seq-low-request          ; INTERNAL
-   ;; #:%uuid_node-request                   ; INTERNAL
-   ;; #:uuid-request-integer                 ; INTERNAL
-   ;; #:uuid-digest-uuid-instance            ; INTERNAL
-   ;; #:%uuid-digest-uuid-instance-md5       ; INTERNAL
-   ;; #:%uuid-digest-uuid-instance-sha1      ; INTERNAL
-   ;; #:%verify-digest-version               ; INTERNAL
-   ;; #:%verify-version-3-or-5               ; INTERNAL
-   ;; #:digested-v3or5-uuid                  ; INTERNAL
-   ;; #:digested-v3-uuid                     ; INTERNAL
-   ;; #:digested-v5-uuid                     ; INTERNAL
-   ;; #:uuid-string-parse-integer            ; INTERNAL MACRO
-   ;; #:uuid-disassemble-ub32                ; INTERNAL
-   ;; #:uuid-disassemble-ub16                ; INTERNAL
-   ;; #:uuid-disassemble-ub48                ; INTERNAL
+   ;; #:uuid-string-to-sha1-byte-array       ; DEPRECATED
    ;;
-   ;; #:uuid-integer-length                  ; DEPRECATED
-   ;; #:uuid-digest-uuid-string              ; INTERNAL DEPRECATED
-   ;; #:uuid-get-bytes                       ; INTERNAL DEPRECATED
-   ;; #:uuid-load-bytes                      ; INTERNAL DEPRECATED
-   ;; #:%uuid-get-bytes-if                   ; INTERNAL DEPRECATED
-   ;; #:uuid-to-byte-array                   ; INTERNAL DEPRECATED
-   ;; #:uuid-number-to-byte-array            ; INTERNAL DEPRECATED
-   ;; 
    ;;
  ;; unicly/unicly-hash-table.lisp
    ;;
-
+   #:sxhash-uuid
+   #:make-hash-table-uuid
+   ;;
+ ;; unicly/unicly-io.lisp
+   ;;
+   ;; #:uuid-serialize-byte-array
+   ;; #:uuid-serialize-bit-vector
+   ;; #:uuid-write-bit-vector
+   ;;
  ;; unicly/unicly-utils.lisp
    ;;
    ;; #:string-all-hex-char-p

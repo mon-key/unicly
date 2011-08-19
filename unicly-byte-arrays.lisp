@@ -6,6 +6,7 @@
 (in-package #:unicly)
 ;; *package*
 
+;; Needs check-type?
 (declaim (inline uuid-byte-array-zeroed))
 (defun uuid-byte-array-zeroed ()
   (declare (optimize (speed 3)))
@@ -52,7 +53,6 @@
 (eval-when (:load-toplevel :execute)
   (setf (fdefinition 'uuid-to-byte-array) 
         (fdefinition 'uuid-get-namespace-bytes)))
-
 
 ;;; ==============================
 ;; :TODO We can get rid of the macrolet and dispatch with the %uuid-*-request
@@ -103,15 +103,20 @@
      for i from 0 below 16
      do (write-byte (aref bv i) stream)))
 
-
-
-
-;; (typep 4 '(integer 3 5))
-
 ;;; ==============================
 ;;; :TODO Finish `uuid-byte-array-version'
 ;; (defun uuid-byte-array-version (uuid-byte-array)
 ;;  (declare (uuid-byte-array-16 uuid-byte-array))
+
+;; :SOURCE cl-crypto/source/rsa.lisp
+#+nil
+(defun num->byte-array (num)
+  (let* ((num-bytes (truncate (+ (integer-length num) 7) 8))
+	 (num-bits (* num-bytes 8))
+	 (out (make-array num-bytes :element-type '(unsigned-byte 8))))
+    (dotimes (i num-bytes)
+      (setf (aref out i) (ldb (byte 8 (- num-bits (* (1+ i) 8))) num)))
+    out))
 
 
 ;;; ==============================

@@ -27,9 +27,38 @@
                      :format-arguments nil)
   (:documentation "Conditions for simple unicly errors."))
 
+;; :NOTE Unused
 (define-condition uuid-slot-type-error (uuid-error type-error)
   ()
   (:documentation "Conditions for unicly slot-type errors."))
+
+(define-condition uuid-simple-type-error (uuid-simple-error type-error)
+  ()
+  (:report (lambda (uste-condition uste-stream)
+             (declare (condition uste-condition) (stream uste-stream))
+             (let* ((uste-datum         (type-error-datum uste-condition))
+                    (uste-type-of       (type-of uste-datum))
+                    (uste-expect        (type-error-expected-type uste-condition))
+                    (uste-fmt-and-args  (list
+                                         (simple-condition-format-control condition)
+                                         uste-datum uste-type-of uste-expect)))
+               (apply #'format uste-stream uste-fmt-and-args))))
+  (:default-initargs :format-control "UUID-SIMPLE-TYPE-ERROR~%~Tgot-val: ~S~%~Ttype-of:  ~S~%~Texpected: ~S~T")
+  (:documentation 
+   #.(format nil "Conditions for failed Unicly type declarations.~%~@
+                  Keyword FORMAT-CONTROL has a default-initarg which displays as:~%~% ~
+                  UUID-SIMPLE-TYPE-ERROR~%~Tgot-val: <GOT>~%~Ttype-of: <DATUM-TYPE-OF>~%~Texpected: <EXPECTED-TYPE>~%~%~
+                  Do not override FORMAT-CONTROL by providing an alternative argument as keyword~%~
+                  FORMAT-ARGUMENTS is ignored.~%~@
+                  Keywords DATUM and EXPECTED-TYPE are as per condition class CL:TYPE-ERROR.~%~@
+                  Convenience function `uuid-simple-type-error' is provided for signalling this condition.~%~@
+                  :EXAMPLE~%~% ~
+                 \(error 'uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%
+                 \(uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%")))
+;;
+(defun uuid-simple-type-error (&key datum expected-type)
+  (declare (optimize (speed 3)))
+  (error 'uuid-simple-type-error :datum datum :expected-type expected-type))
 
 (define-condition uuid-slot-unbound-error (uuid-error)
   ((:uuid-slot-unbound-name
@@ -139,6 +168,9 @@ the equivalent UUID API esp. where it may create spurious uuid objects by way of
 time-high-and-version slot-value.  It is wrong to propogate the errors of that implementations
 API further and we make some attempt to identify them.~%~@
 :SEE-ALSO `uuid-version-uuid', `uuid-version-bit-vector'.~%▶▶▶")))
+
+
+
 
 ;;; ==============================
 

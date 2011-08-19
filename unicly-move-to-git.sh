@@ -31,6 +31,7 @@ unicly-deprecated.lisp
 unicly-docs.lisp
 unicly-hash-table.lisp
 unicly-integers.lisp
+unicly-io.lisp
 unicly-loadtime-bind.lisp
 unicly-macros.lisp
 unicly-specials.lisp

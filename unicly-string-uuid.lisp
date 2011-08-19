@@ -115,5 +115,20 @@
                             #-sbcl (flexi-streams:string-to-octets string :external-format :UTF-8))
     (ironclad:produce-digest digester)))
 
+;; :SOURCE cl-crypto/source/aes16.lisp
+#+nil 
+(defun hex-str->bin-array (hex-str)
+  "Convert a hex string to binary array. 
+Length of hex string must be mulitple of 2"
+  (let* ((bin-len (/ (length hex-str) 2))
+	 (bin (make-array bin-len :element-type 'uint-8)))
+    (dotimes (i bin-len)
+      (setf (aref bin i)
+	    (parse-integer hex-str :radix 16
+			   :start (* 2 i)
+			   :end (* 2 (1+ i)))))   
+    bin))
+
+
 ;;; ==============================
 ;;; EOF

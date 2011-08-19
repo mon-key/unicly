@@ -263,6 +263,8 @@ values of slots of class `unique-universal-identifier'.~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
 `uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
 
+;; uuid-bit-vector-128
+
 (typedoc 'uuid-bit-vector-128
 "An object of type \(simple-bit-vector 128\) capable of representing all 128
 bits of a `unique-universal-identifier'~%~@
@@ -631,6 +633,32 @@ index bounded by START and END Valid types are:~%
      \(push \(apply #'uuid-string-parse-integer m\) gthr\)\)\)~%~@
 :SEE-ALSO `make-uuid-from-string-if'.~%▶▶▶")
 
+(fundoc 'def-uuid-predicate-and-type-check-definer
+        "Convenience macro for defining predicate and check-type functions for Unicly types.~%~@
+TYPE-FOR-PRED-AND-CHECK is a token designating an existing type-specifier.
+Its symbol-name is used to generate two symbol-names to use as function names when defining a
+the predicate and check-type functions.
+Generated predicate name has the form:~%~@
+ <TYPE-FOR-PRED-AND-CHECK>-P
+Generated check-type name has the form:
+ <TYPE-FOR-PRED-AND-CHECK>-CHECK-TYPE
+So given the type specifier UUID-BIT-VECTOR-8
+the following two functions would be definened:
+ uuid-bit-vector-8-p uuid-bit-vector-8-check-type
+In the case, uuid-bit-vector-8-check-type is defined with a body which checks if
+some value satisfies uuid-bit-vector-8-p and if not signals a condition of type
+`uuid-simple-type-error' its body having the format:~%
+ \(unless \(uuid-bit-vector-8-p <SOME-VALUE>\)
+   \(uuid-simple-type-error :datum <SOME-VALUE> 
+                           :expected-type uuid-bit-vector-8\)\)~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(def-uuid-predicate-and-type-check-definer uuid-bit-vector-32\)\)
+ \(macroexpand-all '\(def-uuid-predicate-and-type-check-definer uuid-bit-vector-32\)\)~%~@
+:NOTE The body of this macro expands into two addtional macros:~%
+ `unicly::def-uuid-type-predicate-definer'
+ `unicly::def-uuid-type-check-definer'~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
 
 
 ;;; ==============================
@@ -935,7 +963,7 @@ UUID is an instance of the class `unique-universal-identifier'.~%~@
             \(sxhash-uuid \(uuid-copy-uuid v4-instance\)\)\)\)\)~%~@
 :SEE-ALSO `uuid-eql', `uuid-copy-uuid', `uuid-to-bit-vector', `sb-int:bit-vector-='.~%▶▶▶")
 
-(fundoc 'serialize-uuid
+(fundoc 'uuid-serialize-byte-array
 "Serialize UUID to STREAM.~%~@
 Bytes of UUID are written to STREAM.~%~@
 Stream should have an :element-type '\(unsigned-byte 8\).~%~@
@@ -949,8 +977,8 @@ Stream should have an :element-type '\(unsigned-byte 8\).~%~@
                       :if-does-not-exist :create
                       :direction :output
                       :element-type 'uuid-ub8)
-     \(serialize-uuid w-uuid s\)\)
-  ;; :NOTE basis for deserializing to file \(defun deserialize-uuid \(file\) ;
+     \(uuid-serialize-byte-array w-uuid s\)\)
+  ;; :NOTE basis for deserializing to file \(defun deuuid-serialize-byte-array \(file\) ;
    \(with-open-file \(stream file :element-type 'uuid-ub8\)
      \(do \(\(code \(read-byte stream nil :eof\) \(read-byte stream nil :eof\)\)\)
          \(\(eql code :eof\)\)
@@ -1215,20 +1243,6 @@ type `uuid-to-byte-array' and satisfy the predicate
  \(uuid-from-byte-array \(uuid-to-byte-array \(make-uuid-from-string \"6ba7b814-9dad-11d1-80b4-00c04fd430c8\"\)\)\)
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-(fundoc 'uuid-string-to-sha1-byte-array
-"Return string as a SHA1 byte-array as if by `ironclad:make-digest'.~%~@
-Arg STRING is a string and may contain UTF-8 characters.~%~@
-:EXAMPLE~%
- \(let \(\(target-str \(mon-test:make-random-string 16\)\)\)
-   \(values \(string-to-sha1-byte-array target-str\) target-str\)\)~@
-:NOTE we can compare the output of `string-to-sha1-byte-array' with output
-Emacs lisp' `sha1-binary':
- CL>  \(string-to-sha1-byte-array \"bubba\"\)
-        => #\(32 193 148 189 4 164 89 163 52 78 106 202 121 61 200 118 132 25 134 11\)
- elisp> \(vconcat \(sha1-binary \"bubba\"\)\)
-         => [32 193 148 189 4 164 89 163 52 78 106 202 121 61 200 118 132 25 134 11]~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
-
 (fundoc 'make-uuid-from-string-if
 "Helper function for `make-uuid-from-string'.~%~@
 If UUID-HEX-STRING-36-IF satisfies `uuid-hex-string-36-p' return it.
@@ -1253,10 +1267,32 @@ It should satisfy one of `unique-universal-identifier-p' or
  \(make-uuid-from-string \"Q6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
+(fundoc 'uuid-simple-type-error
+        "Convenience function for signaling conditions of type `unicly::uuid-simple-type-error'.~%~@
+Keywords DATUM and EXPECTED-TYPE are as per condition class CL:TYPE-ERROR.~%~@
+:EXAMPLE~%
+ \(uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
 
 ;;; ==============================
 ;;; :DEPRECATED-DOCS
 ;;; ==============================
+
+#+nil
+(fundoc 'uuid-string-to-sha1-byte-array
+"Return string as a SHA1 byte-array as if by `ironclad:make-digest'.~%~@
+Arg STRING is a string and may contain UTF-8 characters.~%~@
+:EXAMPLE~%
+ \(let \(\(target-str \(mon-test:make-random-string 16\)\)\)
+   \(values \(string-to-sha1-byte-array target-str\) target-str\)\)~@
+:NOTE we can compare the output of `string-to-sha1-byte-array' with output
+Emacs lisp' `sha1-binary':
+ CL>  \(string-to-sha1-byte-array \"bubba\"\)
+        => #\(32 193 148 189 4 164 89 163 52 78 106 202 121 61 200 118 132 25 134 11\)
+ elisp> \(vconcat \(sha1-binary \"bubba\"\)\)
+         => [32 193 148 189 4 164 89 163 52 78 106 202 121 61 200 118 132 25 134 11]~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
 
 #+nil
 (fundoc 'uuid-number-to-byte-array

@@ -77,6 +77,7 @@
     (declare (ironclad:sha1 digester))
     (ironclad:update-digest digester namespace)
     (ironclad:update-digest digester name)
+    ;; SHA-1 uses a 160-bit (20-byte) message size
     (the (values uuid-byte-array-20 &optional) (ironclad:produce-digest digester))))
 
 (declaim (inline %verify-version-3-or-5))
@@ -85,17 +86,17 @@
            (optimize (speed 3)  (debug 0)))
   ;; (or (and (or (= version 3) (= version 5)) version)
   ;; (error "arg VERSION is not integer 3 nor 5"))
-  (or (and (= (logcount version) 2)
-           (the uuid-v3or5-int version))
-      (error "arg VERSION is not integer 3 nor 5")))
+  (unless (logbitp 1 (logcount version))
+    (error "arg VERSION is not integer 3 nor 5"))
+  (the uuid-v3or5-int version))
 
 (declaim (inline %verify-digest-version))
 (defun %verify-digest-version (chk-version)
   (declare ((mod 6) chk-version)
            (inline %verify-version-3-or-5)
            (optimize (speed 3)))
-  (or (and (logbitp (the uuid-v3or5-int (%verify-version-3-or-5 chk-version)) 0)
-           :MD5)
+  (if (logbitp (the uuid-v3or5-int (%verify-version-3-or-5 chk-version)) 0)
+      :MD5
       :SHA1))
 
 ;;; ==============================
@@ -275,10 +276,9 @@
   (declare (uuid-byte-array digest-byte-array)
            (inline %verify-version-3-or-5 digested-v3-uuid digested-v5-uuid)
            (optimize (speed 3)))
-  (let ((version-if (the (integer 3 5) (%verify-version-3-or-5 digest-3-or-5))))
-    ;; (declare ((integer 3 5) version-if))
+  (let ((version-if  (%verify-version-3-or-5 digest-3-or-5)))
     (the unique-universal-identifier
-      (ecase version-if 
+      (ecase (the uuid-v3or5-int version-if)
         (3  
          (setf version-if (the unique-universal-identifier
                             (digested-v3-uuid (the uuid-byte-array-16 digest-byte-array)))))

@@ -10,6 +10,14 @@
   (let ((generated-name (format nil (string-upcase format-string) format-arg)))
     (intern generated-name (find-package "UNICLY"))))
 
+(defun %def-uuid-format-and-intern-symbol-type-predicate (type-symbol-or-string)
+  (let ((generated-name (format nil "~A-P" (string-upcase type-symbol-or-string)))) 
+    (intern generated-name (find-package "UNICLY"))))
+
+(defun %def-uuid-format-and-intern-symbol-type-checker (type-symbol-or-string)
+  (let ((generated-name (format nil "~A-CHECK-TYPE" (string-upcase type-symbol-or-string)))) 
+    (intern generated-name (find-package "UNICLY"))))
+
 ;;; ==============================
 ;;; Following macros expanded in :FILE unicly/unicly-types.lisp
 ;;; `def-uuid-type-definer', `def-uuid-unsigned-byte-size'
@@ -22,15 +30,15 @@
   (let ((definer-interned-name (%def-uuid-format-and-intern-symbol format-string length-arg)))
     `(deftype ,definer-interned-name ()
       '(,parent-type ,length-arg))))
-;;
+
 (defmacro def-uuid-unsigned-byte-size (size-bytes)
   ;; (macroexpand-1 '(def-uuid-unsigned-byte-size 128))
   `(def-uuid-type-definer uuid-unsigned-byte-size "UUID-UB~D" ,size-bytes))
-;;
+
 (defmacro def-uuid-byte-array-length (byte-array-length)
   ;; (macroexpand-1 '(def-uuid-unsigned-byte-size 128))
   `(def-uuid-type-definer uuid-byte-array "UUID-BYTE-ARRAY-~D" ,byte-array-length))
-;;
+
 (defmacro def-uuid-unsigned-byte-integer-length (unsigned-length)
   ;; (macroexpand-1 '(def-uuid-unsigned-byte-integer-length 128))
   ;; :NOTE We have to generate the symbol name first b/c
@@ -40,26 +48,50 @@
   ;; `uuid-ub128-integer-length'
   (let ((generated-name-string (format nil "UUID-UB~D-INTEGER-LENGTH" unsigned-length)))
     `(def-uuid-type-definer uuid-unsigned-byte-integer-length ,generated-name-string ,(1+ unsigned-length))))
-;;
+
 (defmacro def-uuid-bit-vector-N-type (bv-length-type)
   ;; (macroexpand-1 '(def-uuid-bit-vector-N-type 16))
   ;; (let ((interned-name (uuid-format-and-intern-symbol "UUID-BIT-VECTOR-~D" bv-length-type)))
   ;;   `(deftype ,interned-name ()
   ;;      '(uuid-bit-vector ,bv-length-type)))
+  ;; `(def-uuid-type-definer uuid-bit-vector-sized  "UUID-BIT-VECTOR-~D" ,bv-length-type))
   `(def-uuid-type-definer uuid-bit-vector "UUID-BIT-VECTOR-~D" ,bv-length-type))
-;;
+
 (defmacro def-uuid-bit-vector-length-type (bv-length)
   ;; (macroexpand-1 '(def-uuid-bit-vector-length-type 16))
   ;; (let ((interned-name (uuid-format-and-intern-symbol "UUID-BIT-VECTOR-~D-LENGTH" bv-length)))
   ;;   `(deftype ,interned-name ()
   ;;      '(uuid-bit-vector-length ,bv-length))))
   `(def-uuid-type-definer uuid-bit-vector-length "UUID-BIT-VECTOR-~D-LENGTH" ,bv-length))
-;;
+
 (defmacro def-uuid-uuid-hex-string-length (hex-string-length)
   ;; (macroexpand '(def-uuid-uuid-hex-string-length 12))
   `(def-uuid-type-definer uuid-hex-string-length "UUID-HEX-STRING-~D" ,hex-string-length))
-;;
-;;; ==============================
+
+;; Define a type predicate for an existing type 
+(defmacro def-uuid-type-predicate-definer (predicate-name type-to-check)
+  ;; `(progn 
+  ;;    (eval-when (:compile-toplevel)
+  ;;      (declaim (inline ,predicate-name)))
+  `(defun ,predicate-name (maybe-object-of-type)
+       (declare (optimize (speed 3)))
+       (typep maybe-object-of-type ',type-to-check)))
+    
+(defmacro def-uuid-type-check-definer (type-check-name name-predicate checked-type)
+  `(defun ,type-check-name (checked-val)
+       (declare (inline ,name-predicate)
+                (optimize (speed 3)))
+       (unless (,name-predicate checked-val)
+         (uuid-simple-type-error :datum checked-val :expected-type ',checked-type))))
+
+(defmacro def-uuid-predicate-and-type-check-definer (type-for-pred-and-check)
+  ;; (macroexpand-1 '(def-uuid-predicate-and-type-check-definer uuid-bit-vector-8))
+  ;; (def-uuid-predicate-and-type-check-definer uuid-bit-vector-8)
+  (let ((definer-interned-predicate-name  (%def-uuid-format-and-intern-symbol-type-predicate type-for-pred-and-check))
+        (definer-interned-check-type-name (%def-uuid-format-and-intern-symbol-type-checker   type-for-pred-and-check)))
+    `(progn 
+       (def-uuid-type-predicate-definer ,definer-interned-predicate-name ,type-for-pred-and-check)
+       (def-uuid-type-check-definer ,definer-interned-check-type-name ,definer-interned-predicate-name ,type-for-pred-and-check))))
 
 
 ;;; ==============================
@@ -125,9 +157,6 @@
         ,string-start ,string-end ,string-integer-type))))
 ;;
 ;;; ==============================
-
-;;; ==============================
-
 
 
 ;; Local Variables:

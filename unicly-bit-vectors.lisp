@@ -49,6 +49,8 @@
 (def-uuid-bit-vector-zeroed    8)
 
 ;; (uuid-bit-vector-32-zeroed)
+;; (uuid-version-bit-vector (uuid-bit-vector-32-zeroed))
+;; (typep (uuid-bit-vector-128-zeroed) 'uuid-bit-vector-128)
 
 ;;; ==============================
 ;; :NOTE For 1mil comparisons of two uuid-bit-vectors following timing support
@@ -57,9 +59,22 @@
 ;; comparison with `sb-int:bit-vector-=' without declarations completes in in ~191,959,447 cycles, 0.063329 run-time
 ;; comparison with `sb-int:bit-vector-=' with declartions completes in ~170,661,197, 0.05555199 run-time
 ;; The alternative definition is not altogether inferior but can't be made surpass SBCL's internal transforms
+;;
+;; (let ((bv (uuid-bit-vector-128-zeroed)))
+;;   (setf (sbit bv 127) 1)
+;;   (null (uuid-bit-vector-eql (uuid-bit-vector-128-zeroed) bv)))
+;; 
+;; following errors succesfully:
+;; (uuid-bit-vector-eql (uuid-bit-vector-128-zeroed)  "bubba")
 (defun uuid-bit-vector-eql (uuid-bv-a uuid-bv-b)
-  (declare (uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
-           (optimize (speed 3)))
+  (declare (type uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
+           ;; :NOTE safety 2 required if we want to ensure Python sniffs around for bv length
+           ;; So we added `uuid-bit-vector-128-check-type' -- should be no way for it to fail.
+           (inline uuid-bit-vector-128-check-type)
+           ;; (optimize (speed 3) (safety 2)))
+           (optimize (speed 3) (safety 0)))
+  (uuid-bit-vector-128-check-type uuid-bv-a)
+  (uuid-bit-vector-128-check-type uuid-bv-b)
   #-sbcl 
   (if (and (= (count 0 uuid-bv-a :test #'=) (count 0 uuid-bv-b :test #'=))
            (= (count 1 uuid-bv-a :test #'=) (count 1 uuid-bv-b :test #'=)))
@@ -68,16 +83,17 @@
          for top-idx = (logxor low-idx 127)
          always (and (= (sbit uuid-bv-a low-idx) (sbit uuid-bv-b low-idx))
                      (= (sbit uuid-bv-a top-idx) (sbit uuid-bv-b top-idx)))))
-  #+sbcl 
-  (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b))
+  #+sbcl (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b))
 
 (defun %uuid-bit-vector-null-p (bit-vector-maybe-null)
   (declare (uuid-bit-vector-128 bit-vector-maybe-null)
            (inline uuid-bit-vector-128-zeroed)
            (optimize (speed 3)))
+  ;; uuid-bit-vector-eql should catch non uuid-bit-vector-128s
   (the (values (member t nil) &optional)
     (uuid-bit-vector-eql bit-vector-maybe-null (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed)))))
-                                               
+
+;; (%uuid-bit-vector-null-p (uuid-bit-vector-32-zeroed))
 (declaim (inline uuid-bit-vector-null-p))
 (defun uuid-bit-vector-null-p (bit-vector-maybe-null)
   (declare (optimize (speed 3)))
@@ -90,16 +106,16 @@
            (inline uuid-bit-vector-8-zeroed)
            (optimize (speed 3)))
   (let ((bv8 (the uuid-bit-vector-8 (uuid-bit-vector-8-zeroed))))
-    (declare (type uuid-bit-vector-8 bv8))
+    (declare (uuid-bit-vector-8 bv8))
     (dotimes (i 8 bv8)
       (setf (sbit bv8 i) (ldb (byte 1 7) octet))
       (setf octet (logand #xFF (ash octet 1))))))
 
 (declaim (inline uuid-deposit-octet-to-bit-vector))
 (defun uuid-deposit-octet-to-bit-vector (octet offset uuid-bv)
-  (declare (type uuid-ub8 octet)
+  (declare (uuid-ub8 octet)
+           (uuid-ub128-integer-length offset)
            (uuid-bit-vector-128 uuid-bv)
-           ((mod 129) offset)
            (optimize (speed 3)))
   (loop 
      for idx upfrom offset below (+ offset 8)
@@ -112,7 +128,8 @@
            (inline uuid-deposit-octet-to-bit-vector
                    %uuid-byte-array-null-p)
            (optimize (speed 3)))
-  (let ((uuid-bv128 (uuid-bit-vector-128-zeroed)))
+  ;; (uuid-byte-array-16-check-type uuid-byte-array))
+  (let ((uuid-bv128  (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed))))
     (declare (uuid-bit-vector-128 uuid-bv128))
     (when (%uuid-byte-array-null-p uuid-byte-array)
       (return-from uuid-byte-array-to-bit-vector uuid-bv128))
@@ -120,18 +137,7 @@
        for byte across uuid-byte-array
        for offset upfrom 0 by 8 below 128
        do (uuid-deposit-octet-to-bit-vector byte offset uuid-bv128)
-       finally (return  uuid-bv128))))
-
-(declaim (inline %uuid-version-bit-vector-if))
-(defun %uuid-version-bit-vector-if (uuid-bit-vector)
-  ;; :TEST (signals succesfully)
-  ;; (let ((bv-z (uuid-bit-vector-128-zeroed)))
-  ;;         (setf (sbit bv-z 48) 1)
-  ;;         (%uuid-version-bit-vector-if bv-z))
-  (declare (uuid-bit-vector-128 uuid-bit-vector)
-           (optimize (speed 3)))
-  (unless (zerop (sbit uuid-bit-vector 48))
-    (error 'uuid-bit-48-error  :uuid-bit-48-error-datum uuid-bit-vector)))
+       finally (return (the uuid-bit-vector-128 uuid-bv128)))))
 
 ;;; ==============================
 ;; :NOTE Return value has the integer representation: 267678999922476945140730988764022209929
@@ -150,10 +156,10 @@
          (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                       %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
              uuid
-           (declare (type uuid-ub32 %uuid_time-low)
-                    (type uuid-ub16 %uuid_time-mid %uuid_time-high-and-version)
-                    (type uuid-ub8  %uuid_clock-seq-and-reserved %uuid_clock-seq-low)
-                    (type uuid-ub48 %uuid_node))
+           (declare (uuid-ub32 %uuid_time-low)
+                    (uuid-ub16 %uuid_time-mid %uuid_time-high-and-version)
+                    (uuid-ub8  %uuid_clock-seq-and-reserved %uuid_clock-seq-low)
+                    (uuid-ub48 %uuid_node))
            (multiple-value-call #'list 
              (uuid-disassemble-ub32 %uuid_time-low)
              (uuid-disassemble-ub16 %uuid_time-mid)
@@ -169,6 +175,21 @@
        do (uuid-deposit-octet-to-bit-vector (the uuid-ub8 byte) offset uuid-bv128)
        finally (return uuid-bv128))))
 
+(declaim (inline %uuid-version-bit-vector-if))
+(defun %uuid-version-bit-vector-if (uuid-bit-vector)
+  ;; :TEST (signals succesfully)
+  ;; (let ((bv-z (uuid-bit-vector-128-zeroed)))
+  ;;         (setf (sbit bv-z 48) 1)
+  ;;         (%uuid-version-bit-vector-if bv-z))
+  (declare (uuid-bit-vector-128 uuid-bit-vector)
+           (inline uuid-bit-vector-128-check-type)
+           (optimize (speed 3)))
+  (uuid-bit-vector-128-check-type uuid-bit-vector)
+  (unless (zerop (sbit uuid-bit-vector 48))
+    (error 'uuid-bit-48-error  :uuid-bit-48-error-datum uuid-bit-vector)))
+;;
+;; (%uuid-version-bit-vector-if (uuid-bit-vector-32-zeroed))
+;; (uuid-version-bit-vector (uuid-bit-vector-32-zeroed))
 ;;; ==============================
 ;;  48 49 50 51
 ;; | 0  0  0  1  | 1  The time-based version specified in this document.
@@ -205,30 +226,36 @@
 
 (declaim (inline uuid-bit-vector-v3-p))
 (defun uuid-bit-vector-v3-p (uuid-bit-vector)
+  ;; (uuid-bit-vector-v3-p (uuid-to-bit-vector (make-v3-uuid (make-v4-uuid) "bubba")))
   (declare (uuid-bit-vector-128 uuid-bit-vector)
            (inline uuid-version-bit-vector)
            (optimize (speed 3)))
   (let ((v3-if (uuid-version-bit-vector uuid-bit-vector)))
-    (declare ((integer 0 5) v3-if))
-    (= v3-if 3)))
+    (declare (uuid-version-int v3-if))
+    (the boolean
+      (and (logbitp 1 v3-if) (logbitp 0 v3-if) t))))
 
 (declaim (inline uuid-bit-vector-v4-p))
 (defun uuid-bit-vector-v4-p (uuid-bit-vector)
+  ;; (uuid-bit-vector-v4-p (uuid-to-bit-vector (make-v4-uuid)))
   (declare (uuid-bit-vector-128 uuid-bit-vector)
            (inline uuid-version-bit-vector)
            (optimize (speed 3)))
   (let ((v4-if (uuid-version-bit-vector uuid-bit-vector)))
-    (declare ((integer 0 5) v4-if))
-    (= v4-if 4)))
+    (declare (uuid-version-int v4-if))
+    (the boolean
+      (zerop (logior (logxor v4-if 4) 0)))))
 
 (declaim (inline uuid-bit-vector-v5-p))
 (defun uuid-bit-vector-v5-p (uuid-bit-vector)
+  ;; (uuid-bit-vector-v5-p (uuid-to-bit-vector (make-v5-uuid (make-v4-uuid) "bubba")))
   (declare (uuid-bit-vector-128 uuid-bit-vector)
            (inline uuid-version-bit-vector)
            (optimize (speed 3)))
   (let ((v5-if (uuid-version-bit-vector uuid-bit-vector)))
-    (declare ((integer 0 5) v5-if))
-    (= v5-if 5)))
+    (declare (uuid-version-int v5-if))
+    (the boolean
+      (and (logbitp 2 v5-if) (logbitp 0 v5-if) t))))
 
 ;;; ==============================
 ;; :NOTE Following modeled after Stas's inclued at bottom of file:
