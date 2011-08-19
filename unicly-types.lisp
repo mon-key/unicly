@@ -200,14 +200,15 @@
 (defun %uuid-byte-array-null-p (byte-array-maybe-null)
   ;; (%uuid-byte-array-null-p (uuid-byte-array-zeroed))
   ;; (%uuid-byte-array-null-p (make-array 16 :element-type 'uuid-ub8 :initial-element 1))
-  (declare (uuid-byte-array-16 byte-array-maybe-null)
-            (inline uuid-byte-array-16-check-type)
-            (optimize (speed 3)))
+  (declare (inline uuid-byte-array-16-check-type)
+           (optimize (speed 3)))
   (uuid-byte-array-16-check-type byte-array-maybe-null)
-  (loop for x across byte-array-maybe-null always (zerop x)))
+  (locally 
+      (declare (uuid-byte-array-16 byte-array-maybe-null))
+    (loop for x across byte-array-maybe-null always (zerop x))))
 ;;
 ;; (uuid-byte-array-16-check-type (make-array 20 :element-type 'uuid-ub8 :initial-element 1))
-;; (%uuid-byte-array-null-p (make-array 20 :element-type 'uuid-ub8 :initial-element 1))
+;; (%uuid-byte-array-null-p (make-array 20 :element-type 'uuid-ub8 :initial-element 0))
 
 (declaim (inline uuid-byte-array-null-p))
 (defun uuid-byte-array-null-p (byte-array-maybe-null)
@@ -293,7 +294,8 @@
             for split of-type simple-string across split-vec
             always (all-zero-char-p split))))
     (all-strings-zero-p)))
-    
+;;
+;; (%uuid-hex-string-36-null-string-p #(0 0 0 0))
 ;; (deftype uuid-hex-string-36-zeroed ()
 ;;   '(satisfies %uuid-hex-string-36-null-string-p))
 

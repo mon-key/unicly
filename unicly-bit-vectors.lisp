@@ -67,14 +67,17 @@
 ;; following errors succesfully:
 ;; (uuid-bit-vector-eql (uuid-bit-vector-128-zeroed)  "bubba")
 (defun uuid-bit-vector-eql (uuid-bv-a uuid-bv-b)
-  (declare (type uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
+  (declare 
            ;; :NOTE safety 2 required if we want to ensure Python sniffs around for bv length
            ;; So we added `uuid-bit-vector-128-check-type' -- should be no way for it to fail.
            (inline uuid-bit-vector-128-check-type)
            ;; (optimize (speed 3) (safety 2)))
-           (optimize (speed 3) (safety 0)))
+           (optimize (speed 3)))
   (uuid-bit-vector-128-check-type uuid-bv-a)
   (uuid-bit-vector-128-check-type uuid-bv-b)
+  (locally 
+      (declare (type uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
+               (optimize (speed 3) (safety 0)))
   #-sbcl 
   (if (and (= (count 0 uuid-bv-a :test #'=) (count 0 uuid-bv-b :test #'=))
            (= (count 1 uuid-bv-a :test #'=) (count 1 uuid-bv-b :test #'=)))
@@ -83,7 +86,7 @@
          for top-idx = (logxor low-idx 127)
          always (and (= (sbit uuid-bv-a low-idx) (sbit uuid-bv-b low-idx))
                      (= (sbit uuid-bv-a top-idx) (sbit uuid-bv-b top-idx)))))
-  #+sbcl (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b))
+  #+sbcl (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b)))
 
 (defun %uuid-bit-vector-null-p (bit-vector-maybe-null)
   (declare (uuid-bit-vector-128 bit-vector-maybe-null)
@@ -181,12 +184,14 @@
   ;; (let ((bv-z (uuid-bit-vector-128-zeroed)))
   ;;         (setf (sbit bv-z 48) 1)
   ;;         (%uuid-version-bit-vector-if bv-z))
-  (declare (uuid-bit-vector-128 uuid-bit-vector)
-           (inline uuid-bit-vector-128-check-type)
+  (declare (inline uuid-bit-vector-128-check-type)
            (optimize (speed 3)))
   (uuid-bit-vector-128-check-type uuid-bit-vector)
-  (unless (zerop (sbit uuid-bit-vector 48))
-    (error 'uuid-bit-48-error  :uuid-bit-48-error-datum uuid-bit-vector)))
+  (locally (declare 
+            (uuid-bit-vector-128 uuid-bit-vector)
+            (optimize (speed 3) (safety 0)))
+    (unless (zerop (sbit uuid-bit-vector 48))
+      (error 'uuid-bit-48-error  :uuid-bit-48-error-datum uuid-bit-vector))))
 ;;
 ;; (%uuid-version-bit-vector-if (uuid-bit-vector-32-zeroed))
 ;; (uuid-version-bit-vector (uuid-bit-vector-32-zeroed))
