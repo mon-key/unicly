@@ -412,11 +412,11 @@ Objects of this type correspond with the length of a simple-bit-vector of type
 (typedoc 'uuid-byte-array-null
         "An object of type `unicly:uuid-byte-array-16' with each element `cl:zerop'.~%~@
 :EXAMPLE~%~@
- \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-null\)~%
+ \(typep \(uuid-byte-array-16-zeroed\) 'uuid-byte-array-null\)~%
  \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\) 'uuid-byte-array-null\)~%
  \(not \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\) 'uuid-byte-array-null\)\)~%
  \(not \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-byte-array-null\)\)~%
-:SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
+:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
 
 (typedoc 'uuid-bit-vector-null
 "An object of type `unicly:uuid-bit-vector-128' and satisfying
@@ -424,9 +424,9 @@ Objects of this type correspond with the length of a simple-bit-vector of type
 :EXAMPLE~%
   \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-null\)~%
   \(typep \(make-array 128 :element-type 'bit :initial-element 1\) 'uuid-bit-vector-null\)~%
-  \(not \(typep \(uuid-byte-array-zeroed\) 'uuid-bit-vector-null\)\)~%~@
+  \(not \(typep \(uuid-byte-array-16-zeroed\) 'uuid-bit-vector-null\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-128', `uuid-bit-vector-128-zeroed',
-`uuid-byte-array-zeroed', `uuid-byte-array-null'.~%▶▶▶")
+`uuid-byte-array-16-zeroed', `uuid-byte-array-null'.~%▶▶▶")
 
 (typedoc 'uuid-simple-vector-5
         "Objects of this type are passed as the cl:nth-value 1 by funcitions which
@@ -783,18 +783,18 @@ Return T when object has the type signature:~%
 :EXAMPLE~%
  \(uuid-bit-vector-null-p \(uuid-bit-vector-128-zeroed\)\)~%
  \(uuid-bit-vector-null-p \(make-array 128 :element-type 'bit :initial-element 1\)\)~%
- \(null \(uuid-bit-vector-null-p \(uuid-byte-array-zeroed\)\)\)~%~@
+ \(null \(uuid-bit-vector-null-p \(uuid-byte-array-16-zeroed\)\)\)~%~@
 :SEE-ALSO `unicly:uuid-bit-vector-eql', `unicly:uuid-bit-vector-128-zeroed',
 `unicly:uuid-bit-vector-128', `unicly:uuid-bit-vector-128-p'.~%▶▶▶")
 
 (fundoc 'uuid-byte-array-null-p
         "Whether object is of type `unicly:uuid-byte-array-null'.~%~@
 :EXAMPLE~%~@
- \(uuid-byte-array-null-p \(uuid-byte-array-zeroed\)\)~%
+ \(uuid-byte-array-null-p \(uuid-byte-array-16-zeroed\)\)~%
  \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\)\)~%
  \(not \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\)\)\)~%
  \(not \(uuid-byte-array-null-p \(uuid-bit-vector-128-zeroed\)\)\)~%~@
-:SEE-ALSO `uuid-byte-array-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
+:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
 
 
 ;;; ==============================
@@ -864,12 +864,12 @@ not satisfy `unique-universal-identifier-null-p'. For example:~%
 :SEE-ALSO `uuid-bit-vector-128', `uuid-deposit-octet-to-bit-vector',
 `uuid-byte-array-to-bit-vector', `make-null-uuid'.~%▶▶▶")
 
-(fundoc 'uuid-byte-array-zeroed
+(fundoc 'uuid-byte-array-16-zeroed
 "Return an array of type `uuid-byte-array-16' with all elements zeroed.~%~@
 :EXAMPLE~%~@
- \(uuid-byte-array-zeroed\)~%
- \(typep \(uuid-byte-array-zeroed\) 'uuid-byte-array-16\)~%
- \(uuid-byte-array-16-p \(uuid-byte-array-zeroed\)\)~%~@
+ \(uuid-byte-array-16-zeroed\)~%
+ \(typep \(uuid-byte-array-16-zeroed\) 'uuid-byte-array-16\)~%
+ \(uuid-byte-array-16-p \(uuid-byte-array-16-zeroed\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-128-zeroed', `uuid-byte-array-16-p',
 `uuid-byte-array-null-p', `uuid-byte-array-null'.~%▶▶▶")
 
@@ -962,37 +962,6 @@ UUID is an instance of the class `unique-universal-identifier'.~%~@
         \(eq \(sxhash-uuid v4-instance\)
             \(sxhash-uuid \(uuid-copy-uuid v4-instance\)\)\)\)\)~%~@
 :SEE-ALSO `uuid-eql', `uuid-copy-uuid', `uuid-to-bit-vector', `sb-int:bit-vector-='.~%▶▶▶")
-
-(fundoc 'uuid-serialize-byte-array
-"Serialize UUID to STREAM.~%~@
-Bytes of UUID are written to STREAM.~%~@
-Stream should have an :element-type '\(unsigned-byte 8\).~%~@
-:EXAMPLE~%
- \(let \(\(file \(make-pathname :directory '\(:absolute \"tmp\"\)
-                            :name \"temp-bytes\"\)\)
-       \(w-uuid \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
-       \(gthr '\(\)\)\)
-   \(with-open-file \(s file
-                      :if-exists :supersede
-                      :if-does-not-exist :create
-                      :direction :output
-                      :element-type 'uuid-ub8)
-     \(uuid-serialize-byte-array w-uuid s\)\)
-  ;; :NOTE basis for deserializing to file \(defun deuuid-serialize-byte-array \(file\) ;
-   \(with-open-file \(stream file :element-type 'uuid-ub8\)
-     \(do \(\(code \(read-byte stream nil :eof\) \(read-byte stream nil :eof\)\)\)
-         \(\(eql code :eof\)\)
-       \(push code gthr\)\)\)
-   \(and gthr
-        \(setf gthr \(uuid-from-byte-array \(make-array 16
-                                                     :element-type 'uuid-ub8
-                                                     :initial-contents \(nreverse gthr\)\)\)\)\)
-   \(unwind-protect 
-        \(list \(uuid-eql w-uuid gthr\)
-              gthr
-              w-uuid\)
-     \(delete-file file\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
 
 (fundoc '%uuid_time-low-request
 "Step three of RFC4122 Section 4.3:~%~@
@@ -1272,6 +1241,87 @@ It should satisfy one of `unique-universal-identifier-p' or
 Keywords DATUM and EXPECTED-TYPE are as per condition class CL:TYPE-ERROR.~%~@
 :EXAMPLE~%
  \(uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
+(fundoc 'uuid-valid-stream-p
+"Whether STREAM is `cl:streamp' and `cl:open-stream-p'.
+Return as if by `cl:values':~%
+ cl:nth-value 0 is a boolean
+ cl:nth-value 1 is value of STREAM arg~%~@
+:EXAMPLE~%
+ \(let \(\(os \(make-string-output-stream\)\)\)
+   \(unwind-protect
+        \(uuid-valid-stream-p os\)
+     \(close os\)\)\)~%
+ \(uuid-valid-stream-p \"bubba\"\)~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type',
+`uuid-valid-stream-verify-for-input',
+`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+
+(fundoc 'uuid-valid-stream-verify-io-type
+"Return STREAM if it is valid for use as when writing a UUID representation.~%~@
+Keyword DIRECTION is as per `cl:open'. Valid values are either:~%
+ :INPUT :OUTPUT~%~@
+An error is signaled if STREAM is not `uuid-valid-stream-p'.~%~@
+When DIRECTION is :OUTPUT and stream is not `cl:output-stream-p' an error is signaled.~%~@
+When DIRECTION is :INPUT and stream is not `cl:input-stream-p' an error is signaled.~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type',
+`uuid-valid-stream-verify-for-input',
+`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+
+(fundoc 'uuid-valid-stream-verify-for-output
+"Return STREAM if it is valid for use as when writing a UUID representation.~%~@
+Signal an error if STREAM is not true for either `uuid-valid-stream-p' or `cl:outpu-stream-p'.~%~@
+:EXAMPLE~%
+ \(with-output-to-string \(bubba\)
+   \(and \(uuid-valid-stream-verify-for-output bubba\)
+        \(princ \"bubba is ok\" bubba\)\)\)~%~@
+;; Following fails succesfully:~%
+  \(uuid-valid-stream-verify-for-output \"bubba\"\)~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type', `uuid-valid-stream-verify-for-input'.~%▶▶▶")
+;;
+(fundoc 'uuid-valid-stream-verify-for-input
+"Return STREAM if it is valid for use as when reading a UUID representation.~%~@
+Signal an error if STREAM is not true for either `uuid-valid-stream-p' or `cl:input-stream-p'.~%~@
+:EXAMPLE~%
+ \(let \(\(stream-in   \(make-string-input-stream \"bubba is ok\"\)\)
+       \(stream-read \(make-array 11 :element-type 'character\)\)\)
+   \(values \(uuid-valid-stream-verify-for-input stream-in\)
+           \(progn \(read-sequence stream-read stream-in \)
+                  stream-read\)\)\)~%~@
+;; Following fails succesfully:~%
+ \(uuid-valid-stream-verify-for-input \"bubba\"\)~%~@
+:SEE-ALSO `uuid-valid-stream-verify-io-type',
+`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+
+(fundoc 'uuid-serialize-byte-array-bytes
+"Serialize UUID to STREAM.~%~@
+Bytes of UUID are written to STREAM.~%~@
+Stream should have an :element-type '\(unsigned-byte 8\).~%~@
+:EXAMPLE~%
+ \(let \(\(file \(make-pathname :directory '\(:absolute \"tmp\"\)
+                            :name \"temp-bytes\"\)\)
+       \(w-uuid \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+       \(gthr '\(\)\)\)
+   \(with-open-file \(s file
+                      :if-exists :supersede
+                      :if-does-not-exist :create
+                      :direction :output
+                      :element-type 'uuid-ub8)
+     \(uuid-serialize-byte-array-bytes  w-uuid s\)\)
+   \(with-open-file \(stream file :element-type 'uuid-ub8\)
+     \(do \(\(code \(read-byte stream nil :eof\) \(read-byte stream nil :eof\)\)\)
+         \(\(eql code :eof\)\)
+       \(push code gthr\)\)\)
+   \(and gthr
+        \(setf gthr \(uuid-from-byte-array \(make-array 16
+                                                     :element-type 'uuid-ub8
+                                                     :initial-contents \(nreverse gthr\)\)\)\)\)
+   \(unwind-protect 
+        \(list \(uuid-eql w-uuid gthr\)
+              gthr
+              w-uuid\)
+     \(delete-file file\)\)\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
 

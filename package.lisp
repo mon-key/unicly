@@ -186,7 +186,7 @@
  ;; unicly/unicly-byte-arrays.lisp
    ;;
    #:uuid-get-namespace-bytes
-   #:uuid-byte-array-zeroed   
+   #:uuid-byte-array-16-zeroed   
    #:uuid-from-byte-array
    ;;
    ;;
@@ -245,9 +245,16 @@
    ;;
  ;; unicly/unicly-io.lisp
    ;;
-   ;; #:uuid-serialize-byte-array
-   ;; #:uuid-serialize-bit-vector
-   ;; #:uuid-write-bit-vector
+   ;; #:uuid-valid-stream-p
+   ;; #:uuid-valid-stream-verify-for-output
+   ;; #:uuid-valid-stream-verify-for-input
+   ;; #:uuid-valid-stream-verify-for-output
+   ;;
+   ;; #:uuid-serialize-byte-array-bytes
+   ;; #:uuid-serialize-bit-vector-bits
+   ;; #:uuid-deserialize-bit-vector-bits
+   ;; #:uuid-write-bit-vector-bits
+   ;; #:uuid-read-bit-vector-bits
    ;;
  ;; unicly/unicly-utils.lisp
    ;;

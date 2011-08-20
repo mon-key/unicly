@@ -594,8 +594,8 @@ Output of return value has the format:~%
 
 (defmethod uuid-print-bytes-to-string ((uuid unique-universal-identifier) &optional string)
   #.(format nil
-            "Print the bytes of UUID to a string or STRING.~%~@
-When optional arg STRING is non-nil print bytes to STRING. 
+"Print bytes of UUID in hexadecimal representation to a `uuid-string-32'..~%~@
+When optional arg STRING is non-nil print hexadecimal representation of bytes to STRING.
 STRING should satisfy `string-with-fill-pointer-p'.~%~@
 Default method speciaclized on instances of class `unique-universal-identifier'.
 :EXAMPLE~%
