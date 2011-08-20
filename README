@@ -223,7 +223,8 @@ Or for the perverse who'd like to see what their lisp can't optimize away:
 
 CL-USER> (quicklisp:quickload 'unicly :verbose t :explain t)
 
-CL-USER> (in-package #:unicly)
+(in-package #:unicly)
+;=> #<PACKAGE "UNICLY">
 
 As per RFC 4122 "Appendix C - Some Name Space IDs" the Unicly package exports
 four "namespaces", these are:
@@ -448,8 +449,10 @@ UNICLY> (uuid-to-bit-vector *unique-random-namespace*)
 UNICLY> (unique-universal-identifier-p *unique-random-namespace*)
 ;=> T
 
- ;; When an object is uuid-bit-vector-128-p and its appropriate version bit is
- ;; set the bit-vector may be coerceable to a `unique-universal-identifier-p'.
+When an object is uuid-bit-vector-128-p and its appropriate version bit is
+set the bit-vector may be coerceable to a `unique-universal-identifier-p'.
+This is indicated with cl:nth-value 1 in the following return value:
+
 UNICLY> (unique-universal-identifier-p (uuid-to-bit-vector *unique-random-namespace*))
 ;=> NIL, (UUID-BIT-VECTOR-128 4)
 
@@ -549,6 +552,95 @@ UNICLY> (uuid-version-uuid (make-null-uuid))
 
 UNICLY> (uuid-eql (make-null-uuid) (make-null-uuid))
 ;=> T
+
+The UUID is sometimes referenced as having an 8:4:4:4:12 
+The UUID as bit field:
+
+ WEIGHT   INDEX      OCTETS                     BIT-FIELD-PER-OCTET
+    4  | (0  31)  | 255 255 255 255         | #*11111111 #*11111111 #*11111111 #*11111111  | %uuid_time-low               | uuid-ub32
+    2  | (32 47)  | 255 255                 | #*11111111 #*11111111                        | %uuid_time-mid               | uuid-ub16
+    2  | (48 63)  | 255 255                 | #*11111111 #*11111111                        | %uuid_time-high-and-version  | uuid-ub16
+    1  | (64 71)  | 255                     | #*11111111                                   | %uuid_clock-seq-and-reserved | uuid-ub8
+    1  | (72 79)  | 255                     | #*11111111                                   | %uuid_clock-seq-low          | uuid-ub8
+    6  | (80 127) | 255 255 255 255 255 255 | #*11111111 #*11111111 #*11111111 #*11111111 #*11111111 #*11111111 | %uuid_node | uuid-ub48
+
+The UUIDs bit-vector representation:
+
+UNICLY> (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba"))
+;=> #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
+;     !      !       !       !       !       !       !       !        !      !       !       !       !       !       !       !       !  
+;     0      7       15      23      31      39      47      55       63     71      79      87      95      103     111     119     127
+;      --1--   --2--   --3--   --4--   --5--   --6--   --7--    --8--   --9--   -10-   -11-     -12-    -13-    -14-    -15-    -16-  
+;     |  time-low slot               | time-mid slot | time-high slot | rsvd |  low  |                node slot                      |
+
+The UUIDs binary integer representation:
+
+UNICLY> #b11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
+;=> 317192554773903544674993329975922389959
+
+The UUIDs byte-array reresentation:
+
+UNICLY> (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)
+;=> #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
+ 
+UNICLY> (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))
+;=> #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
+
+The UUIDs component octet bit-vector of reresentation:
+
+UNICLY> (map 'list #'uuid-octet-to-bit-vector-8
+             (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;=> (#*11101110 #*10100001 #*00010000 #*01011110 #*00110110 #*10000001 #*01010001 #*00010111 
+;    #*10011001 #*10110110 #*01111011 #*00101011 #*01011111 #*11100001 #*11110011 #*11000111)
+
+Converting from UUID -> byte-array -> bit-vector 
+
+UNICLY> (uuid-byte-array-to-bit-vector (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;=> #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
+
+The upper bounds of a UUID in binary integer representation:
+
+UNICLY> #b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+;=> 340282366920938463463374607431768211455
+ 
+The number of unsigned bits used to represent the upper bounds of a UUIDs
+integer representation:
+
+UNICLY> (integer-length 340282366920938463463374607431768211455) 
+;=> 128
+
+The octet count of the upper bounds of a UUIDs integer representation:
+
+UNICLY> (truncate (integer-length 340282366920938463463374607431768211455) 8)
+;=> 16
+
+The upper bounds of UUID in decimal integer represntation (longform):
+
+UNICLY> (format t "~R" 340282366920938463463374607431768211455)
+;=> three hundred forty undecillion two hundred eighty-two decillion three hundred
+;   sixty-six nonillion nine hundred twenty octillion nine hundred thirty-eight
+;   septillion four hundred sixty-three sextillion four hundred sixty-three
+;   quintillion three hundred seventy-four quadrillion six hundred seven trillion
+;   four hundred thirty-one billion seven hundred sixty-eight million two hundred
+;   eleven thousand four hundred fifty-five
+
+
+Printing the bytes of a UUID as a string of 32 hexadecimal characters (a uuid-hex-string-32):
+
+UNICLY> (uuid-print-bytes-to-string (make-v5-uuid *uuid-namespace-dns* "bubba"))
+"eea1105e3681511799b67b2b5fe1f3c7"
+
+Note, by default UUID-PRINT-BYTES-TO-STRING returns an ojbect of type base-string:
+
+UNICLY> (type-of (uuid-print-bytes-to-string (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;=> (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
+
+This object may not satisfy uuid-hex-string-32-p
+UUID-PRINT-BYTES-TO-STRING returns an ojbect of type base-string:
+UNICLY> (let ((hex32 (make-array 32 :element-type 'character :fill-pointer 0)))
+          (uuid-print-bytes-to-string (make-v5-uuid *uuid-namespace-dns* "bubba") hex32)
+          (and (uuid-hex-string-32-p hex32) hex32))
+=> "eea1105e3681511799b67b2b5fe1f3c7"
 
 ;;; ==============================
 ;;; EOF

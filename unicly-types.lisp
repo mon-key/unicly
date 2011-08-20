@@ -131,6 +131,24 @@
 (deftype uuid-byte-string ()
   '(simple-array character (16)))
 
+;; (subtypep '(simple-array standard-char (16)) '(simple-array base-char (16)))
+;; (typep (make-array 16 :element-type 'standard-char :initial-element #\0) '(array character (16)))
+;; (standard-char-p #\0)
+;; (string-all-hex-char-p (make-array 16 :element-type 'standard-char :initial-element #\0))
+;; (typep #\Nul 'base-char)
+;; (standard-char-p #\Nul)
+;; 
+;; (uuid-hex-string-32-p (make-array 32 :element-type 'character :fill-pointer 0 :initial-element #\Nul))
+;; (typep (make-array 32 :element-type 'standard-char :fill-pointer 0 :initial-element #\0) 'uuid-string-32)
+;; :element-type 'character
+
+;; (type-of (make-array 32 :element-type 'standard-char :fill-pointer 0))
+;; (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
+
+;; (type-of (make-array 32 :element-type 'standard-char :fill-pointer 0 :initial-element #\nul))
+;; (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
+(char-code #\0)
+
 ;; complex-type
 (deftype uuid-hex-string-32 ()
   '(and uuid-string-32 (satisfies string-all-hex-char-p)))
