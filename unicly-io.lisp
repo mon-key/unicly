@@ -87,8 +87,25 @@
     ;;    for byte-idx from 0 below 16
     ;;    do (write-byte (aref ba16 byte-idx) stream))
     (write-sequence ba16 stream :start 0 :end 16)))
-
-;; uuid-byte-array-zeroed
+;; *print-array* 
+(defun uuid-deserialize-byte-array-bytes (stream)
+  (uuid-valid-stream-verify-octet-stream-for-input stream)
+  ;; :NOTE Following idiom does not suitably catch EOF.
+  ;; (let ((bv-return (uuid-bit-vector-128-zeroed)))
+  ;;    (read-sequence bv-return stream :start 0 :end 127)
+  ;;    bv-return))
+  (loop 
+     with ba16 = (uuid-byte-array-16-zeroed)
+     for ba16-idx from 0 below 16
+     for byte-read = (read-byte stream nil 'EOF)
+     if (eql byte-read 'EOF)
+     do (error 'end-of-file :stream stream)
+     end
+     ;; unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
+     ;; do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
+     ;; byte-read (type-of byte-read))
+     do (setf (aref ba16 ba16-idx) byte-read)
+     finally (return ba16)))
 
 (defun uuid-serialize-bit-vector-bits (bv-or-uuid stream-out)
   (declare ((or uuid-bit-vector-128 unique-universal-identifier) bv-or-uuid)
@@ -104,26 +121,6 @@
     ;;    for bit-idx from  0 below 128 
     ;;    do (write-byte (sbit bv-128 bit-idx) stream-out))
     (write-sequence bv-128 stream-out :start 0 :end 128)))
-
-
-(defun uuid-deserialize-byte-array-bytes (stream)
-  (uuid-valid-stream-verify-octet-stream-for-input stream)
-  ;; :NOTE Following idiom does not suitably catch EOF.
-  ;; (let ((bv-return (uuid-bit-vector-128-zeroed)))
-   ;;    (read-sequence bv-return stream :start 0 :end 127)
-   ;;    bv-return))
-   (loop 
-      with bv = ;; (uuid-byte-array-16 (uuid-bit-vector-128-zeroed)
-      for cnt from 0 below 128 
-      for byte-read = (read-byte stream nil 'EOF)
-      if (eql byte-read 'EOF)
-      do (error 'end-of-file :stream stream)
-      end
-      unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
-      do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
-                byte-read (type-of byte-read))
-      do (setf (sbit bv cnt) byte-read)
-      finally (return bv)))
 
 ;; :TODO Test (subtypep (stream-element-type stream) 'uuid-ub8)
 ;; :TODO Should peek at stream to test if we are at end of file
@@ -171,7 +168,6 @@
                          :if-does-not-exist if-does-not-exist
                          :element-type 'uuid-ub8)
     (uuid-deserialize-bit-vector-bits bv-in)))
-
 
 ;;; ==============================
 

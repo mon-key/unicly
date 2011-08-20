@@ -92,7 +92,7 @@
 ;;  (declare (uuid-byte-array-16 uuid-byte-array))
 
 ;; :SOURCE cl-crypto/source/rsa.lisp
-#+nil
+#+(or)
 (defun num->byte-array (num)
   (let* ((num-bytes (truncate (+ (integer-length num) 7) 8))
 	 (num-bits (* num-bytes 8))
@@ -100,6 +100,36 @@
     (dotimes (i num-bytes)
       (setf (aref out i) (ldb (byte 8 (- num-bits (* (1+ i) 8))) num)))
     out))
+
+;; :TODO Refactor this to test earlier for integer-length less than 120.
+(defun uuid-number-byte-array (uuid-integer)
+  (declare (optimize (speed 0) (debug 3)))
+  (when (zerop uuid-integer) 
+    (return-from uuid-number-byte-array (uuid-byte-array-16-zeroed)))
+  (let* ((octet-count (nth-value 0 (truncate (+ (integer-length uuid-integer) 7) 8)))
+         (bit-count   (ash octet-count 3))
+         (ba-out      (uuid-byte-array-16-zeroed))
+         (chk-byte   '()))
+    (dotimes (cnt 16 
+              (if (evenp octet-count)
+                  ba-out
+                  ;; when the top bits of the class unique-universal-identifier
+                  ;; are such that the uuid has an integer representation with
+                  ;; integer-length less than 120 we need to pad the array. On
+                  ;; current system this will happen for 1 in 200 make-v4-uuid's
+                  (loop
+                     with offset = ba-out
+                     with new = (uuid-byte-array-16-zeroed)  
+                     for x across offset 
+                     for y from 1 below 16
+                     do (setf (aref new y) x)
+                     finally (return new))))
+      (setf chk-byte (- bit-count (ash (1+ cnt) 3)))
+      (if (minusp chk-byte)
+          (setf (aref ba-out cnt) 
+                (ldb (byte 8 0) uuid-integer))
+          (setf (aref ba-out cnt) 
+                (ldb (byte 8 chk-byte) uuid-integer))))))
 
 
 ;;; ==============================

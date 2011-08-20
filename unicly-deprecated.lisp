@@ -17,6 +17,163 @@
 
 
 ;;; ==============================
+;;; :DEPRECATED
+;;; ==============================
+
+#+(or)
+(defmacro uuid-get-bytes-for-integer (unsigned-integer)
+  ;; (macroexpand-1 '(uuid-get-bytes-for-integer 281474976710655))
+  (declare (optimize (speed 3)))
+  `(etypecase (integer-length ,unsigned-integer)
+     ,@(loop 
+          for cnt upfrom 1 below 7
+          for x upfrom 0 below 48 by 8
+          for low = 0 then (case x 
+                             (24 17) ; Skip returning 3 octet value 17-24, bump to 4
+                             (40 33) ; Skip returning 5 octet value 33-40, bump to 6
+                             (t (+ x 1)))
+          for high = 8 then (+ x 8)
+          unless  (and (oddp cnt) (> cnt 1))
+          collect (list (list 'integer low high) cnt))))
+
+#+(or)
+(defun uuid-to-byte-array (uuid)
+  ;; :NOTE `uuid-get-namespace-bytes' and `uuid-to-byte-array' are essentially the same.
+  (declare (unique-universal-identifier uuid)
+           (optimize (speed 3)))
+  (let ((array (make-array 16 :element-type 'uuid-ub8)))
+    (declare (uuid-byte-array-16 array))
+    (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
+                                %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
+        uuid
+      (declare (type uuid-ub32 %uuid_time-low)
+               (type uuid-ub16 %uuid_time-mid %uuid_time-high-and-version)
+               (type uuid-ub8  %uuid_clock-seq-and-reserved %uuid_clock-seq-low)
+               (type uuid-ub48 %uuid_node))
+      (loop
+         for i from 3 downto 0
+         do (setf (aref array (- 3 i)) (ldb (byte 8 (* 8 i)) %uuid_time-low)))
+      (loop
+         for i from 5 downto 4
+         do (setf (aref array i) (ldb (byte 8 (* 8 (- 5 i))) %uuid_time-mid)))
+      (loop
+         for i from 7 downto 6
+         do (setf (aref array i) (ldb (byte 8 (* 8 (- 7 i))) %uuid_time-high-and-version)))
+      (setf (aref array 8) (ldb (byte 8 0) %uuid_clock-seq-and-reserved))
+      (setf (aref array 9) (ldb (byte 8 0) %uuid_clock-seq-low))
+      (loop
+         for i from 15 downto 10
+         do (setf (aref array i) (ldb (byte 8 (* 8 (- 15 i))) %uuid_node)))
+      (the uuid-byte-array-16 array))))
+
+#+(or)
+(deftype uuid-integer-length ()
+  ;; expands to: (or (integer 1 2) (integer 4 4) (integer 6 6))
+  '(member 1 2 4 6))
+
+#+(or)
+(defun uuid-number-to-byte-array (num &optional size)
+  ;; :EXAMPLE
+  ;; (uuid-number-to-byte-array 825973027016)
+  ;;  => #(200 48 212 79 192 0), 6
+  ;;
+  ;; (slot-value *uuid-namespace-dns* '%uuid_node) ;=> 825973027016
+  ;; (logand 825973027016 255)          ;=> 200
+  ;; (logand (ash 825973027016 -8) 255) ;=> 48
+  ;; (logand (ash 3226457136 -8) 255)   ;=> 212
+  ;; (logand (ash 12603348 -8) 255)     ;=> 79
+  ;; (logand (ash 49231 -8) 255)        ;=> 192
+  ;; (ash 192 -8)                       ;=> 0
+  (declare ((integer 0 *) num)
+           ((or null uuid-integer-length) size))
+  ;; :NOTE This SIZE slot is required b/c for approx. ~1/100 of
+  ;; every UUIDs generated the %UUID_TIME-MID slot is 0!
+  ;; We used to short circuit early when NUM was `cl:zerop' and simply bail
+  ;; returning the `cl:values': => #(0), 1
+  ;; However, this was _bad_ b/c a %UUID_TIME-MID must be of length 2 e.g.:
+  ;; => #(0 0), 2
+  ;; This in turn has later consequences b/c we lost our padding and corrupted
+  ;; the valid length of genenerated uuid-byte-arrays of type `uuid-byte-array-16'.
+  (if (zerop num)
+      (values (make-array 1 :element-type 'uuid-ub8 :initial-element 0) 1)
+      (let* ((type-cnt (or size (uuid-get-bytes-for-integer num)))
+             (byte-arr (make-array type-cnt :element-type 'uuid-ub8 :initial-element 0)))
+
+        (declare ((mod 7) type-cnt) 
+                 ((integer 1 *) num)
+                 ((simple-array (unsigned-byte 8) (*)) byte-arr))
+        (loop
+           for val = num then (ash val -8)
+           for count downfrom (1- type-cnt) downto 0
+           do (setf (aref byte-arr count) (logand val #XFF))
+           finally (return (values byte-arr type-cnt))))))
+
+#+(or)
+(defun uuid-load-bytes (byte-array &key (byte-size 8) (start 0) end)
+  (declare (type uuid-byte-array byte-array)
+           (optimize (speed 3)))
+  (let ((ret-val 0))
+    (loop 
+       for i from start to end
+       for pos from (- end start) downto 0
+       do (setf ret-val (dpb (aref  byte-array i) (byte byte-size (* pos byte-size)) ret-val)))
+    ret-val))
+
+#+(or)
+(declaim (inline %uuid-get-bytes-if))
+
+#+(or)
+(defun %uuid-get-bytes-if (chk-uuid-str)
+  (or (and (uuid-hex-string-32-p chk-uuid-str)
+           (the uuid-string-32 chk-uuid-str))
+      #-mon (error "Arg CHK-UUID-STR not `uuid-hex-string-32-p'~% ~
+             got: ~S~% ~
+             type-of: ~S~%" chk-uuid-str (type-of chk-uuid-str))
+      #+mon (mon:simple-error-mon :w-sym '%uuid-get-bytes-if
+                                  :w-type 'function
+                                  :w-spec "arg CHK-UUID-STR not `uuid-hex-string-32-p'"
+                                  :w-got chk-uuid-str
+                                  :w-type-of t
+                                  :signal-or-only nil)
+      ))
+
+#+(or)
+(defun uuid-get-bytes (uuid-string)
+  (declare (optimize (speed 3) (debug 0))
+           (inline %uuid-get-bytes-if))
+  (let ((uuid-str-if (%uuid-get-bytes-if uuid-string))
+        (outstr (make-array 16 :element-type 'character :initial-element #\NUL :fill-pointer 0)))
+    (declare (uuid-string-32 uuid-str-if)
+             ((and (vector character 16) (not simple-array)) outstr))
+    (with-output-to-string (out outstr)
+      (loop
+         with max = (- (length uuid-str-if) 2)
+         for i = 0 then (+ i 2)
+         as  j = (+ i 2)
+         as cur-pos = (the uuid-ub8 (parse-integer (subseq uuid-str-if i j) :radix 16))
+         do (format out "~A" (code-char (the uuid-ub8 cur-pos)))
+         while (< i max))
+      (the uuid-byte-string (make-array 16 :element-type 'character :initial-contents outstr)))))
+
+#+(or)
+(defun uuid-digest-uuid-string (digest-version string-uuid name)
+  ;; This is step two of RFC4122 section 4.3 
+  ;; -  Compute the hash of the name space ID concatenated with the name.
+  (declare ((mod 6) digest-version)
+           (type string name string-uuid))
+  (let ((digester  (ironclad:make-digest (%verify-digest-version digest-version))))
+    ;; :NOTE `mon:ascii-string-to-byte-array'
+    (ironclad:update-digest digester (ironclad:ascii-string-to-byte-array string-uuid))
+    (ironclad:update-digest digester 
+                            ;; #-sbcl (trivial-utf-8:string-to-utf-8-bytes name))
+                            ;; :NOTE sb-ext:string-to-octets is approx 11x
+                            ;; faster and conses 75% less than flexi-streams:string-to-octets
+                            #-sbcl (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
+                            #+sbcl (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8)))
+    (the (values uuid-byte-array &optional) (ironclad:produce-digest digester))))
+
+
+;;; ==============================
 ;;; :NOTE Everything below here is deprecated, including `uuid-digest-uuid-string'.
 ;;; ==============================
 
