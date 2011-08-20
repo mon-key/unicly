@@ -14,22 +14,54 @@
 ;;    1  | (72 79)  | 255                     | #*11111111                                   | %uuid_clock-seq-low          | uuid-ub8
 ;;    6  | (80 127) | 255 255 255 255 255 255 | #*11111111 #*11111111 #*11111111 #*11111111 #*11111111 #*11111111 | %uuid_node | uuid-ub48
 ;;
-;; The uuid as bit vector
+;; The UUIDs bit-vector representation
 ;; (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba"))
 ;;   0      7       15      23      31      39      47      55       63     71      79      87      95      103     111     119     127
 ;;   !      !       !       !       !       !       !       !        !      !       !       !       !       !       !       !       !  
-;; #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111  
+;; #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
 ;;
-;; The uuid as binary number
+;; The UUIDs binary integer representation:
+;; #b11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
+;; => 317192554773903544674993329975922389959
+;;
+;; The UUIDs byte-array reresentation:
+;; (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)
+;; => #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
+;; 
+;; (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))
+;; => #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
+;;
+;; (map 'list #'uuid-octet-to-bit-vector-8 (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;; => (#*11101110 #*10100001 #*00010000 #*01011110 #*00110110 #*10000001 #*01010001
+;; #*00010111 #*10011001 #*10110110 #*01111011 #*00101011 #*01011111 #*11100001
+;; #*11110011 #*11000111)
+;; 
+;;
+;; (uuid-byte-array-to-bit-vector (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;; => #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
+;;
+;; The upper bounds of a UUID in binary integer representation:
 ;; #b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 ;;  => 340282366920938463463374607431768211455
 ;; 
-;; (integer-length 340282366920938463463374607431768211455) => 128
+;; The number of unsigned bits used to represent the upper bounds of a UUIDs
+;; integer representation:
+;; (integer-length 340282366920938463463374607431768211455) 
+;; => 128
 ;;
-;; 340,282,366,920,938,463,463,374,607,431,768,211,455 340 undecillion, 282
-;; decillion, 366 nonillion, 920 octillion, 938 septillion, 463 sextillion, 463
-;; quintillion, 374 quadrillion, 607 trillion, 431 billion, 768 million, 211
-;; thousand and 455
+;; The octet count of the upper bounds of a UUIDs integer representation:
+;; (truncate (integer-length 340282366920938463463374607431768211455) 8)
+;; => 16
+;;
+;; The upper bounds of UUID in decimal integer represntation (longform):
+;; (format t "~R" 340282366920938463463374607431768211455)
+;; => three hundred forty undecillion two hundred eighty-two decillion three hundred
+;; sixty-six nonillion nine hundred twenty octillion nine hundred thirty-eight
+;; septillion four hundred sixty-three sextillion four hundred sixty-three
+;; quintillion three hundred seventy-four quadrillion six hundred seven trillion
+;; four hundred thirty-one billion seven hundred sixty-eight million two hundred
+;; eleven thousand four hundred fifty-five
+;;
 ;;; ==============================
 
 

@@ -91,6 +91,64 @@
 ;; (defun uuid-byte-array-version (uuid-byte-array)
 ;;  (declare (uuid-byte-array-16 uuid-byte-array))
 
+
+;;; ==============================
+;; :NOTE the weird loop in the return value of the dotimes form is to accomodate
+;; situatiosn where the top bits of the class `unique-universal-identifier' are
+;; such that the uuid has an integer representation with `cl:integer-length'
+;; less than 120 and we need to pad the array. On current system this will
+;; happen for 1 in 200 invocations of `make-v4-uuid's and we end up with
+;; something like this:
+;; (integer-length 169114161898150076209418180205435926)
+;; Following example will illustrate the problem, remove the loop in return of
+;; `cl:dotimes' to to play:
+;;
+;; (let ((diff '()))
+;;   (dotimes (i 1000 diff)
+;;     (let* ((uuid  (make-v4-uuid))
+;;            (ba     (uuid-to-byte-array uuid))
+;;            (bv-int (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid)))
+;;            (int-ba-2 (tt--number-byte-array.2  bv-int))
+;;            (inner-diff '()))
+;;       (unless (equalp ba int-ba-2)
+;;         (push (list :!ba/int-ba-2 ba int-ba-2 (uuid-princ-to-string uuid)) inner-diff))
+;;       (unless (null inner-diff)
+;;         (push inner-diff diff)))))
+;; 
+;; :TODO Refactor to test earlier for integer-length less than 120.
+;; Maybe use `cl:logbitp' instead... No, still have to trucate to octet-count.:
+;; (loop 
+;;    with int = 169114161898150076209418180205435926
+;;    for x downfrom 128 to 0
+;;    until (logbitp x int)
+;;    finally (return (1+ x)))
+(defun uuid-integer-128-to-byte-array (uuid-integer)
+  (declare (uuid-ub128 uuid-integer)
+           (optimize (speed 3)))
+  (when (zerop uuid-integer) 
+    (return-from uuid-integer-128-to-byte-array (uuid-byte-array-16-zeroed)))
+  (let* ((octet-count (nth-value 0 (truncate (+ (integer-length uuid-integer) 7) 8)))
+         (bit-count   (ash octet-count 3))
+         (ba-out      (uuid-byte-array-16-zeroed))
+         (chk-byte   '()))
+    (declare (uuid-byte-array-16 ba-out))
+    (dotimes (cnt 16 
+              (if (evenp octet-count)
+                  (the uuid-byte-array-16 ba-out)
+                  (loop
+                     with offset = ba-out
+                     with new = (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))
+                     for x across offset 
+                     for y from 1 below 16
+                     do (setf (aref new y) x)
+                     finally (return (the uuid-byte-array-16 new)))))
+      (setf chk-byte (- bit-count (ash (1+ cnt) 3)))
+      (if (minusp chk-byte)
+          (setf (aref ba-out cnt) 
+                (ldb (byte 8 0) uuid-integer))
+          (setf (aref ba-out cnt) 
+                (ldb (byte 8 chk-byte) uuid-integer))))))
+
 ;; :SOURCE cl-crypto/source/rsa.lisp
 #+(or)
 (defun num->byte-array (num)
@@ -100,36 +158,6 @@
     (dotimes (i num-bytes)
       (setf (aref out i) (ldb (byte 8 (- num-bits (* (1+ i) 8))) num)))
     out))
-
-;; :TODO Refactor this to test earlier for integer-length less than 120.
-(defun uuid-number-byte-array (uuid-integer)
-  (declare (optimize (speed 0) (debug 3)))
-  (when (zerop uuid-integer) 
-    (return-from uuid-number-byte-array (uuid-byte-array-16-zeroed)))
-  (let* ((octet-count (nth-value 0 (truncate (+ (integer-length uuid-integer) 7) 8)))
-         (bit-count   (ash octet-count 3))
-         (ba-out      (uuid-byte-array-16-zeroed))
-         (chk-byte   '()))
-    (dotimes (cnt 16 
-              (if (evenp octet-count)
-                  ba-out
-                  ;; when the top bits of the class unique-universal-identifier
-                  ;; are such that the uuid has an integer representation with
-                  ;; integer-length less than 120 we need to pad the array. On
-                  ;; current system this will happen for 1 in 200 make-v4-uuid's
-                  (loop
-                     with offset = ba-out
-                     with new = (uuid-byte-array-16-zeroed)  
-                     for x across offset 
-                     for y from 1 below 16
-                     do (setf (aref new y) x)
-                     finally (return new))))
-      (setf chk-byte (- bit-count (ash (1+ cnt) 3)))
-      (if (minusp chk-byte)
-          (setf (aref ba-out cnt) 
-                (ldb (byte 8 0) uuid-integer))
-          (setf (aref ba-out cnt) 
-                (ldb (byte 8 chk-byte) uuid-integer))))))
 
 
 ;;; ==============================
