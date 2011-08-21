@@ -110,7 +110,7 @@
 (defun uuid-serialize-bit-vector-bits (bv-or-uuid stream-out)
   (declare ((or uuid-bit-vector-128 unique-universal-identifier) bv-or-uuid)
            (type stream stream-out))
-  (uuid-valid-stream-verify-octet-stream-for-output stream)
+  (uuid-valid-stream-verify-octet-stream-for-output stream-out)
   (let ((bv-128  (the uuid-bit-vector-128
                    (if (unique-universal-identifier-p bv-or-uuid)
                        (uuid-to-bit-vector bv-or-uuid)
