@@ -6,6 +6,55 @@
 (in-package #:unicly)
 ;; *package*
 
+
+;; `uuid-integer-128-to-byte-array' with v5 uuids
+(let ((alphabet (loop 
+                   for x from 97 below 123
+                   for y from 65 below 91 
+                   nconc (list (code-char x) (code-char y)) into alpha
+                   finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
+  (flet ((random-string ()
+           (loop
+              repeat (random 53)
+              for x = (schar alphabet (random 52)) collect x into rand
+              finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
+    
+    (loop 
+       repeat 1000
+       for uuid   = (make-v5-uuid (make-v4-uuid) (random-string))
+       for ba     = (uuid-to-byte-array uuid)  
+       for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
+       for ba-int = (uuid-integer-128-to-byte-array int)
+       always (equalp ba-int ba))))
+
+;; `uuid-integer-128-to-byte-array' with v3 uuids
+(let ((alphabet (loop 
+                   for x from 97 below 123
+                   for y from 65 below 91 
+                   nconc (list (code-char x) (code-char y)) into alpha
+                   finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
+  (flet ((random-string ()
+           (loop
+              repeat (random 53)
+              for x = (aref alphabet (random 52)) collect x into rand
+              finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
+    (loop 
+       repeat 1000
+       for uuid   = (make-v3-uuid (make-v4-uuid) (random-string))
+       for ba     = (uuid-to-byte-array uuid)  
+       for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
+       for ba-int = (uuid-integer-128-to-byte-array int)
+       always (equalp ba-int ba))))
+
+;; `uuid-integer-128-to-byte-array' with v4 uuids
+(loop 
+   repeat 1000
+   for uuid   = (make-v4-uuid)
+   for ba     = (uuid-to-byte-array uuid)
+   for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
+   for ba-int = (uuid-integer-128-to-byte-array int)
+   always (equalp ba-int ba))
+
 ;;; ==============================
 ;; `uuid-disassemble-ub48'
 
@@ -564,33 +613,54 @@
       (eq (uuid-version-uuid (make-v5-uuid *uuid-namespace-dns* "bubbb")) 5))
 
 ;;; ==============================
-;; `serialize-uuid' serialization/deserilization
-;;  => T,  (EEA1105E-3681-5117-99B6-7B2B5FE1F3C7 EEA1105E-3681-5117-99B6-7B2B5FE1F3C7)
 
- (let ((file (make-pathname :directory '(:absolute "tmp")
+;; `uuid-serialize-byte-array-bytes', `uuid-deserialize-byte-array-bytes' 
+(let* ((file (make-pathname :directory '(:absolute "tmp")
                             :name "temp-bytes"))
        (w-uuid (make-v5-uuid *uuid-namespace-dns* "bubba"))
-       (gthr '()))
-   (with-open-file (s file
-                      :if-exists :supersede
-                      :if-does-not-exist :create
-                      :direction :output
-                      :element-type 'uuid-ub8)
-     (serialize-uuid w-uuid s))
-   ;; :NOTE following is basis for deserializing a uuid from file, e.g.: 
-   ;;  (defun deserialize-uuid (file) (...) )
-   (with-open-file (stream file :element-type 'uuid-ub8)
-     (do ((code (read-byte stream nil :eof) (read-byte stream nil :eof)))
-         ((eql code :eof))
-       (push code gthr)))
-   (and gthr
-        (setf gthr (uuid-from-byte-array (make-array 16
-                                                     :element-type 'uuid-ub8
-                                                     :initial-contents (nreverse gthr)))))
-   (unwind-protect 
-        (values (uuid-eql w-uuid gthr)
-                (list gthr w-uuid))
-     (delete-file file)))
+       (w-uuid-ba (uuid-to-byte-array w-uuid)))
+  (unwind-protect   
+       (progn
+         (with-open-file (s file
+                            :direction :output
+                            :if-exists :supersede
+                            :if-does-not-exist :create
+                            :element-type 'uuid-ub8)
+           (uuid-serialize-byte-array-bytes w-uuid-ba s))
+    
+         ;; :NOTE following is basis for deserializing a uuid from file, e.g.: 
+         ;;  (defun deserialize-uuid (file) (...) )
+         (with-open-file (s file 
+                            :direction :input
+                            :if-does-not-exist :error
+                            :element-type 'uuid-ub8)
+           (let ((ba-read (uuid-deserialize-byte-array-bytes s)))
+             (values (equalp ba-read w-uuid-ba)
+                     ba-read 
+                     w-uuid))))
+    (delete-file file)))
+
+;; `uuid-serialize-bit-vector-bits', `uuid-deserialize-bit-vector-bits'
+(let* ((file (make-pathname :directory '(:absolute "tmp")
+                            :name "temp-bytes"))
+       (w-uuid (make-v5-uuid *uuid-namespace-dns* "bubba"))
+       (w-uuid-bv (uuid-to-bit-vector w-uuid)))
+  (unwind-protect   
+       (progn
+         (with-open-file (s file
+                            :if-exists :supersede
+                            :if-does-not-exist :create
+                            :direction :output
+                            :element-type 'uuid-ub8)
+           (uuid-serialize-bit-vector-bits w-uuid-bv s))
+         (let ((bv-read ;; (uuid-read-bit-vector-bits file)
+                (with-open-file (s file 
+                                   :element-type 'uuid-ub8 
+                                   :direction :input 
+                                   :if-does-not-exist :error)
+                  (uuid-deserialize-bit-vector-bits s))))
+           (values (uuid-bit-vector-eql bv-read w-uuid-bv) w-uuid-bv w-uuid)))
+    (delete-file file)))
 
 ;;; ==============================
 ;; :NOTE Following requires `make-random-string':

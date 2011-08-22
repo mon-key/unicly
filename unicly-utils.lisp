@@ -82,6 +82,10 @@
        (array-has-fill-pointer-p object)))
 
 ;; :SOURCE sbcl/src/code/stream.lisp
+;; :EXAMPLE~%
+;; (typep (make-array 6 :element-type 'character :initial-contents "string" :fill-pointer t)
+;;        'string-with-fill-pointer)
+;; :SEE-ALSO `string-with-fill-pointer-p', `string-with-fill-pointer-check-type'
 (deftype string-with-fill-pointer ()
   `(and (or (vector character) (vector base-char))
         (satisfies vector-with-fill-pointer-p)))

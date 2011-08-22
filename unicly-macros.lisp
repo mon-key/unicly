@@ -81,7 +81,9 @@
   `(defun ,type-check-name (checked-val)
        (declare (inline ,name-predicate)
                 (optimize (speed 3)))
-       (unless (,name-predicate checked-val)
+       (if (,name-predicate checked-val)
+           ;; (the ,checked-type checked-val)
+           (the boolean T)
          (uuid-simple-type-error :datum checked-val :expected-type ',checked-type))))
 
 (defmacro def-uuid-predicate-and-type-check-definer (type-for-pred-and-check)

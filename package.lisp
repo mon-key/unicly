@@ -117,9 +117,12 @@
    #:uuid-byte-string-p
    ;; #:uuid-byte-string-check-type
    #:uuid-byte-array-null-p
-
-   ;; 
    ;; #:uuid-byte-array-null-check-type
+   ;; 
+   ;;
+   ;; #:string-with-fill-pointer-p
+   ;; #:string-with-fill-pointer-check-type
+   ;;
    #:uuid-delimited-string-36-p
    ;;
    ;; #:%uuid-hex-string-36-null-string-p
@@ -175,6 +178,7 @@
    ;;
    ;; #:uuid-octet-to-bit-vector-8
    ;; #:uuid-bit-vector-to-integer
+   ;; #:uuid-integer-128-to-bit-vector
    #:uuid-deposit-octet-to-bit-vector
    #:uuid-byte-array-to-bit-vector
    ;;
@@ -188,6 +192,7 @@
    #:uuid-get-namespace-bytes
    #:uuid-byte-array-16-zeroed   
    #:uuid-from-byte-array
+   #:uuid-byte-array-16-to-integer
    ;;
    ;;
    ;;

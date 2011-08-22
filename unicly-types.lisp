@@ -1,7 +1,6 @@
 ;;; :FILE-CREATED <Timestamp: #{2011-04-11T11:51:10-04:00Z}#{11151} - by MON>
 ;;; :FILE unicly/unicly-types.lisp
 ;;; ==============================
-;;; ==============================
 
 
 (in-package #:unicly)
@@ -102,7 +101,9 @@
   '(and uuid-bit-vector-128
     (satisfies %uuid-bit-vector-null-p)))
 
-;; complex-type
+;; :NOTE This is entirely equivalent to the type `ironclad::simple-octet-vector'
+;; So long as Unicly has an ironclad dependency maybe we should just use that instead? :)
+;; complex-type 
 (deftype uuid-byte-array (&optional size)
   (let ((sz (or size '*)))
     `(simple-array uuid-ub8 (,sz))))
@@ -131,6 +132,21 @@
 (deftype uuid-byte-string ()
   '(simple-array character (16)))
 
+;;; ==============================
+;; 2011-08-20
+;; <mon_key> http://paste.lisp.org/+2NT1
+;; <pkhuong> mon_key: see clhs 15.1.2.1  [17:22]
+;; <mon_key> pkhuong: Thanks. So the initial #\NUL base-char is permissible
+;; 	  because the initally allocated array has base-char as its
+;; 	  upgraded-array-element-type ?  [17:27]
+;; <mon_key> e.g. (upgraded-array-element-type (array-element-type (make-array 16
+;; 	  :element-type 'standard-char)))  [17:29]
+;; <pkhuong> mon_key: no, it's permissible because it's undefined what happens if
+;; 	  you manage to observe it.
+;; <mon_key> Schrodingers cat?  [17:33]
+;; <Xach> mon_key: aref on an uninitialized array before setf of the element in
+;;        question is undefined
+;;; ==============================
 ;; (subtypep '(simple-array standard-char (16)) '(simple-array base-char (16)))
 ;; (typep (make-array 16 :element-type 'standard-char :initial-element #\0) '(array character (16)))
 ;; (standard-char-p #\0)
@@ -147,7 +163,7 @@
 
 ;; (type-of (make-array 32 :element-type 'standard-char :fill-pointer 0 :initial-element #\nul))
 ;; (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
-(char-code #\0)
+;; (char-code #\0)
 
 ;; complex-type
 (deftype uuid-hex-string-32 ()
@@ -190,7 +206,10 @@
                  uuid-byte-array-16-check-type
                  uuid-byte-array-20-p
                  uuid-byte-string-p
-                 uuid-simple-vector-5-p))
+                 uuid-simple-vector-5-p
+                 string-with-fill-pointer-p
+                 string-with-fill-pointer-check-type
+                 ))
 ;; uuid-bit-vector-<N>-p uuid-bit-vector-<N>-check-type
 (def-uuid-predicate-and-type-check-definer uuid-bit-vector-128)
 (def-uuid-predicate-and-type-check-definer uuid-bit-vector-48)
@@ -203,6 +222,7 @@
 (def-uuid-predicate-and-type-check-definer uuid-byte-array-20)
 (def-uuid-predicate-and-type-check-definer uuid-byte-string)
 (def-uuid-predicate-and-type-check-definer uuid-simple-vector-5)
+(def-uuid-predicate-and-type-check-definer string-with-fill-pointer)
 
 ;;; :NOTE Following definition is unused on the assumption that it is guaranteed
 ;;;  that the following always returns (SIMPLE-BIT-VECTOR 0) on all implementations:

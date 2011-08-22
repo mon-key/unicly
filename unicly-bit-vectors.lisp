@@ -294,6 +294,64 @@
     (the boolean
       (and (logbitp 2 v5-if) (logbitp 0 v5-if) t))))
 
+
+;;; ==============================
+;; (defun number-to-bit-vector (unsigned-integer)
+;;   (declare ((integer 0 *) unsigned-integer)
+;;            (optimize (speed 3)))
+;;   (flet ((number-to-bit-vector-fixnum (fixnum-int)
+;;            (declare (fixnum-0-or-over fixnum-int))
+;;            (let* ((mk-len  (the fixnum-bit-width (integer-length fixnum-int)))
+;;                   (bv-29   (make-array (the fixnum-bit-width mk-len)
+;;                                        :element-type    'bit
+;;                                        :initial-element 0
+;;                                        :adjustable      nil)))
+;;              (declare (fixnum-bit-width mk-len)
+;;                       (simple-bit-vector bv-29))
+;;              (loop 
+;;                 for i-lb from 0 below mk-len
+;;                 do (and (logbitp i-lb fixnum-int)
+;;                         (setf (sbit bv-29 i-lb) 1))
+;;                 finally (return (nreverse bv-29)))))
+;;          (number-to-bit-vector-bignum (bignum-int)
+;;            (declare (bignum-0-or-over bignum-int))
+;;            (let* ((mk-big-len  (the bignum-bit-width (integer-length bignum-int)))
+;;                   (bv-big      (make-array (the bignum-bit-width mk-big-len)
+;;                                            :element-type    'bit
+;;                                            :initial-element 0
+;;                                            :adjustable      nil)))
+;;              (declare (bignum-bit-width mk-big-len)
+;;                       (simple-bit-vector bv-big))
+;;              (loop 
+;;                 for i-lb from 0 below mk-big-len
+;;                 do (and (logbitp i-lb bignum-int)
+;;                         (setf (sbit bv-big i-lb) 1))
+;;                 finally (return (nreverse bv-big))))))
+;;     (etypecase unsigned-integer
+;;       (fixnum-0-or-over (the simple-bit-vector 
+;;                           (number-to-bit-vector-fixnum
+;;                            (the fixnum-0-or-over unsigned-integer))))
+;;       (bignum-0-or-over  (the simple-bit-vector
+;;                            (number-to-bit-vector-bignum
+;;                             (the bignum-0-or-over unsigned-integer)))))))
+;;
+;; :TODO incorporate trivial-features so we can test for :big-endian :little-endian
+(defun uuid-integer-128-to-bit-vector (uuid-integer-128)
+  (declare (uuid-ub128 uuid-integer-128)
+           (optimize (speed 3)))
+  (let ((mk-big-len  (the uuid-ub128-integer-length (integer-length uuid-integer-128)))
+        (bv-big      (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed))))
+    (declare (uuid-ub128-integer-length mk-big-len)
+             (uuid-bit-vector-128 bv-big))
+    (loop 
+       for i-lb from 0 below mk-big-len
+       do (and (logbitp i-lb uuid-integer-128)
+               (setf (sbit bv-big i-lb) 1))
+       ;; *features*
+       ;; #+big-endian    (return bv-big))
+       ;; #+little-endian (return (nreverse bv-big))
+       finally (return (nreverse bv-big)))))
+
 ;;; ==============================
 ;; :NOTE Following modeled after Stas's inclued at bottom of file:
 (defun uuid-bit-vector-to-integer (bit-vector)
