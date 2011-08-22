@@ -2,6 +2,25 @@
 ;;; :FILE unicly/unicly-integers.lisp
 ;;; ==============================
 
+
+;;; ==============================
+;; :NOTE ironclad utility functions
+;;
+;; ironclad:ub16ref/le buffer index => value
+;; ironclad:ub32ref/le buffer index => value
+;; ironclad:ub64ref/le buffer index => value
+;;
+;; This family of functions accesses an unsigned 16-bit, 32-bit or 64-bit value
+;; stored in little-endian order starting at index in array. 
+;; array must be a (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (*)). These functions are SETFable.
+;;
+;; ironclad:ub16ref/be buffer index => value
+;; ironclad:ub32ref/be buffer index => value
+;; ironclad:ub64ref/be buffer index => value
+;;
+;; As the above, only the value is stored in big-endian order.
+;;; ==============================
+
 
 (in-package #:unicly)
 

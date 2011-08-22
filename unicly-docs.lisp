@@ -1324,6 +1324,31 @@ Stream should have an :element-type '\(unsigned-byte 8\).~%~@
      \(delete-file file\)\)\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
+(fundoc 'uuid-byte-array-16-to-integer
+        "Convert a UUID byte-array representaton to its decimal integer representaton.
+UUID-BA-16 is an object of type `uuid-byte-array-16'.
+Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
+:EXAMPLE
+ \(uuid-bit-vector-to-integer
+  \(uuid-to-bit-vector
+   \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+ ;=> 317192554773903544674993329975922389959~%
+ \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)
+ ;=> #\(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199\)~%
+ \(uuid-byte-array-16-to-integer
+  \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)
+  ;=> 317192554773903544674993329975922389959~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
+(fundoc 'uuid-integer-128-to-bit-vector
+"Convert the decimal integer representation of a UUID to a `uuid-bit-vector-128'.~%~@
+:EXAMPLE~%
+ \(uuid-bit-vector-eql \(uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959\)
+                     \(uuid-to-bit-vector \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+\(uuid-bit-vector-eql \(uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959\)~%
+                     \(uuid-byte-array-to-bit-vector \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
 
 ;;; ==============================
 ;;; :DEPRECATED-DOCS

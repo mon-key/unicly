@@ -459,7 +459,7 @@ UNICLY> (unique-universal-identifier-p (uuid-to-bit-vector *unique-random-namesp
 UNICLY> (unique-universal-identifier-p (make-null-uuid))
 ;=> T
 
-UNICLY> (unicly::uuid-bit-vector-to-integer (uuid-to-bit-vector *unique-random-namespace*))
+UNICLY> (uuid-bit-vector-to-integer (uuid-to-bit-vector *unique-random-namespace*))
 ;=> 159134959691145724577639637335874542674
 
 UNICLY> (unicly::uuid-to-byte-array *unique-random-namespace*)
@@ -553,7 +553,17 @@ UNICLY> (uuid-version-uuid (make-null-uuid))
 UNICLY> (uuid-eql (make-null-uuid) (make-null-uuid))
 ;=> T
 
-The UUID is sometimes referenced as having an 8:4:4:4:12 
+The UUID is sometimes referenced as having an 8:4:4:4:12 hex string representation. 
+We refer to this an object of type UUID-HEX-STRING-36.
+
+However, such references imply a string-centric view-point of the UUID when
+really it is much saner to see the uuid as a sequence of bits or bytes.
+
+Following table illustrates the components of a UUID as a bit/byte field. 
+Note, it will not display correctly in a text-editor word/line wrapping is
+enabled and/or your display is unable to lines of render text out to 140 columns
+:{
+
 The UUID as bit field:
 
  WEIGHT   INDEX      OCTETS                     BIT-FIELD-PER-OCTET
@@ -624,23 +634,29 @@ UNICLY> (format t "~R" 340282366920938463463374607431768211455)
 ;   four hundred thirty-one billion seven hundred sixty-eight million two hundred
 ;   eleven thousand four hundred fifty-five
 
+UNICLY> (uuid-bit-vector-to-integer (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;=> 317192554773903544674993329975922389959
 
-Printing the bytes of a UUID as a string of 32 hexadecimal characters (a uuid-hex-string-32):
+UNICLY> (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)
+;=> #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
 
-UNICLY> (uuid-print-bytes-to-string (make-v5-uuid *uuid-namespace-dns* "bubba"))
-"eea1105e3681511799b67b2b5fe1f3c7"
+UNICLY> (unicly:uuid-byte-array-16-to-integer 
+         (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959))
+;=> 317192554773903544674993329975922389959
 
-Note, by default UUID-PRINT-BYTES-TO-STRING returns an ojbect of type base-string:
+UNICLY> (uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959)
+;=> #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
 
-UNICLY> (type-of (uuid-print-bytes-to-string (make-v5-uuid *uuid-namespace-dns* "bubba")))
-;=> (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
+UNICLY> (uuid-bit-vector-eql (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")) 
+                             (uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959))
+;=> T
 
-This object may not satisfy uuid-hex-string-32-p
-UUID-PRINT-BYTES-TO-STRING returns an ojbect of type base-string:
-UNICLY> (let ((hex32 (make-array 32 :element-type 'character :fill-pointer 0)))
-          (uuid-print-bytes-to-string (make-v5-uuid *uuid-namespace-dns* "bubba") hex32)
-          (and (uuid-hex-string-32-p hex32) hex32))
-=> "eea1105e3681511799b67b2b5fe1f3c7"
+
+UNICLY> (uuid-bit-vector-eql (uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959)
+                             (uuid-byte-array-to-bit-vector (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)))
+;=> T
+    
+
 
 ;;; ==============================
 ;;; EOF

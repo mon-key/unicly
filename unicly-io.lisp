@@ -72,11 +72,11 @@
 ;; unique-universal-identifier, uuid-string-32, uuid-string-36?
 ;; :NOTE Consider renaming this to `serialize-uuid-byte-array' and calling the
 ;; G-F in body.
-(defun uuid-serialize-byte-array-bytes (uuid-or-byte-array-16 stream)
+(defun uuid-serialize-byte-array-bytes (uuid-or-byte-array-16 stream-out)
   (declare ((or uuid-byte-array-16 unique-universal-identifier) uuid-or-byte-array-16)
-           (type stream stream)
+           (type stream stream-out)
            (optimize (speed 3)))
-  (uuid-valid-stream-verify-octet-stream-for-output stream)
+  (uuid-valid-stream-verify-octet-stream-for-output stream-out)
   (let ((ba16
          (the uuid-byte-array-16
            (if (uuid-byte-array-16-p uuid-or-byte-array-16) 
@@ -86,10 +86,10 @@
     ;; (loop 
     ;;    for byte-idx from 0 below 16
     ;;    do (write-byte (aref ba16 byte-idx) stream))
-    (write-sequence ba16 stream :start 0 :end 16)))
+    (write-sequence ba16 stream-out :start 0 :end 16)))
 ;; *print-array* 
-(defun uuid-deserialize-byte-array-bytes (stream)
-  (uuid-valid-stream-verify-octet-stream-for-input stream)
+(defun uuid-deserialize-byte-array-bytes (stream-in)
+  (uuid-valid-stream-verify-octet-stream-for-input stream-in)
   ;; :NOTE Following idiom does not suitably catch EOF.
   ;; (let ((bv-return (uuid-bit-vector-128-zeroed)))
   ;;    (read-sequence bv-return stream :start 0 :end 127)
@@ -97,9 +97,9 @@
   (loop 
      with ba16 = (uuid-byte-array-16-zeroed)
      for ba16-idx from 0 below 16
-     for byte-read = (read-byte stream nil 'EOF)
+     for byte-read = (read-byte stream-in nil 'EOF)
      if (eql byte-read 'EOF)
-     do (error 'end-of-file :stream stream)
+     do (error 'end-of-file :stream stream-in)
      end
      ;; unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
      ;; do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
@@ -110,7 +110,7 @@
 (defun uuid-serialize-bit-vector-bits (bv-or-uuid stream-out)
   (declare ((or uuid-bit-vector-128 unique-universal-identifier) bv-or-uuid)
            (type stream stream-out))
-  (uuid-valid-stream-verify-octet-stream-for-output stream)
+  (uuid-valid-stream-verify-octet-stream-for-output stream-out)
   (let ((bv-128  (the uuid-bit-vector-128
                    (if (unique-universal-identifier-p bv-or-uuid)
                        (uuid-to-bit-vector bv-or-uuid)
@@ -132,24 +132,40 @@
 ;; (let* ((stream-type (stream-element-type stream))
 ;;        (stream-subtypep (subtypep stream-type 'uuid-ub8)))
 ;;   (format t "stream-type: ~S~%stream-subtypep: ~S~%" stream-type stream-subtypep))
-(defun uuid-deserialize-bit-vector-bits (stream)
-  (uuid-valid-stream-verify-octet-stream-for-input stream)
-  ;; :NOTE Following idiom does not suitably catch EOF.
+(defun uuid-deserialize-bit-vector-bits (stream-in)
+  (uuid-valid-stream-verify-octet-stream-for-input stream-in)
+  ;; :NOTE Following idiom with `cl:read-sequence' does not suitably catch EOF.
   ;; (let ((bv-return (uuid-bit-vector-128-zeroed)))
-   ;;    (read-sequence bv-return stream :start 0 :end 127)
-   ;;    bv-return))
-   (loop 
-      with bv = (uuid-bit-vector-128-zeroed)
-      for cnt from 0 below 128 
-      for byte-read = (read-byte stream nil 'EOF)
-      if (eql byte-read 'EOF)
-      do (error 'end-of-file :stream stream)
-      end
-      unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
-      do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
-                byte-read (type-of byte-read))
-      do (setf (sbit bv cnt) byte-read)
-      finally (return bv)))
+  ;;    (read-sequence bv-return stream :start 0 :end 127)
+  ;;    bv-return))
+  ;;
+  ;; Following is the equivalent using `cl:do' instead of `cl:loop'
+  ;; (let ((bv (uuid-bit-vector-128-zeroed)))
+  ;;   (do ((code (read-byte s nil 'EOF) (read-byte s nil 'EOF))
+  ;;        (cnt 0 (1+ cnt)))
+  ;;       ((if (or (eql code 'EOF) (> cnt 128 )) 
+  ;;            t
+  ;;            (unless (typep code 'bit)
+  ;;              (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
+  ;;                     code (type-of code))))
+  ;;        (if (= cnt 128)
+  ;;            (uuid-bit-vector-eql w-uuid-bv bv)
+  ;;            ;; (values nil (cons code cnt))))
+  ;;            (error 'end-of-file :stream stream-in)))
+  ;;     (setf (sbit bv cnt) code)))
+  ;;
+  (loop 
+     with bv = (uuid-bit-vector-128-zeroed)
+     for cnt from 0 below 128 
+     for byte-read = (read-byte stream-in nil 'EOF)
+     if (eql byte-read 'EOF)
+     do (error 'end-of-file :stream stream-in)
+     end
+     unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
+     do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
+               byte-read (type-of byte-read))
+     do (setf (sbit bv cnt) byte-read)
+     finally (return bv)))
 
 ;; (fundoc 'uuid-read-bit-vector-bits
 ;; Read the bits of a UUID's bit-vector representation from INPUT-PATHNAME return

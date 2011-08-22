@@ -88,8 +88,28 @@
 
 ;;; ==============================
 ;;; :TODO Finish `uuid-byte-array-version'
+;; :SEE ironclad:ub16ref/be for a fetcher to grab only the relevant portion of
+;; the `uuid-byte-array-16'. 
 ;; (defun uuid-byte-array-version (uuid-byte-array)
 ;;  (declare (uuid-byte-array-16 uuid-byte-array))
+
+
+;;; ==============================
+;; :NOTE Following modelled after `ironclad::octets-to-integer'
+;; :SEE :FILE ironclad/src/public-key/public-key.lisp
+;; It originally had the following signature:
+;; octets-to-integer (octet-vec &key (start 0) end (big-endian t) n-bits)
+;; The BIG-ENDIAN key above refers to whether (aref uuid-ba-16 0) represents the LSB or MSB.
+;; Objects of type `uuid-byte-array-16' should always have their MSB at 0.
+(defun uuid-byte-array-16-to-integer (uuid-ba-16)
+  (declare (type uuid-byte-array-16 uuid-ba-16)
+           (optimize (speed 3)))
+  (uuid-byte-array-16-check-type uuid-ba-16)
+  (do ((j 0 (1+ j))
+       (sum 0))
+      ;; ((>= j end) sum)
+      ((>= j 16) sum)
+    (setf sum (+ (aref uuid-ba-16 j) (ash sum 8)))))
 
 
 ;;; ==============================
@@ -115,39 +135,46 @@
 ;;       (unless (null inner-diff)
 ;;         (push inner-diff diff)))))
 ;; 
-;; :TODO Refactor to test earlier for integer-length less than 120.
-;; Maybe use `cl:logbitp' instead... No, still have to trucate to octet-count.:
-;; (loop 
-;;    with int = 169114161898150076209418180205435926
-;;    for x downfrom 128 to 0
-;;    until (logbitp x int)
-;;    finally (return (1+ x)))
+;; Now using code adapted from ironclad::integer-to-octets instead.
+;;
+;; (defun uuid-integer-128-to-byte-array (uuid-integer)
+;;   (declare (uuid-ub128 uuid-integer)
+;;            (optimize (speed 3)))
+;;   (when (zerop uuid-integer) 
+;;     (return-from uuid-integer-128-to-byte-array (uuid-byte-array-16-zeroed)))
+;;   (let* ((octet-count (nth-value 0 (truncate (+ (integer-length uuid-integer) 7) 8)))
+;;          (bit-count   (ash octet-count 3))
+;;          (ba-out      (uuid-byte-array-16-zeroed))
+;;          (chk-byte   '()))
+;;     (declare (uuid-byte-array-16 ba-out))
+;;     (dotimes (cnt 16 
+;;               (if (evenp octet-count)
+;;                   (the uuid-byte-array-16 ba-out)
+;;                   (loop
+;;                      with offset = ba-out
+;;                      with new = (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))
+;;                      for x across offset 
+;;                      for y from 1 below 16
+;;                      do (setf (aref new y) x)
+;;                      finally (return (the uuid-byte-array-16 new)))))
+;;       (setf chk-byte (- bit-count (ash (1+ cnt) 3)))
+;;       (if (minusp chk-byte)
+;;           (setf (aref ba-out cnt) 
+;;                 (ldb (byte 8 0) uuid-integer))
+;;           (setf (aref ba-out cnt) 
+;;                 (ldb (byte 8 chk-byte) uuid-integer))))))
+;;
+;; :NOTE Following adapted from `ironclad::integer-to-octets'
 (defun uuid-integer-128-to-byte-array (uuid-integer)
-  (declare (uuid-ub128 uuid-integer)
-           (optimize (speed 3)))
-  (when (zerop uuid-integer) 
-    (return-from uuid-integer-128-to-byte-array (uuid-byte-array-16-zeroed)))
-  (let* ((octet-count (nth-value 0 (truncate (+ (integer-length uuid-integer) 7) 8)))
-         (bit-count   (ash octet-count 3))
-         (ba-out      (uuid-byte-array-16-zeroed))
-         (chk-byte   '()))
-    (declare (uuid-byte-array-16 ba-out))
-    (dotimes (cnt 16 
-              (if (evenp octet-count)
-                  (the uuid-byte-array-16 ba-out)
-                  (loop
-                     with offset = ba-out
-                     with new = (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))
-                     for x across offset 
-                     for y from 1 below 16
-                     do (setf (aref new y) x)
-                     finally (return (the uuid-byte-array-16 new)))))
-      (setf chk-byte (- bit-count (ash (1+ cnt) 3)))
-      (if (minusp chk-byte)
-          (setf (aref ba-out cnt) 
-                (ldb (byte 8 0) uuid-integer))
-          (setf (aref ba-out cnt) 
-                (ldb (byte 8 chk-byte) uuid-integer))))))
+  (let ((octet-vec (make-array 16 :element-type 'uuid-ub8)))
+    (declare (type uuid-byte-array-16 octet-vec))
+    (loop 
+       for i from 15 downto 0
+       for index from 0
+       ;; do (setf (aref octet-vec index) (ldb (byte 8 (ash i 3)) uuid-integer))
+       do (setf (aref octet-vec index) (ldb (byte 8 (* i 8)) uuid-integer))
+       finally (return octet-vec))))
+
 
 ;; :SOURCE cl-crypto/source/rsa.lisp
 #+(or)
@@ -158,6 +185,7 @@
     (dotimes (i num-bytes)
       (setf (aref out i) (ldb (byte 8 (- num-bits (* (1+ i) 8))) num)))
     out))
+
 
 
 ;;; ==============================

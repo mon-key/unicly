@@ -90,6 +90,24 @@
       do (setf (aref str put) (aref rnd-str put))
       finally (return str)))
 
+ (defun make-ascii-alphabet-for-random-string ()
+   (loop 
+      for x from 97 below 123
+      for y from 65 below 91 
+      nconc (list (code-char x) (code-char y)) into alpha
+      finally (return (make-array 52 :element-type 'character :initial-contents alpha))))
+
+ (defvar *ascii-chars-for-random* (make-ascii-alphabet-for-random-string))
+
+ (defun make-random-length-ascii-string ()
+   (declare (special *ascii-chars-for-random*))
+   (let ((ascii-chars *ascii-chars-for-random*))
+     (declare ((simple-array character (52)) ascii-chars))
+     (loop
+        repeat (random 53)
+        for x = (schar ascii-chars (random 52)) collect x into rand
+        finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
+
  (vardoc '*random-chars*
          "An array of 282 characters for use with `make-random-char-array' and `make-random-string'.~%~@
 Array contains the ASCII chars in the range 33,127~%~@
