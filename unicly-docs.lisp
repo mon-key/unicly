@@ -659,6 +659,20 @@ some value satisfies uuid-bit-vector-8-p and if not signals a condition of type
  `unicly::def-uuid-type-check-definer'~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
+(fundoc 'def-uuid-request-integer-bit-vector
+ "Convenience macro for functions which extract slot values of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(macroexpand-1 '\(def-uuid-request-integer-bit-vector \"time-low\" 0  32\)\)~%
+ \(macroexpand-1 '\(def-uuid-request-integer-bit-vector \"time-mid\" 32 16\)\)~%
+ \(macroexpand-1 '\(def-uuid-request-integer-bit-vector \"time-high-and-version\" 48 16\)\)~%
+ \(macroexpand-1 '\(def-uuid-request-integer-bit-vector \"clock-seq-and-reserved\" 64 8\)\)~%
+ \(macroexpand-1 '\(def-uuid-request-integer-bit-vector \"clock-seq-low\"          72 8\)\)~%
+ \(macroexpand-1 '\(def-uuid-request-integer-bit-vector \"node\"                   80 48\)\)~%~@
+:SEE-ALSO 
+`%uuid_time-low-request-bit-vector', `%uuid_time-mid-request-bit-vector',
+`%uuid_time-high-and-version-request-bit-vector',
+`%uuid_clock-seq-and-reserved-request-bit-vector',
+`%uuid_clock-seq-low-request-bit-vector', `%uuid_node-request-bit-vector'.~%▶▶▶")
 
 
 ;;; ==============================
@@ -926,6 +940,42 @@ U16 is an integer of type `uuid-ub16' corresponding to either the
  \(eq \(nth-value 0 \(uuid-disassemble-ub16 13953\)\) 54\)~%
  \(eq \(nth-value 0 \(uuid-disassemble-ub16 13953\)\) 129\)~%~@
 :SEE-ALSO `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16'.~%▶▶▶")
+
+(fundoc 'uuid-assemble-ub48
+"Return an integer of type `uuid-ub48' constructed of the uuid-ub8 octets B1, B2, B3, B4, B5, and B6.~%
+ HIGH ---> LOW
+ B1   ...   B6~%~@
+:EXAMPLE~%
+ \(let \(\(ub48 #xFFFFFFFFFFFF\)\)
+   \(multiple-value-bind \(b1 b2 b3 b4 b5 b6\) \(uuid-disassemble-ub48 ub48\)
+     \(eql \(uuid-assemble-ub48 b1 b2 b3 b4 b5 b6\) ub48\)\)\)~%~@
+:SEE-ALSO `uuid-assemble-ub32', `uuid-assemble-ub16',
+`uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16',
+`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%▶▶▶")
+
+(fundoc 'uuid-assemble-ub32
+"Return an integer of type `uuid-ub32' constructed of the uuid-ub8 octets B1, B2, B3, and B4.~%
+ HIGH ---> LOW
+ B1   ...   B4~%~@
+:EXAMPLE~%
+ \(let \(\(ub32 #xFFFFFFFF\)\)
+   \(multiple-value-bind \(b1 b2 b3 b4\) \(uuid-disassemble-ub32 ub32\)
+     \(eql \(uuid-assemble-ub32 b1 b2 b3 b4\) ub32\)\)\)~%~@
+:SEE-ALSO `uuid-assemble-ub48', `uuid-assemble-ub16',
+`uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16',
+`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%▶▶▶")
+
+(fundoc 'uuid-assemble-ub16
+"Return an integer of type `uuid-ub48' constructed of the uuid-ub8 octets B1 and B2.~%
+ HIGH ---> LOW
+ B1   ...   B6~%~@
+:EXAMPLE~%
+ \(let \(\(ub16 #xFFFF\)\)
+   \(multiple-value-bind \(b1 b2\) \(uuid-disassemble-ub16 ub16\)
+     \(eql \(uuid-assemble-ub16 b1 b2\) ub16\)\)\)~%~@
+:SEE-ALSO `uuid-assemble-ub48', `uuid-assemble-ub32',
+`uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16',
+`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%▶▶▶")
 
 (fundoc 'uuid-get-namespace-bytes
   "Convert UUID to a byte-array.~%~@

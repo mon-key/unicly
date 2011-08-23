@@ -62,6 +62,20 @@
 ;; four hundred thirty-one billion seven hundred sixty-eight million two hundred
 ;; eleven thousand four hundred fifty-five
 ;;
+;; The octet offsets into a uuid-bit-vector-128:
+;; (loop  
+;;    for x from 0 below 128 by 8 
+;;    for q = 0 then x
+;;    as y = 7 then (+ x 7)
+;;    collect (list q y))
+;; => ((0 7)   (8 15)  (16 23) (24 31) ;; %uuid_time-low
+;;     (32 39) (40 47)                 ;; %uuid_time-mid
+;;     (48 55) (56 63)                 ;; %uuid_time-high-and-version
+;;     (64 71)                         ;; %uuid_clock-seq-and-reserved
+;;     (72 79)                         ;; %uuid_clock-seq-low
+;;     (80 87)   (88 95)   (96 103)    
+;;     (104 111) (112 119) (120 127))  ;; %uuid_nodede
+;;
 ;;; ==============================
 
 
@@ -100,11 +114,11 @@
 ;; (uuid-bit-vector-eql (uuid-bit-vector-128-zeroed)  "bubba")
 (defun uuid-bit-vector-eql (uuid-bv-a uuid-bv-b)
   (declare 
-           ;; :NOTE safety 2 required if we want to ensure Python sniffs around for bv length
-           ;; So we added `uuid-bit-vector-128-check-type' -- should be no way for it to fail.
-           (inline uuid-bit-vector-128-check-type)
-           ;; (optimize (speed 3) (safety 2)))
-           (optimize (speed 3)))
+   ;; :NOTE safety 2 required if we want to ensure Python sniffs around for bv length
+   ;; So we added `uuid-bit-vector-128-check-type' -- should be no way for it to fail.
+   (inline uuid-bit-vector-128-check-type)
+   ;; (optimize (speed 3) (safety 2)))
+   (optimize (speed 3)))
   (uuid-bit-vector-128-check-type uuid-bv-a)
   (uuid-bit-vector-128-check-type uuid-bv-b)
   (locally 
@@ -173,6 +187,59 @@
        for offset upfrom 0 by 8 below 128
        do (uuid-deposit-octet-to-bit-vector byte offset uuid-bv128)
        finally (return (the uuid-bit-vector-128 uuid-bv128)))))
+
+;; "Convert UUID-BV-128 to a UUID-BYTE-ARRAY-16.
+;; Arg UUID-BV-128 should satisfy `uuid-bit-vector-128-check-type'. 
+;; :EXAMPLE
+;; (equalp             
+;;  (uuid-bit-vector-128-to-byte-array (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;;  (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
+(defun uuid-bit-vector-128-to-byte-array (uuid-bv-128)
+  (declare (uuid-bit-vector-128 uuid-bv-128)
+           (optimize (speed 3)))
+  (uuid-bit-vector-128-check-type uuid-bv-128)
+  (when (uuid-bit-vector-null-p uuid-bv-128)
+    (return-from uuid-bit-vector-128-to-byte-array (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))))
+  (labels ((displaced-8 (disp-off)
+             (declare (optimize (speed 3)))
+             (the (bit-vector 8)
+               (make-array 8 
+                           :element-type 'bit 
+                           :displaced-to uuid-bv-128
+                           :displaced-index-offset disp-off)))
+           ;; ,----
+           ;; | If `make-array' is called with ADJUSTABLE, FILL-POINTER, and
+           ;; | DISPLACED-TO each ‘nil’, then the result is a simple array.  If
+           ;; | ‘make-array’ is called with one or more of ADJUSTABLE, FILL-POINTER, or
+           ;; | DISPLACED-TO being true, whether the resulting array is a simple array
+           ;; | is implementation-dependent.
+           ;; `----
+           ;; On SBCL bv8 is of type: 
+           ;; (and (bit-vector 8) (not simple-array))
+           (bv8-to-ub8 (bv8)
+             (declare ((bit-vector 8) bv8)
+                      (optimize (speed 3)))
+             (let ((j 0))
+               (declare (uuid-ub8 j))
+               (dotimes (i 8 (the uuid-ub8 j))
+                 (setf j (logior (bit bv8 i) (ash j 1))))))
+           (get-bv-octets ()
+             (let ((rtn     (uuid-byte-array-16-zeroed))
+                   (offsets (loop 
+                               with offsets-array = (uuid-byte-array-16-zeroed)
+                               for idx from 0 below 16
+                               for bv-offset from 0 below 128 by 8
+                               do (setf (aref offsets-array idx) bv-offset)
+                               finally (return offsets-array))))
+               (declare (uuid-byte-array-16 rtn offsets))
+               (loop 
+                  for off across offsets
+                  for idx from 0 below 16
+                  for octet of-type uuid-ub8 = (bv8-to-ub8 (displaced-8 off))
+                  do (setf (aref rtn idx) octet)
+                  finally (return rtn)))))
+    (the uuid-byte-array-16 (get-bv-octets))))
+      
 
 ;;; ==============================
 ;; :NOTE Return value has the integer representation: 267678999922476945140730988764022209929
@@ -418,100 +485,65 @@
         ;; `%uuid_clock-seq-and-reserved', `%uuid_clock-seq-low'
         (uuid-bit-vector-8-length   (get-bv-8-int))))))
 
-;;
-;; (defun uuid-bit-vector-get-sub-range (bit-vector offset length)
-;;  (declare (uuid-bit-vector bit-vector)
-;;           ((uuid-bit-vector-index 128) start length))
-;;
-;; (defun uuid-bit-vector-node-integer (bv)
-;;    (uuid-bit-vector-48-to-integer (uuid-bit-vector-get-sub-range <bv> <from> <to>) 
-;;       
-;; (defun uuid-bit-vector-clock-seq-and-reserved-integer (bv)
-;; (defun uuid-bit-vector-clock-seq-low-integer (bv)
-;; (defun uuid-bit-vector-time-low-integer (bv)
-;; (defun uuid-bit-vector-time-mid-integer (bv)
-;; (defun uuid-bit-vector-time-high-and-version-integer (bv)
-;; 
+;; :NOTE before `def-uuid-request-integer-bit-vector' expansion.
+(eval-when (:compile-toplevel :load-toplevel :execute)
+(defun uuid-bit-vector-build-offsets (bit-offset bit-width)
+    (declare (uuid-bit-vector-valid-bit-offset bit-offset)
+             (uuid-bit-vector-valid-bit-width bit-width)
+             (optimize (speed 3) (safety 2)))
+    (loop  
+       for x from bit-offset below (+ bit-offset bit-width) by 8 
+       for q = bit-offset then x
+       as y = (cons q (+ x 7))
+       collect y))
+)
 
 ;;; ==============================
-;; uuid-bit-vector-~A-integer
-;; node
-;; clock-seq-and-reserved
-;; clock-seq-low
-;; time-low
-;; time-mid
-;; time-high-and-version
-;;; ==============================
-
+;; :NOTE `def-uuid-request-integer-bit-vector' defines the following functions:
+(declaim (inline %uuid_time-low-request-bit-vector
+                 %uuid_time-mid-request-bit-vector
+                 %uuid_time-high-and-version-request-bit-vector
+                 %uuid_clock-seq-and-reserved-request-bit-vector
+                 %uuid_clock-seq-low-request-bit-vector
+                 %uuid_node-request-bit-vector))
 ;;
-;; (defun uuid-bit-vector-8-to-integer (bv)
-;; (defun uuid-bit-vector-8-to-octet    (bv)
+(def-uuid-request-integer-bit-vector "time-low" 0  32)
+(def-uuid-request-integer-bit-vector "time-mid" 32 16)
+(def-uuid-request-integer-bit-vector "time-high-and-version" 48 16)
+(def-uuid-request-integer-bit-vector "clock-seq-and-reserved" 64 8)
+(def-uuid-request-integer-bit-vector "clock-seq-low"          72 8) 
+(def-uuid-request-integer-bit-vector "node"                   80 48)
 ;;
-;; `%uuid_time-mid' `%uuid_time-high-and-version' `uuid-ub16'
-;; (defun uuid-bit-vector-16-range (bv) 
-
-;;
-;; `%uuid_time-low' `uuid-ub32'
-;; (defun uuid-bit-vector-32-range (bv) 
-
-;;
-;; `%uuid_node' `uuid-ub48'
-;; (defun uuid-bit-vector-48-to-integer (bv)
-
-;;
-;; (defun uuid-bit-vector-16-to-octets  (bv)
-;; (defun uuid-bit-vector-32-to-octets  (bv)
-;; (defun uuid-bit-vector-48-to-octets  (bv)
-;; (defun uuid-bit-vector-deposit-octet-to-byte-array (bv)
-;; (defun uuid-bit-vector-to-uuid-byte-array  (bv)
-;;
-;; (uuid-bit-vector-to-uuid (bv)
-
-;;; ==============================
-
-;;; ==============================
-;; :TODO uuid-from-bit-vector
-;;
-;; (defun %uuid-from-bit-vector-if (uuid-bit-vector-128)
-;;; (declare (uuid-bit-vector-128 uuid-bit-vector-128))
-;;   (let ((bv-version-if (uuid-version-bit-vector uuid-bit-vector-128)))
-;;  (ecase bv-version-if
-;;   (0 (return-from 'uuid-from-bit-vector (make-instance 'unique-universal-identifier-null)))
-;; (2  
-;; (let ((uuid-bit-vector-128 (uuid-to-bit-vector (make-v4-uuid))))
-;;   (error 'uuid-simple-error
-;;          :format-control
-;;          "Arg UUID-BIT-VECTOR-128 is a uuid version 2.~%~@
-;;                    The function `unicly:make-v2-uuid' is unimplemented.~%~@
-;;                    got UUID-BIT-VECTOR-128 with subseq [48,63]:~%~T~S~%"
-;;          :format-arguments
-;;          (list (subseq uuid-bit-vector-128 48 63))))
-;;   ((3 4 5) bv-version-if)
-;;  
-
-;; (defun uuid-from-bit-vector (uuid-bit-vector-128)
-;;; (declare (uuid-bit-vector-128 uuid-bit-vector-128))
-
-
-;;; ==============================
-;; :SOURCE usenet-legend/io.lisp :WAS `bit-vector-octets'
-;; :TODO Convert this into `uuid-bit-vector-to-byte-array'
-;; (defun bit-vector-octets (bv)
-;;   (declare (type simple-bit-vector bv)
-;;            (optimize speed))
-;;   (let ((octets (make-array (ceiling (length bv) 8)
-;;                             :element-type 'octet
-;;                             :initial-element 0)))
-;;     (loop for bit across bv
-;;           for i from 0 below (length bv)
-;;           do (multiple-value-bind (j k)
-;;                  (floor i 8)
-;;                (setf (aref octets j)
-;;                      (logior (ash bit k) (aref octets j)))))
-;;     (values octets
-;;             (length bv))))
-;;; ==============================
-
+(defun uuid-from-bit-vector (bit-vector-128)
+  (declare (inline %uuid_time-low-request-bit-vector
+                   %uuid_time-mid-request-bit-vector
+                   %uuid_time-high-and-version-request-bit-vector
+                   %uuid_clock-seq-and-reserved-request-bit-vector
+                   %uuid_clock-seq-low-request-bit-vector
+                   %uuid_node-request-bit-vector)
+           (uuid-bit-vector-128 bit-vector-128)
+           (optimize (speed 3)))
+  (uuid-bit-vector-128-check-type bit-vector-128)
+  (when (uuid-bit-vector-null-p bit-vector-128)
+    (return-from uuid-from-bit-vector (the unique-universal-identifier (make-null-uuid))))
+  (let ((tl   (the uuid-ub32 (%uuid_time-low-request-bit-vector               bit-vector-128)))
+        (tm   (the uuid-ub16 (%uuid_time-mid-request-bit-vector               bit-vector-128)))
+        (thv  (the uuid-ub16 (%uuid_time-high-and-version-request-bit-vector  bit-vector-128)))
+        (csr  (the uuid-ub8  (%uuid_clock-seq-and-reserved-request-bit-vector bit-vector-128)))
+        (csl  (the uuid-ub8  (%uuid_clock-seq-low-request-bit-vector          bit-vector-128)))
+        (nd   (the uuid-ub48 (%uuid_node-request-bit-vector                   bit-vector-128))))
+    (declare (uuid-ub32 tl)
+             (uuid-ub16 tm thv)
+             (uuid-ub8 csr csl)
+             (uuid-ub48 nd))
+    (the unique-universal-identifier
+      (make-instance 'unique-universal-identifier
+                     :%uuid_time-low tl
+                     :%uuid_time-mid tm
+                     :%uuid_time-high-and-version thv
+                     :%uuid_clock-seq-and-reserved csr
+                     :%uuid_clock-seq-low csl
+                     :%uuid_node nd))))
 
 
 ;;; ==============================

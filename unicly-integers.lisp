@@ -85,7 +85,9 @@
       (values b1 b2 b3 b4 b5 b6))))
 
 ;;; ==============================
-;; :SOURCE Zach Beane's usenet-legend/io.lisp :WAS `disassemble-u32'
+;; :SOURCE Zach Beane's usenet-legend/io.lisp 
+;; `uuid-disassemble-ub32' :WAS `disassemble-u32'
+;; `uuid-assemble-ub32' :WAS `assemble-u32'
 (declaim (inline uuid-disassemble-ub32))
 (defun uuid-disassemble-ub32 (u32)
   (declare (type uuid-ub32 u32)
@@ -106,23 +108,38 @@
     (declare (uuid-ub8 b1 b2))
     (values b1 b2)))
 
-;; (uuid-u48-from-bytes (b5 b4 b3 b2 b1 b0)
-;; (declare optimize
+(declaim (inline uuid-assemble-ub48))
+(defun uuid-assemble-ub48 (b1 b2 b3 b4 b5 b6)
+  (declare (type uuid-ub8 b1 b2 b3 b4 b5 b6)
+           (optimize (speed 3)))
+  (logand #xFFFFFFFFFFFF
+          (logior (ash b1 40)
+                  (ash b2 32)
+                  (ash b3 24)
+                  (ash b4 16)
+                  (ash b5 8)
+                  (ash b6 0))))
 
-;;; ==============================
-;; (defun uuid-ub32-from-bytes (b3 b2 b1 b0)
-;;   ;; (declare (optimize (speed 3))
-;;   ;; 	   (uuid-ub8 b3 b2 b1 b0))
-;;   (logxor (ash b3 24)
-;; 	     (ash b2 16)
-;; 	     (ash b1 8)
-;;      b0))
+(declaim (inline uuid-assemble-ub32))
+(defun uuid-assemble-ub32 (b1 b2 b3 b4)
+  (declare (type uuid-ub8 b1 b2 b3 b4)
+           (optimize speed))
+  (logand #xFFFFFFFF
+          (logior (ash b1 24)
+                  (ash b2 16)
+                  (ash b3 8)
+                  (ash b4 0))))
 
-;; (defun uuid-ub16-from-bytes (b1 b0)
-;; (declare (uuid-ub8 b3 b2 b1 b0)
-;; 	   (optimize (speed 3)))
-;; (the uuid-ub16 (logxor (ash b1 8) b0))
-;; (logxor (ash 255 8) 255)
+;; (uuid-disassemble-ub32  #xFFFFFFFF)
+;; 255, 255, 255, 255
+
+;(declare (inline uuid-assemble-ub16))
+(defun uuid-assemble-ub16 (b1 b2) 
+  (declare (type uuid-ub8 b1 b2)
+           (optimize (speed 3)))
+  (logand #xFFFF
+          (logior (ash b1 8)
+                  (ash b2 0))))
 
 ;;; ==============================
 
