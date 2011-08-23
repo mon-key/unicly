@@ -46,21 +46,21 @@
    ;;
    ;; unicly/unicly-types.lisp
    ;;
-   #:uuid-unsigned-byte-size            ; SIMPLE-TYPE
-   #:uuid-ub128                         ; SIMPLE-TYPE
-   #:uuid-ub64                          ; SIMPLE-TYPE
-   #:uuid-ub48                          ; SIMPLE-TYPE
-   #:uuid-ub32                          ; SIMPLE-TYPE
-   #:uuid-ub24                          ; SIMPLE-TYPE
-   #:uuid-ub16                          ; SIMPLE-TYPE
-   #:uuid-ub8                           ; SIMPLE-TYPE
-   #:uuid-ub128-integer-length          ; SIMPLE-TYPE  
-   #:uuid-ub64-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub48-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub32-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub24-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub16-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub8-integer-length            ; SIMPLE-TYPE
+   ;; #:uuid-unsigned-byte-size         ; SIMPLE-TYPE
+   ;; #:uuid-ub128                      ; SIMPLE-TYPE
+   ;; #:uuid-ub64                       ; SIMPLE-TYPE
+   ;; #:uuid-ub48                       ; SIMPLE-TYPE
+   ;; #:uuid-ub32                       ; SIMPLE-TYPE
+   ;; #:uuid-ub24                       ; SIMPLE-TYPE
+   ;; #:uuid-ub16                       ; SIMPLE-TYPE
+   ;; #:uuid-ub8                        ; SIMPLE-TYPE
+   ;; #:uuid-ub128-integer-length       ; SIMPLE-TYPE  
+   ;; #:uuid-ub64-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub48-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub32-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub24-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub16-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub8-integer-length         ; SIMPLE-TYPE
    ;; #:uuid-version-int                ; SIMPLE-TYPE
    ;; #:uuid-v3or5-int                  ; SIMPLE-TYPE
    ;; #:uuid-bit-vector                 ; COMPLEX-TYPE
@@ -193,7 +193,8 @@
    ;; #:uuid-bit-vector-to-integer
    ;; #:uuid-integer-128-to-bit-vector
    ;; #:uuid-deposit-octet-to-bit-vector
-   ;; #:uuid-bit-vector-to-byte-array
+   ;; 
+   #:uuid-bit-vector-to-byte-array
    #:uuid-byte-array-to-bit-vector
    ;;
    #:uuid-bit-vector-eql
