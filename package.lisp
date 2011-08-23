@@ -115,7 +115,7 @@
    ;; #:uuid-byte-array-check-type
    #:uuid-byte-array-16-p
    ;; #:uuid-byte-array-16-check-type
-   #:uuid-byte-array-20-p
+   ;; #:uuid-byte-array-20-p
    ;; #:uuid-byte-array-20-check-type
    #:uuid-byte-string-p
    ;; #:uuid-byte-string-check-type

@@ -897,6 +897,15 @@ written by Stas Boukarev using `cl:flet' and `cl:loop'.
 :SEE :FILE unicly/unicly.lisp for additional details.~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
+(fundoc 'uuid-bit-vector-to-byte-array
+"Convert UUID-BV-128 to a UUID-BYTE-ARRAY-16.~%~@
+Arg UUID-BV-128 should satisfy `uuid-bit-vector-128-check-type'.~%~@
+:EXAMPLE~%
+ \(equalp             
+  \(uuid-bit-vector-to-byte-array \(uuid-to-bit-vector \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%▶▶▶")
+
 (fundoc 'uuid-request-integer
   "Decode an integer of LENGTH octets from ARRAY starting at OFFSET.~%~@
 The number represented by BYTE-ARRAY may be any positive integer representable
@@ -1404,7 +1413,7 @@ Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
 ;;; :DEPRECATED-DOCS
 ;;; ==============================
 
-#+nil
+#+(or)
 (fundoc 'uuid-string-to-sha1-byte-array
 "Return string as a SHA1 byte-array as if by `ironclad:make-digest'.~%~@
 Arg STRING is a string and may contain UTF-8 characters.~%~@
@@ -1419,7 +1428,7 @@ Emacs lisp' `sha1-binary':
          => [32 193 148 189 4 164 89 163 52 78 106 202 121 61 200 118 132 25 134 11]~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-#+nil
+#+(or)
 (fundoc 'uuid-number-to-byte-array
         "Return NUMBER as if by `cl:values' a byte-array and the count of its elements.~%~@
 byte-array is in big-endian format with LSB as first elt and MSB as last elt.~%~@
@@ -1446,7 +1455,7 @@ byte-array is in big-endian format with LSB as first elt and MSB as last elt.~%~
    \(setf rslt `\(,\(eql rnd-trip-17 rslt\) ,rslt\)\)\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-#+nil
+#+(or)
 (fundoc 'uuid-get-bytes-for-integer
 "Return the number of octets required to represent UNSIGNED-INTEGER.~%~@
 :EXAMPLE~%~@
@@ -1464,7 +1473,7 @@ However, RFC4122 doesn't specify that any sub-value of the UUID will be 3
 octet integer so we play it safe and bump that puppy up to four.~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-#+nil
+#+(or)
 (fundoc 'uuid-digest-uuid-string ; ######
   "Helper function producing an ironclad digest.~%~@
 Reutrn value is an object of type `uuid-byte-array-16' and will satisfy the

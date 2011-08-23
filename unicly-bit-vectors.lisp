@@ -188,12 +188,6 @@
        do (uuid-deposit-octet-to-bit-vector byte offset uuid-bv128)
        finally (return (the uuid-bit-vector-128 uuid-bv128)))))
 
-;; "Convert UUID-BV-128 to a UUID-BYTE-ARRAY-16.
-;; Arg UUID-BV-128 should satisfy `uuid-bit-vector-128-check-type'. 
-;; :EXAMPLE
-;; (equalp             
-;;  (uuid-bit-vector-to-byte-array (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
-;;  (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
 (defun uuid-bit-vector-to-byte-array (uuid-bv-128)
   (declare (uuid-bit-vector-128 uuid-bv-128)
            (optimize (speed 3)))
