@@ -37,6 +37,7 @@
    ;; #:def-uuid-type-predicate-definer                   ; MACRO
    ;; #:def-uuid-type-check-definer                       ; MACRO
    ;; #:def-uuid-predicate-and-type-check-definer         ; MACRO
+   ;; #:def-uuid-request-integer-bit-vector               ; MACRO
    ;;
    ;; #:def-uuid-bit-vector-zeroed                        ; MACRO
    ;; #:uuid-string-parse-integer                         ; MACRO
@@ -45,53 +46,53 @@
    ;;
    ;; unicly/unicly-types.lisp
    ;;
-   #:uuid-unsigned-byte-size            ; SIMPLE-TYPE
-   #:uuid-ub128                         ; SIMPLE-TYPE
-   #:uuid-ub64                          ; SIMPLE-TYPE
-   #:uuid-ub48                          ; SIMPLE-TYPE
-   #:uuid-ub32                          ; SIMPLE-TYPE
-   #:uuid-ub24                          ; SIMPLE-TYPE
-   #:uuid-ub16                          ; SIMPLE-TYPE
-   #:uuid-ub8                           ; SIMPLE-TYPE
-   #:uuid-ub128-integer-length          ; SIMPLE-TYPE  
-   #:uuid-ub64-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub48-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub32-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub24-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub16-integer-length           ; SIMPLE-TYPE
-   #:uuid-ub8-integer-length            ; SIMPLE-TYPE
+   ;; #:uuid-unsigned-byte-size         ; SIMPLE-TYPE
+   ;; #:uuid-ub128                      ; SIMPLE-TYPE
+   ;; #:uuid-ub64                       ; SIMPLE-TYPE
+   ;; #:uuid-ub48                       ; SIMPLE-TYPE
+   ;; #:uuid-ub32                       ; SIMPLE-TYPE
+   ;; #:uuid-ub24                       ; SIMPLE-TYPE
+   ;; #:uuid-ub16                       ; SIMPLE-TYPE
+   ;; #:uuid-ub8                        ; SIMPLE-TYPE
+   ;; #:uuid-ub128-integer-length       ; SIMPLE-TYPE  
+   ;; #:uuid-ub64-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub48-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub32-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub24-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub16-integer-length        ; SIMPLE-TYPE
+   ;; #:uuid-ub8-integer-length         ; SIMPLE-TYPE
    ;; #:uuid-version-int                ; SIMPLE-TYPE
    ;; #:uuid-v3or5-int                  ; SIMPLE-TYPE
-   #:uuid-bit-vector                    ; COMPLEX-TYPE
-   #:uuid-bit-vector-128                ; COMPLEX-TYPE   
-   #:uuid-bit-vector-48                 ; COMPLEX-TYPE
-   #:uuid-bit-vector-32                 ; COMPLEX-TYPE
-   #:uuid-bit-vector-16                 ; COMPLEX-TYPE
-   #:uuid-bit-vector-8                  ; COMPLEX-TYPE
-   #:uuid-bit-vector-length             ; SIMPLE-TYPE
-   #:uuid-bit-vector-128-length         ; SIMPLE-TYPE
-   #:uuid-bit-vector-48-length          ; SIMPLE-TYPE
-   #:uuid-bit-vector-32-length          ; SIMPLE-TYPE
-   #:uuid-bit-vector-16-length          ; SIMPLE-TYPE
-   #:uuid-bit-vector-8-length           ; SIMPLE-TYPE
-   #:uuid-bit-vector-valid-length       ; SIMPLE-TYPE
-   ;; #:uuid-bit-vector-valid-bit-offset
-   ;; #:uuid-bit-vector-valid-bit-width ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector                 ; COMPLEX-TYPE
+   ;; #:uuid-bit-vector-128             ; COMPLEX-TYPE   
+   ;; #:uuid-bit-vector-48              ; COMPLEX-TYPE
+   ;; #:uuid-bit-vector-32              ; COMPLEX-TYPE
+   ;; #:uuid-bit-vector-16              ; COMPLEX-TYPE
+   ;; #:uuid-bit-vector-8               ; COMPLEX-TYPE
+   ;; #:uuid-bit-vector-length          ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-128-length      ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-48-length       ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-32-length       ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-16-length       ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-8-length        ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-valid-length    ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-valid-bit-offset ;COMPLEX-TYPE
+   ;; #:uuid-bit-vector-valid-bit-width ; COMPLEX-TYPE
    ;; #:uuid-simple-vector-5            : COMPLEX-TYPE
-   #:uuid-byte-array-16                 ; COMPLEX-TYPE
-   #:uuid-byte-array-20                 ; COMPLEX-TYPE
-   #:uuid-byte-string                   ; COMPLEX-TYPE
-   #:uuid-byte-array-null               ; COMPLEX-TYPE
-   #:uuid-bit-vector-null               ; COMPLEX-TYPE 
-   #:uuid-string-32                     ; COMPLEX-TYPE
-   #:uuid-string-36                     ; COMPLEX-TYPE
-   #:uuid-hex-string-32                 ; COMPLEX-TYPE
-   #:uuid-hex-string-36                 ; SIMPLE-TYPE
-   #:uuid-hex-string-length             ; SIMPLE-TYPE
-   #:uuid-hex-string-12                 ; SIMPLE-TYPE
-   #:uuid-hex-string-8                  ; SIMPLE-TYPE
-   #:uuid-hex-string-4                  ; SIMPLE-TYPE
-   #:uuid-hex-string-2                  ; SIMPLE-TYPE
+   ;; #:uuid-byte-array-16              ; COMPLEX-TYPE
+   ;; #:uuid-byte-array-20              ; COMPLEX-TYPE
+   ;; #:uuid-byte-string                ; COMPLEX-TYPE
+   ;; #:uuid-byte-array-null            ; COMPLEX-TYPE
+   ;; #:uuid-bit-vector-null            ; COMPLEX-TYPE 
+   ;; #:uuid-string-32                  ; COMPLEX-TYPE
+   ;; #:uuid-string-36                  ; COMPLEX-TYPE
+   ;; #:uuid-hex-string-32              ; COMPLEX-TYPE
+   ;; #:uuid-hex-string-36              ; SIMPLE-TYPE
+   ;; #:uuid-hex-string-length          ; SIMPLE-TYPE
+   ;; #:uuid-hex-string-12              ; SIMPLE-TYPE
+   ;; #:uuid-hex-string-8               ; SIMPLE-TYPE
+   ;; #:uuid-hex-string-4               ; SIMPLE-TYPE
+   ;; #:uuid-hex-string-2               ; SIMPLE-TYPE
    ;;
    #:uuid-bit-vector-128-p
    ;; #:uuid-bit-vector-48-p
@@ -125,7 +126,7 @@
    ;; #:string-with-fill-pointer-p
    ;; #:string-with-fill-pointer-check-type
    ;;
-   #:uuid-delimited-string-36-p
+   ;; #:uuid-delimited-string-36-p
    ;;
    ;; #:%uuid-hex-string-36-null-string-p
    #:uuid-hex-string-32-p
@@ -191,8 +192,9 @@
    ;; #:uuid-octet-to-bit-vector-8
    ;; #:uuid-bit-vector-to-integer
    ;; #:uuid-integer-128-to-bit-vector
-   ;; #:uuid-bit-vector-128-to-byte-array
-   #:uuid-deposit-octet-to-bit-vector
+   ;; #:uuid-deposit-octet-to-bit-vector
+   ;; 
+   #:uuid-bit-vector-to-byte-array
    #:uuid-byte-array-to-bit-vector
    ;;
    #:uuid-bit-vector-eql

@@ -88,12 +88,14 @@
     uuid-bit-vector-32-length
     uuid-bit-vector-16-length
     uuid-bit-vector-8-length))
-;; 
+
+;; complex-type
+;; (funcall (lambda (x) (declare (uuid-bit-vector-valid-bit-offset x) (optimize  (speed 3) (safety  2))) x) 18)
 (deftype uuid-bit-vector-valid-bit-offset ()
   '(member 0 32 48 64 72 80))
 
-;; simple-type ???
-;; (funcall (lambda (x) (declare (uuid-bit-vector-valid-bit-width x) (optimize  (speed 3) (safety 2))) x) 18)
+;; complex-type
+;; (funcall (lambda (x) (declare (uuid-bit-vector-valid-bit-width x) (optimize  (speed 3))) x) 18)
 (deftype uuid-bit-vector-valid-bit-width ()
   '(or 
     uuid-bit-vector-48-length
