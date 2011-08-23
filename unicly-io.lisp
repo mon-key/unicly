@@ -65,6 +65,31 @@
 (defun uuid-valid-stream-verify-octet-stream-for-input (maybe-input-octet-stream)
   (uuid-valid-stream-verify-io-octet-type maybe-input-octet-stream :direction :input))
 
+
+
+;;; ==============================
+;; :NOTE Following idiom does not suitably catch EOF.
+;; (defun uuid-deserialize-byte-array-bytes (stream-in)
+;;   (uuid-valid-stream-verify-octet-stream-for-input stream-in)
+;;   (let ((bv-return (uuid-bit-vector-128-zeroed)))
+;;     (read-sequence bv-return stream :start 0 :end 127)
+;;     bv-return))
+;;
+(defun uuid-deserialize-byte-array-bytes (stream-in)
+  (uuid-valid-stream-verify-octet-stream-for-input stream-in)
+  (loop 
+     with ba16 = (uuid-byte-array-16-zeroed)
+     for ba16-idx from 0 below 16
+     for byte-read = (read-byte stream-in nil 'EOF)
+     if (eql byte-read 'EOF)
+     do (error 'end-of-file :stream stream-in)
+     end
+     ;; unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
+     ;; do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
+     ;; byte-read (type-of byte-read))
+     do (setf (aref ba16 ba16-idx) byte-read)
+     finally (return ba16)))
+
 ;;; ==============================
 ;; :TODO `deserialize-uuid'... 
 ;; :NOTE Should there be a generic function which dispatches on the UUID's
@@ -87,25 +112,52 @@
     ;;    for byte-idx from 0 below 16
     ;;    do (write-byte (aref ba16 byte-idx) stream))
     (write-sequence ba16 stream-out :start 0 :end 16)))
-;; *print-array* 
-(defun uuid-deserialize-byte-array-bytes (stream-in)
+
+
+;;; ==============================
+;; :TODO Should peek at stream to test if we are at end of file
+;; (error 'end-of-file :stream stream)
+;; Should check if there are pututatively enough bytes remaining in stream with:
+;; (>= (- file-length file-position) 128)
+;; This won't be 100% reliable but will at least let us bail early for trivial cases.
+;;
+;; :NOTE Following idiom with `cl:read-sequence' does not suitably catch EOF.
+;; (defun uuid-deserialize-bit-vector-bits (stream-in)
+;;   (let ((bv-return (uuid-bit-vector-128-zeroed)))
+;;     (read-sequence bv-return stream-in :start 0 :end 127)
+;;     bv-return))
+;; 
+;; :NOTE Following is the equivalent using `cl:do' instead of `cl:loop'
+;; (defun uuid-deserialize-bit-vector-bits (stream-in)
+;;   (uuid-valid-stream-verify-octet-stream-for-input stream-in)
+;;   (let ((bv (uuid-bit-vector-128-zeroed)))
+;;     (do ((code (read-byte s nil 'EOF) (read-byte s nil 'EOF))
+;;          (cnt 0 (1+ cnt)))
+;;         ((if (or (eql code 'EOF) (> cnt 128 )) 
+;;              t
+;;              (unless (typep code 'bit)
+;;                (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
+;;                       code (type-of code))))
+;;          (if (= cnt 128)
+;;              (uuid-bit-vector-eql w-uuid-bv bv)
+;;              ;; (values nil (cons code cnt))))
+;;              (error 'end-of-file :stream stream-in)))
+;;       (setf (sbit bv cnt) code))))
+;;
+(defun uuid-deserialize-bit-vector-bits (stream-in)
   (uuid-valid-stream-verify-octet-stream-for-input stream-in)
-  ;; :NOTE Following idiom does not suitably catch EOF.
-  ;; (let ((bv-return (uuid-bit-vector-128-zeroed)))
-  ;;    (read-sequence bv-return stream :start 0 :end 127)
-  ;;    bv-return))
   (loop 
-     with ba16 = (uuid-byte-array-16-zeroed)
-     for ba16-idx from 0 below 16
+     with bv = (uuid-bit-vector-128-zeroed)
+     for cnt from 0 below 128 
      for byte-read = (read-byte stream-in nil 'EOF)
      if (eql byte-read 'EOF)
      do (error 'end-of-file :stream stream-in)
      end
-     ;; unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
-     ;; do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
-     ;; byte-read (type-of byte-read))
-     do (setf (aref ba16 ba16-idx) byte-read)
-     finally (return ba16)))
+     unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
+     do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
+               byte-read (type-of byte-read))
+     do (setf (sbit bv cnt) byte-read)
+     finally (return bv)))
 
 (defun uuid-serialize-bit-vector-bits (bv-or-uuid stream-out)
   (declare ((or uuid-bit-vector-128 unique-universal-identifier) bv-or-uuid)
@@ -122,51 +174,7 @@
     ;;    do (write-byte (sbit bv-128 bit-idx) stream-out))
     (write-sequence bv-128 stream-out :start 0 :end 128)))
 
-;; :TODO Test (subtypep (stream-element-type stream) 'uuid-ub8)
-;; :TODO Should peek at stream to test if we are at end of file
-;; (error 'end-of-file :stream stream)
-;; Should check if there are pututatively enough bytes remaining in stream with:
-;; (>= (- file-length file-position) 128)
-;; This won't be 100% reliable but will at least let us bail early for trivial cases.
-;;
-;; (let* ((stream-type (stream-element-type stream))
-;;        (stream-subtypep (subtypep stream-type 'uuid-ub8)))
-;;   (format t "stream-type: ~S~%stream-subtypep: ~S~%" stream-type stream-subtypep))
-(defun uuid-deserialize-bit-vector-bits (stream-in)
-  (uuid-valid-stream-verify-octet-stream-for-input stream-in)
-  ;; :NOTE Following idiom with `cl:read-sequence' does not suitably catch EOF.
-  ;; (let ((bv-return (uuid-bit-vector-128-zeroed)))
-  ;;    (read-sequence bv-return stream :start 0 :end 127)
-  ;;    bv-return))
-  ;;
-  ;; Following is the equivalent using `cl:do' instead of `cl:loop'
-  ;; (let ((bv (uuid-bit-vector-128-zeroed)))
-  ;;   (do ((code (read-byte s nil 'EOF) (read-byte s nil 'EOF))
-  ;;        (cnt 0 (1+ cnt)))
-  ;;       ((if (or (eql code 'EOF) (> cnt 128 )) 
-  ;;            t
-  ;;            (unless (typep code 'bit)
-  ;;              (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
-  ;;                     code (type-of code))))
-  ;;        (if (= cnt 128)
-  ;;            (uuid-bit-vector-eql w-uuid-bv bv)
-  ;;            ;; (values nil (cons code cnt))))
-  ;;            (error 'end-of-file :stream stream-in)))
-  ;;     (setf (sbit bv cnt) code)))
-  ;;
-  (loop 
-     with bv = (uuid-bit-vector-128-zeroed)
-     for cnt from 0 below 128 
-     for byte-read = (read-byte stream-in nil 'EOF)
-     if (eql byte-read 'EOF)
-     do (error 'end-of-file :stream stream-in)
-     end
-     unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
-     do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
-               byte-read (type-of byte-read))
-     do (setf (sbit bv cnt) byte-read)
-     finally (return bv)))
-
+
 ;; (fundoc 'uuid-read-bit-vector-bits
 ;; Read the bits of a UUID's bit-vector representation from INPUT-PATHNAME return
 ;; an object of type `uuid-bit-vector-128'.
@@ -184,6 +192,7 @@
                          :if-does-not-exist if-does-not-exist
                          :element-type 'uuid-ub8)
     (uuid-deserialize-bit-vector-bits bv-in)))
+
 
 ;;; ==============================
 

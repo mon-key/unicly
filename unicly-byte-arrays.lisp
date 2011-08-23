@@ -35,16 +35,8 @@
                                       %uuid_clock-seq-and-reserved
                                       %uuid_clock-seq-low
                                       (uuid-disassemble-ub48 %uuid_node))))))
-;;
-;; (progn 
-;;   (defparameter *tt--uuid-v4* (make-v4-uuid))
-;;   (unwind-protect 
-;;        (equalp (uuid-to-byte-array *tt--uuid-v4*)
-;;                (uuid-get-namespace-bytes *tt--uuid-v4*))
-;;     (unintern '*tt--uuid-v4*)))
-;;
+
 ;;; ==============================
-;;
 ;; :NOTE UNICLY:UUID-GET-NAMESPACE-BYTES is equivalent to
 ;; UUID:UUID-TO-BYTE-ARRAY we provide it here for congruence. 
 ;; :SEE Bottom of file for our variation of the original definition.
@@ -111,7 +103,19 @@
       ((>= j 16) sum)
     (setf sum (+ (aref uuid-ba-16 j) (ash sum 8)))))
 
+;; :NOTE Following adapted from `ironclad::integer-to-octets'
+;; :SEE :FILE ironclad/src/public-key/public-key.lisp
+(defun uuid-integer-128-to-byte-array (uuid-integer)
+  (let ((octet-vec (make-array 16 :element-type 'uuid-ub8)))
+    (declare (type uuid-byte-array-16 octet-vec))
+    (loop 
+       for i from 15 downto 0
+       for index from 0
+       ;; do (setf (aref octet-vec index) (ldb (byte 8 (ash i 3)) uuid-integer))
+       do (setf (aref octet-vec index) (ldb (byte 8 (* i 8)) uuid-integer))
+       finally (return octet-vec))))
 
+
 ;;; ==============================
 ;; :NOTE the weird loop in the return value of the dotimes form is to accomodate
 ;; situatiosn where the top bits of the class `unique-universal-identifier' are
@@ -135,8 +139,8 @@
 ;;       (unless (null inner-diff)
 ;;         (push inner-diff diff)))))
 ;; 
-;; Now using code adapted from ironclad::integer-to-octets instead.
-;;
+;; :NOTE Now using code adapted from ironclad::integer-to-octets instead.
+;; 
 ;; (defun uuid-integer-128-to-byte-array (uuid-integer)
 ;;   (declare (uuid-ub128 uuid-integer)
 ;;            (optimize (speed 3)))
@@ -163,29 +167,17 @@
 ;;                 (ldb (byte 8 0) uuid-integer))
 ;;           (setf (aref ba-out cnt) 
 ;;                 (ldb (byte 8 chk-byte) uuid-integer))))))
-;;
-;; :NOTE Following adapted from `ironclad::integer-to-octets'
-(defun uuid-integer-128-to-byte-array (uuid-integer)
-  (let ((octet-vec (make-array 16 :element-type 'uuid-ub8)))
-    (declare (type uuid-byte-array-16 octet-vec))
-    (loop 
-       for i from 15 downto 0
-       for index from 0
-       ;; do (setf (aref octet-vec index) (ldb (byte 8 (ash i 3)) uuid-integer))
-       do (setf (aref octet-vec index) (ldb (byte 8 (* i 8)) uuid-integer))
-       finally (return octet-vec))))
+;;; ==============================
 
+;;; ==============================
 
-;; :SOURCE cl-crypto/source/rsa.lisp
-#+(or)
-(defun num->byte-array (num)
-  (let* ((num-bytes (truncate (+ (integer-length num) 7) 8))
-	 (num-bits (* num-bytes 8))
-	 (out (make-array num-bytes :element-type '(unsigned-byte 8))))
-    (dotimes (i num-bytes)
-      (setf (aref out i) (ldb (byte 8 (- num-bits (* (1+ i) 8))) num)))
-    out))
-
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; show-trailing-whitespace: t
+;; mode: lisp-interaction
+;; package: unicly
+;; End:
 
 
 ;;; ==============================

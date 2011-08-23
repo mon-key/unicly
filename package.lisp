@@ -161,6 +161,9 @@
    ;; #:uuid-disassemble-ub48
    ;; #:uuid-disassemble-ub32
    ;; #:uuid-disassemble-ub16
+   ;; #:uuid-assemble-ub48
+   ;; #:uuid-assemble-ub32
+   ;; #:uuid-assemble-ub16
    ;;
  ;; unicly/unicly-bit-vectors.lisp
    ;;
