@@ -75,6 +75,8 @@
    #:uuid-bit-vector-16-length          ; SIMPLE-TYPE
    #:uuid-bit-vector-8-length           ; SIMPLE-TYPE
    #:uuid-bit-vector-valid-length       ; SIMPLE-TYPE
+   ;; #:uuid-bit-vector-valid-bit-offset
+   ;; #:uuid-bit-vector-valid-bit-width ; SIMPLE-TYPE
    ;; #:uuid-simple-vector-5            : COMPLEX-TYPE
    #:uuid-byte-array-16                 ; COMPLEX-TYPE
    #:uuid-byte-array-20                 ; COMPLEX-TYPE
@@ -173,6 +175,13 @@
    ;; #:uuid-bit-vector-16-zeroed
    ;; #:uuid-bit-vector-8-zeroed
    ;;
+   ;; #:%uuid_time-low-request-bit-vector
+   ;; #:%uuid_time-mid-request-bit-vector
+   ;; #:%uuid_time-high-and-version-request-bit-vector
+   ;; #:%uuid_clock-seq-and-reserved-request-bit-vector
+   ;; #:%uuid_clock-seq-low-request-bit-vector
+   ;; #:%uuid_node-request-bit-vector
+   ;;
    ;; #:%uuid-version-bit-vector-if
    ;; #:uuid-version-bit-vector
    #:uuid-bit-vector-v3-p
@@ -182,12 +191,14 @@
    ;; #:uuid-octet-to-bit-vector-8
    ;; #:uuid-bit-vector-to-integer
    ;; #:uuid-integer-128-to-bit-vector
+   ;; #:uuid-bit-vector-128-to-byte-array
    #:uuid-deposit-octet-to-bit-vector
    #:uuid-byte-array-to-bit-vector
    ;;
    #:uuid-bit-vector-eql
    #:uuid-bit-vector-null-p
    ;;
+   #:uuid-from-bit-vector
    #:uuid-to-bit-vector
    ;;
  ;; unicly/unicly-byte-arrays.lisp

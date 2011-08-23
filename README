@@ -529,6 +529,37 @@ UNICLY> (equalp
          (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "NOT-A-BUBBA")))
 ;=> NIL
 
+
+UNICLY> (make-v5-uuid *uuid-namespace-dns* "bubba")
+;=> eea1105e-3681-5117-99b6-7b2b5fe1f3c7
+
+Roundtripping UUID representations:
+ uuid -> bit-vector -> uuid -> byte-array -> bit-vector -> uuid 
+  -> uuid-to-byte-array -> uuid -> uuid-string-36 -> uuid
+
+UNICLY> (make-uuid-from-string
+         (uuid-princ-to-string
+          (uuid-from-byte-array
+           (uuid-to-byte-array
+            (uuid-from-bit-vector
+             (uuid-byte-array-to-bit-vector
+              (uuid-to-byte-array 
+               (uuid-from-bit-vector 
+                (uuid-to-bit-vector 
+                 (make-v5-uuid *uuid-namespace-dns* "bubba"))))))))))
+;=> eea1105e-3681-5117-99b6-7b2b5fe1f3c7
+
+UNICLY> (let* ((uuid-1    (make-v5-uuid *uuid-namespace-dns* "bubba"))
+               (uuid-1-bv (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
+               (uuid-2    (uuid-from-bit-vector uuid-1-bv)))
+          (list :uuid-eql (uuid-eql uuid-1 uuid-2)
+                :eq       (eq uuid-1 uuid-2)
+                :eql      (eql uuid-1 uuid-2) 
+                :equal    (equal uuid-1 uuid-2)
+                :equalp   (equalp uuid-1 uuid-2)
+                :sxhash   (list (sxhash uuid-1) (sxhash uuid-2))))
+;=> (:UUID-EQL T :EQ NIL :EQL NIL :EQUAL NIL :EQUALP NIL :SXHASH (121011444 363948070))
+
 UNICLY> (uuid-version-uuid *unique-random-namespace*)
 ;=> 4
 

@@ -130,7 +130,10 @@
                   (ash b3 8)
                   (ash b4 0))))
 
-(declare (inline uuid-assemble-ub16))
+;; (uuid-disassemble-ub32  #xFFFFFFFF)
+;; 255, 255, 255, 255
+
+;(declare (inline uuid-assemble-ub16))
 (defun uuid-assemble-ub16 (b1 b2) 
   (declare (type uuid-ub8 b1 b2)
            (optimize (speed 3)))

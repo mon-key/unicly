@@ -114,10 +114,38 @@
        (the ,(cdr bv-int-size-and-type)
          (make-array (the ,(car bv-int-size-and-type) ,zeroed-size) :element-type 'bit :initial-element 0)))))
 ;;
+(defmacro def-uuid-request-integer-bit-vector (def-name bit-offset bit-width)
+  (let ((ub-declared-assembler
+         (ecase bit-width
+           (48  (cons 'uuid-assemble-ub48 'uuid-ub48))
+           (32  (cons 'uuid-assemble-ub32 'uuid-ub32))
+           (16  (cons 'uuid-assemble-ub16 'uuid-ub16))
+           ;; :NOTE This winds up creating an inline declartation for `cl:identity'... likely harmless.
+           (8   (cons 'identity 'uuid-ub8)))) 
+        (bv-offsets (uuid-bit-vector-build-offsets bit-offset bit-width))
+        (bv-request-name 
+         (%def-uuid-format-and-intern-symbol "%uuid_~@:(~A~)-request-bit-vector" def-name)))
+    `(defun ,bv-request-name (bit-vector-128)
+       (declare
+        (inline ,(car ub-declared-assembler))
+        (uuid-bit-vector-128 bit-vector-128)
+        (optimize (speed 3)))
+       (uuid-bit-vector-128-check-type bit-vector-128)
+       (loop 
+          for (a . b) of-type (uuid-ub8 . uuid-ub8 ) in ',bv-offsets
+          collect (loop 
+                     with j of-type uuid-ub8 = 0
+                     for x from a to b
+                     do (setf j (logior (sbit bit-vector-128 x) (ash j 1)))
+                     finally (return j)) into bytes
+          finally (return (the ,(cdr ub-declared-assembler)
+                            (apply #',(car ub-declared-assembler) bytes)))))))
+;;
 ;; (defmacro @uuid-bit-vector (bit-vector-type bit-vector index)
 ;;   `(sbit (the ,bit-vector-type ,bit-vector) ,index))
 ;;
 ;;; ==============================
+
 
 
 ;;; ==============================
