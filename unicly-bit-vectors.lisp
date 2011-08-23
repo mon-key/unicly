@@ -192,14 +192,14 @@
 ;; Arg UUID-BV-128 should satisfy `uuid-bit-vector-128-check-type'. 
 ;; :EXAMPLE
 ;; (equalp             
-;;  (uuid-bit-vector-128-to-byte-array (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;;  (uuid-bit-vector-to-byte-array (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
 ;;  (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
-(defun uuid-bit-vector-128-to-byte-array (uuid-bv-128)
+(defun uuid-bit-vector-to-byte-array (uuid-bv-128)
   (declare (uuid-bit-vector-128 uuid-bv-128)
            (optimize (speed 3)))
   (uuid-bit-vector-128-check-type uuid-bv-128)
   (when (uuid-bit-vector-null-p uuid-bv-128)
-    (return-from uuid-bit-vector-128-to-byte-array (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))))
+    (return-from uuid-bit-vector-to-byte-array (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))))
   (labels ((displaced-8 (disp-off)
              (declare (optimize (speed 3)))
              (the (bit-vector 8)
