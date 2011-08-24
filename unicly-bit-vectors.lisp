@@ -142,7 +142,6 @@
   (the (values (member t nil) &optional)
     (uuid-bit-vector-eql bit-vector-maybe-null (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed)))))
 
-;; (%uuid-bit-vector-null-p (uuid-bit-vector-32-zeroed))
 (declaim (inline uuid-bit-vector-null-p))
 (defun uuid-bit-vector-null-p (bit-vector-maybe-null)
   (declare (optimize (speed 3)))
@@ -501,9 +500,9 @@
                  %uuid_clock-seq-low-request-bit-vector
                  %uuid_node-request-bit-vector))
 ;;
-(def-uuid-request-integer-bit-vector "time-low" 0  32)
-(def-uuid-request-integer-bit-vector "time-mid" 32 16)
-(def-uuid-request-integer-bit-vector "time-high-and-version" 48 16)
+(def-uuid-request-integer-bit-vector "time-low"               0  32)
+(def-uuid-request-integer-bit-vector "time-mid"               32 16)
+(def-uuid-request-integer-bit-vector "time-high-and-version"  48 16)
 (def-uuid-request-integer-bit-vector "clock-seq-and-reserved" 64 8)
 (def-uuid-request-integer-bit-vector "clock-seq-low"          72 8) 
 (def-uuid-request-integer-bit-vector "node"                   80 48)
@@ -520,6 +519,9 @@
   (uuid-bit-vector-128-check-type bit-vector-128)
   (when (uuid-bit-vector-null-p bit-vector-128)
     (return-from uuid-from-bit-vector (the unique-universal-identifier (make-null-uuid))))
+  (ecase (uuid-version-bit-vector  bit-vector-128)
+    ((1 2) (error "can not convert v1 or v2 bit-vectors to instance of class `unique-universal-identifier'"))
+    ((3 4 5) t))
   (let ((tl   (the uuid-ub32 (%uuid_time-low-request-bit-vector               bit-vector-128)))
         (tm   (the uuid-ub16 (%uuid_time-mid-request-bit-vector               bit-vector-128)))
         (thv  (the uuid-ub16 (%uuid_time-high-and-version-request-bit-vector  bit-vector-128)))
