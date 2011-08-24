@@ -662,6 +662,27 @@
            (values (uuid-bit-vector-eql bv-read w-uuid-bv) w-uuid-bv w-uuid)))
     (delete-file file)))
 
+;; `uuid-to-bit-vector'
+(equal 
+ (list 
+  (= (uuid-version-uuid (uuid-from-bit-vector (uuid-to-bit-vector (make-v4-uuid)))) 4)
+  (= (uuid-version-uuid (uuid-from-bit-vector (uuid-to-bit-vector (make-v3-uuid *uuid-namespace-dns* "bubba")))) 3)
+  (= (uuid-version-uuid (uuid-from-bit-vector (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))) 5)
+  (unique-universal-identifier-null-p 
+   (uuid-from-bit-vector (uuid-bit-vector-128-zeroed)))
+  (and (nth-value 1
+                  (ignore-errors
+                    (let ((fake-uuid-bv (uuid-bit-vector-128-zeroed)))
+                      (setf (sbit fake-uuid-bv 51) 1) ;; v1 
+                      (uuid-from-bit-vector fake-uuid-bv))))
+       t)
+  (and (nth-value 1 (ignore-errors
+                      (let ((fake-uuid-bv (uuid-bit-vector-128-zeroed)))
+                        (setf (sbit fake-uuid-bv 50) 1) ;; v2
+                        (uuid-from-bit-vector fake-uuid-bv))))
+       t))
+ (list T T T T T T))
+
 ;;; ==============================
 ;; :NOTE Following requires `make-random-string':
 ;; :SEE :FILE unicly-timings.lisp

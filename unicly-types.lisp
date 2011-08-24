@@ -147,6 +147,15 @@
   '(simple-array character (16)))
 
 ;;; ==============================
+;; :NOTE These notes are w/r/t method `uuid-print-bytes-to-string' specialized
+;; on `unique-universal-identifier'. Currently the internal string variable is 
+;; an object of type:
+;;  (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
+;; That decision likely originally had something to do with some notion i had re
+;; `ironclad:byte-array-to-hex-string' and `simple-base-string's. 
+;; In any event, if we tweak `uuid-print-bytes-to-string' we need to be mindful
+;; that underlying callers/methods may check `uuid-hex-string-<N>' and might
+;; fail if they don't find the correct array-element-type...
 ;; 2011-08-20
 ;; <mon_key> http://paste.lisp.org/+2NT1
 ;; <pkhuong> mon_key: see clhs 15.1.2.1  [17:22]
@@ -161,24 +170,6 @@
 ;; <Xach> mon_key: aref on an uninitialized array before setf of the element in
 ;;        question is undefined
 ;;; ==============================
-;; (subtypep '(simple-array standard-char (16)) '(simple-array base-char (16)))
-;; (typep (make-array 16 :element-type 'standard-char :initial-element #\0) '(array character (16)))
-;; (standard-char-p #\0)
-;; (string-all-hex-char-p (make-array 16 :element-type 'standard-char :initial-element #\0))
-;; (typep #\Nul 'base-char)
-;; (standard-char-p #\Nul)
-;; 
-;; (uuid-hex-string-32-p (make-array 32 :element-type 'character :fill-pointer 0 :initial-element #\Nul))
-;; (typep (make-array 32 :element-type 'standard-char :fill-pointer 0 :initial-element #\0) 'uuid-string-32)
-;; :element-type 'character
-
-;; (type-of (make-array 32 :element-type 'standard-char :fill-pointer 0))
-;; (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
-
-;; (type-of (make-array 32 :element-type 'standard-char :fill-pointer 0 :initial-element #\nul))
-;; (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
-;; (char-code #\0)
-
 ;; complex-type
 (deftype uuid-hex-string-32 ()
   '(and uuid-string-32 (satisfies string-all-hex-char-p)))
@@ -475,8 +466,7 @@
 ;;   (typep maybe-uuid-byte-string 'uuid-byte-string))
 ;; (defun uuid-bit-vector-128-p (maybe-uuid-bit-vector-128)
 ;;   (typep maybe-uuid-bit-vector-128 'uuid-bit-vector-128))
-
-
+;;
 ;;; ==============================
 
 

@@ -30,7 +30,7 @@ Some notable differences between Unicly and Tzonev's uuid:
    * I do not test on implementations other than SBCL, but code for generating
      v3, v4, and v5 UUIDs *should* run portably on other Common Lisps ;}
 
- - Unicly is developed primarily for speedy minting of v3, v4, and v5 UUIDs.
+ - Unicly is developed primarily for speedy minting of v3 and v5 UUIDs.
    On an x86-32 SBCL we have found Unicly's minting of v3/v4/v5 UUIDs to be
    significantly faster (at least 3-5x) than the equivalent code from uuid.
    See unicly/unicly-timings.lisp for some timing comparisons.
@@ -65,7 +65,6 @@ Some notable differences between Unicly and Tzonev's uuid:
    Unicly for equivalence tests and hash-table lookups using Unicly's extended
    interface as provided by UUID-EQL, UUID-BIT-VECTOR-EQL, etc.
 
- Coupled with Unicly's 
 
  - Unicly is extended with support for creating/storing/(de)serializing UUID
    objects as bit vectors.
@@ -535,7 +534,7 @@ UNICLY> (make-v5-uuid *uuid-namespace-dns* "bubba")
 
 Roundtripping UUID representations:
  uuid -> bit-vector -> uuid -> byte-array -> bit-vector -> uuid 
-  -> uuid-to-byte-array -> uuid -> uuid-string-36 -> uuid
+  -> byte-array -> uuid -> uuid-string-36 -> uuid
 
 UNICLY> (make-uuid-from-string
          (uuid-princ-to-string
