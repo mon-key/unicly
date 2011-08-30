@@ -7,15 +7,13 @@ DESCRIPTION:
 Unicly is a Common Lisp library for generation of UUIDs (Universally Unique
 Identifiers) as described by RFC 4122.
 
-Installation:
+INSTALLATION:
 
 SHELL> cd /parent/dir/where/you/put/cl-repos/
 
 SHELL> git clone git://github.com/mon-key/unicly.git 
 
 SHELL> cd unicly
-
-INSTALLATION:
 
 Unicly is loadable by Quicklisp assuming a directory containing unicly.asd is
 present as an element of ASDF:*CENTRAL-REGISTRY*.
