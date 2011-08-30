@@ -118,14 +118,14 @@
 
 ;;; ==============================
 ;; :NOTE the weird loop in the return value of the dotimes form is to accomodate
-;; situatiosn where the top bits of the class `unique-universal-identifier' are
+;; situations where the top bits of the class `unique-universal-identifier' are
 ;; such that the uuid has an integer representation with `cl:integer-length'
 ;; less than 120 and we need to pad the array. On current system this will
 ;; happen for 1 in 200 invocations of `make-v4-uuid's and we end up with
 ;; something like this:
 ;; (integer-length 169114161898150076209418180205435926)
 ;; Following example will illustrate the problem, remove the loop in return of
-;; `cl:dotimes' to to play:
+;; `cl:dotimes' to play:
 ;;
 ;; (let ((diff '()))
 ;;   (dotimes (i 1000 diff)

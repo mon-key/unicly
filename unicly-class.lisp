@@ -278,7 +278,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
 
 ;;; ==============================
 ;; :NOTE Following equivialence tests are influenced bye the uuid methods in
-;; Kevin Raison's CL libraryr kyoto-persistence which tests `equalp' on the
+;; Kevin Raison's CL library kyoto-persistence which tests `equalp' on the
 ;; byte-arrray representation of UUID-A and UUID-B e.g.:
 ;;  (equalp (uuid-get-namespace-bytes uuid-a) (uuid-get-namespace-bytes uuid-b))
 ;; We eschew the byte-array representation and instead take an alternative
@@ -592,7 +592,7 @@ Output of return value has the format:~%
 
 (defmethod uuid-print-bytes-to-string ((uuid unique-universal-identifier) &optional string)
   #.(format nil
-            "Print bytes of UUID in hexadecimal representation to a `uuid-string-32'..~%~@
+            "Print bytes of UUID in hexadecimal representation to a `uuid-string-32'.~%~@
 When optional arg STRING is non-nil print hexadecimal representation of bytes to STRING.
 STRING should satisfy `string-with-fill-pointer-p'.~%~@
 Default method speciaclized on instances of class `unique-universal-identifier'.
