@@ -24,7 +24,8 @@
 ;; *package*
 
 
-#| Uncomment the section below to run the timings code following this block:
+#| 
+ Uncomment the section below to run the timings code following this block:
 
 
  (defpackage #:unicly-timings (:use #:common-lisp))

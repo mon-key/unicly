@@ -64,10 +64,10 @@ UUIDs with reasonable certainty that the UUIDs so generated will remain unique.
 The first of these is a v1 or time based UUID. Unicly does not currently provide
 an interface for creation of v1 UUIDs.
 
-The second of this is a v4 or random UUID. This is Unicly's preferred interface
+The second of these is a v4 or random UUID. This is Unicly's preferred interface
 for creation of an initial namespace. 
 
-Once on has a handle on an initial UUID namespace that namespace may then be
+Once one has a handle on an initial UUID namespace that namespace may then be
 leveraged to create any number of new UUID namespaces using MAKE-V3-UUID OR
 MAKE-V5-UUID. This is a commonly overlooked/misunderstood aspect of RFC 4122!
 
@@ -100,7 +100,7 @@ at its identity, e.g.:
 
 In any event, the easiest way to create a new "namespace" is with MAKE-V4-UUID.
 Note, because the v4 uuid is the "random" UUID when evaluating the following
-form your return value will obv. be somewhat differernt :)
+form your return value will obv. be somewhat different :)
 
 UNICLY> (make-v4-uuid)
 ;=> 2f20bdfa-cd67-4150-8500-80c94821bbda
@@ -158,7 +158,7 @@ UNICLY> (defparameter *my-fabulous-namespace*
 UNICLY> *MY-FABULOUS-NAMESPACE*
 ;=> e5c2a048-863f-5c7d-a894-607070d2d299
 
-Create some objects in the namespace *MY-FABULOUS-NAMESPACE*:
+Create some objects in the namespace *my-fabulous-namespace*:
 
 UNICLY> (make-v5-uuid *my-fabulous-namespace* (namestring (user-homedir-pathname)))
 ;=> c0f2a167-dae7-55c0-ad57-1d8bad0444d3
@@ -167,7 +167,7 @@ UNICLY> (make-v5-uuid *my-fabulous-namespace* (namestring *default-pathname-defa
 ;=> a5ace91c-d657-5f5c-abef-81bbef52d27c
 
 UNICLY> (setf *default-pathname-defaults* (user-homedir-pathname))
-;=> #P/home/you/
+;=> #P"/home/you/"
 
 You should now find that the UUID for the CL:NAMESTRING of *DEFAULT-PATHNAME-DEFAULTS*
 is the same as that of the namestring of USER-HOMEDIR-PATHNAME:
@@ -204,7 +204,7 @@ illustrate some cleaner ways to interrogate UUID equality.
 
 So, now that you've got a handle on a fabulous UUID namespace how do you persist it?
 The quick and dirty way is to write the UUID string representation of
-*MY-FABULOUS-NAMESPACE* to a file somewhere.
+*my-fabulous-namespace* to a file somewhere.
 
 UNICLY> (with-open-file (persist (make-pathname :directory '(:absolute "tmp") 
                                                 :name "persisted-fabulous-namespace"
@@ -240,8 +240,8 @@ including bit-vectors, byte-arrays, 128-bit integers, strings, etc.
 
 Following examples illustrate some more of the Unicly interface.
 
-We use the value of the v4-uuid in the variable *UNIQUE-RANDOM-NAMESPACE*
-defined earlier above, but feel free to substitute *MY-FABULOUS-NAMESPACE* (or
+We use the value of the v4-uuid in the variable *unique-random-namespace*
+defined earlier above, but feel free to substitute *my-fabulous-namespace* (or
 equivalent).
 
 Testing the equivalence of two UUID objects:
@@ -266,7 +266,7 @@ UNICLY> (uuid-eql
 ;=> T
 
 Binding a variable *another-unique-random-namespace* for use as a namespace.
-We initally bind it to the hex-string-36 represnetation of a v4 UUID:
+We initally bind it to the hex-string-36 representation of a v4 UUID:
 
 UNICLY> (defparameter *another-unique-random-namespace* 
           (uuid-princ-to-string (unicly:make-v4-uuid)))
@@ -505,7 +505,7 @@ UNICLY> (uuid-version-uuid *unique-random-namespace*)
 UNICLY> (uuid-version-uuid (make-v5-uuid *unique-random-namespace* "bubba-8"))
 ;=> 5
 
-Using a predicate to test the version of o UUID object:
+Using a predicate to test the version of a UUID object:
 
 UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
 ;=> T
@@ -541,7 +541,7 @@ UNICLY> (uuid-eql (make-null-uuid) (make-null-uuid))
 ;=> T
 
 The UUID is sometimes referenced as having an 8:4:4:4:12 hex string representation. 
-We refer to this an object of type UUID-HEX-STRING-36.
+We refer to this representation as a UUID object with type UUID-HEX-STRING-36.
 
 However, such references imply a string-centric view-point of the UUID when
 really it is much saner to see the uuid as a sequence of bits or bytes.
@@ -611,7 +611,7 @@ The octet count of the upper bounds of a UUIDs integer representation:
 UNICLY> (truncate (integer-length 340282366920938463463374607431768211455) 8)
 ;=> 16
 
-The upper bounds of UUID in decimal integer represntation (longform):
+The upper bounds of UUID in decimal integer representation (longform):
 
 UNICLY> (format t "~R" 340282366920938463463374607431768211455)
 ;=> three hundred forty undecillion two hundred eighty-two decillion three hundred
@@ -695,14 +695,13 @@ Some notable differences between Unicly and Tzonev's uuid:
    * Unicly does however have different performace characteristcs when comparing
    timings of UNICLY:MAKE-V5-UUID with UUID:MAKE-V5-UUID. 
 
-   Following timings were made using functionaly identical namespaces for 1mil
+   Following timings were made using functionally identical namespaces for 1mil
    invocations on an x86-32 SBCL.
 
-   Name components were taken from an array of 1mil strings contained of 1mil
-   randomly generated strings where each string was between 1-36 characters long
+   Name components were taken from an array of 1mil elements where each element was
+   a randomly generated string and where each string was between 1-36 characters long
    and where each character of the string was a randomly chosen UTF-8 characater
-   (pooled a constrained set of 360).
-   With each invocation having the basic form:
+   (pulled from a constrained set of 360). With each invocation having the basic form:
 
     (unicly:make-v5-uuid <NAMESPACE> <RANDOM-NAME>)
     (uuid:make-v5-uuid <NAMESPACE> <RANDOM-NAME>)
@@ -717,7 +716,7 @@ Some notable differences between Unicly and Tzonev's uuid:
      171,781,583,768 processor cycles
      5,356,186,536 bytes consed
    
-   The above ratios are similar for the equivalent MAKE-V3-UUID functions
+   The above ratios are similar for the equivalent MAKE-V3-UUID functions.
    
    Other significant performace differences can be seen between Unicly and uuid
    around the respective system's UUID-TO-BYTE-ARRAY, UUID-FROM-BYTE-ARRAY,
@@ -736,7 +735,7 @@ Some notable differences between Unicly and Tzonev's uuid:
    
      For example, on SBCL it is possible to SB-EXT:DEFINE-HASH-TABLE-TEST which
      tests for UUID bit-vector equivalence using UUID-BIT-VECTOR-EQL instead of
-     CL:EQUAL instead of CL:EQUALP.
+     CL:EQUAL and CL:EQUALP.
      (Underneath the covers UUID-BIT-VECTOR-EQL invokes SB-INT:BIT-VECTOR-=
       A nearly equivalent routine is provided for other CLs)
 
@@ -752,35 +751,35 @@ Some notable differences between Unicly and Tzonev's uuid:
     | and are case insensitive on input.
     `----
 
- - Unicly defines its base UUID class as UNIQUE-UNIVERSAL-IDENTIFIER instead of as the class UUID.
+ - Unicly defines its base UUID class as UNIQUE-UNIVERSAL-IDENTIFIER instead of
+   as the class UUID.
 
  - Unicly does not expose accessors for the slots of the UUID class
    UNIQUE-UNIVERSAL-IDENTIFIER.
 
-   * Our opinion is that UUIDs should be considered immutable once minted and
-     there should be no need for user code to modify their slot values.
-
  - Unicly slot-names for the base class UNIQUE-UNIVERSAL-IDENTIFIER are strongly
    namespaced with "%uuid_". This intent here is twofold:
 
-    * Again, UUIDs should be considered immutable once minted. There should be
-      no need for user code to directly modify a UUIDs slot values. Obfuscating
-      easy access to the class slots of UNIQUE-UNIVERSAL-IDENTIFIER helps
-      prevent this.
+   * Our opinion is that UUID identity should be considered immutable once minted.
+     There should be no need for user code to directly modify a UUIDs slot
+     values. Obfuscating easy access to the class slots of
+     UNIQUE-UNIVERSAL-IDENTIFIER helps prevent this.
 
     * Because the Unicly interface is similar to that of the uuid library we've
       attempted to prevent trivial visual namespace collision with the slots of
       the uuid library.  Projects using both Unicly and the uuid library may
       benefit from being able to easily distinguish among the two.
 
- - Unicly's printing of a UUIDs string representation is not always conformant with ANSI spec. 
+ - Unicly's printing of a UUIDs string representation is not always conformant
+   with ANSI spec.
 
     * The UUID CL:PRINT-OBJECT method for the class UNIQUE-UNIVERSAL-IDENTIFIER is
       not wrapped around PRINT-UNREADABLE-OBJECT.
 
- - Unicly's interface is extensively documented 
+ - Unicly's interface is extensively documented.
 
- - Unicly's source-code is commented with references to the relevant portions of RFC 4122.
+ - Unicly's source-code is commented with references to the relevant portions of
+   RFC 4122.
 
  - Unicly does not have a dependency on trivial-utf-8
 
@@ -805,7 +804,7 @@ Some notable differences between Unicly and Tzonev's uuid:
  - Unicly is not targeted for generation of version 1 UUIDs (e.g. time based).
 
    The general implementation strategy for minting v1 UUID is reliant on
-   interrogation of the systems underlying hardware and clock setting [1].
+   interrogation of the system's underlying hardware and clock setting [1].
    When this is the strategy taken we have found that:
 
     * It requires platform and implementation specific code;
@@ -813,7 +812,7 @@ Some notable differences between Unicly and Tzonev's uuid:
     * Minting version 1 UUIDs requires interrogating the MAC address of an
       Ethernet device;
 
-    * Minting version 1 UUIDS requires interrogating the system clock -- there
+    * Minting version 1 UUIDs requires interrogating the system clock -- there
       are in general some notoriously nasty bugs which spring from reliance on
       the value of the system clock e.g. cross-platform multi-boot systems...
 
@@ -856,13 +855,14 @@ Examples of Common Lisp libraries which make use of UUIDs:
 (URL `https://raw.github.com/fons/cl-mongo/master/src/bson-oid.lisp')
 (URL `git://github.com/kraison/kyoto-persistence.git')
 
-An Emacs lisp implementation of uuid:
+An Emacs lisp implementation of RFC 4122 UUID generation:
 
 (URL `https://github.com/kanru/uuid-el')
 
 RFC 4122:
 
 (URL `http://www.ietf.org/rfc/rfc4122.txt')
+(URL `http://tools.ietf.org/pdf/rfc4122')
 
 
 ;;; ==============================
