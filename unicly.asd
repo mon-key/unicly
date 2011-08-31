@@ -19,7 +19,7 @@
 (defsystem #:unicly
   :name "unicly"
   :licence "MIT"
-  :version "04-18-2011"
+  :version "2011.08.31"
   :maintainer "MON KEY"
   :description "UUID Generation per RFC 4122"
   :long-description "Lisp implementation of RFC 4122"
