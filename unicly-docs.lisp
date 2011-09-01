@@ -1152,7 +1152,7 @@ suitable for use as the V5-DIGEST-BYTE-ARRAY argument to `digested-v5-uuid'.
 
 (fundoc 'digested-v3or5-uuid ; ######
 "Helper function to format UUIDv3 and UUIDv5 hashes according to UUID-VERSION.~%~@
-DIGEST-BYTE-ARRAY is an argument suitable as the BYTE-ARRAY arg to `uuid-load-bytes'.~%~@
+DIGEST-BYTE-ARRAY is an argument suitable as the BYTE-ARRAY arg to `uuid-request-integer'.~%~@
 DIGEST-BYTE-ARRAY is as per the the return value of `digested-v3or5-uuid'
 UUID-VERSION should satisfy `%verify-version-3-or-5', an error is signaled if not.~%~@
 :EXAMPLE~%~@

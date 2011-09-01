@@ -95,7 +95,7 @@
   (declare ((mod 6) chk-version)
            (inline %verify-version-3-or-5)
            (optimize (speed 3)))
-  (if (logbitp (the uuid-v3or5-int (%verify-version-3-or-5 chk-version)) 0)
+  (if (logbitp 1 (the uuid-v3or5-int (%verify-version-3-or-5 chk-version)))
       :MD5
       :SHA1))
 
