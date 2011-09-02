@@ -2,58 +2,60 @@
 ;;; :FILE unicly/unicly-tests.lisp
 ;;; ==============================
 
+;; :TODO This entire file needs to be backed up into a regression suite.
+
 
 (in-package #:unicly)
 ;; *package*
 
 
 ;; `uuid-integer-128-to-byte-array' with v5 uuids
-(let ((alphabet (loop 
-                   for x from 97 below 123
-                   for y from 65 below 91 
-                   nconc (list (code-char x) (code-char y)) into alpha
-                   finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
-  (flet ((random-string ()
-           (loop
-              repeat (random 53)
-              for x = (schar alphabet (random 52)) collect x into rand
-              finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
+ (let ((alphabet (loop 
+                    for x from 97 below 123
+                    for y from 65 below 91 
+                    nconc (list (code-char x) (code-char y)) into alpha
+                    finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
+   (flet ((random-string ()
+            (loop
+               repeat (random 53)
+               for x = (schar alphabet (random 52)) collect x into rand
+               finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
     
-    (loop 
-       repeat 1000
-       for uuid   = (make-v5-uuid (make-v4-uuid) (random-string))
-       for ba     = (uuid-to-byte-array uuid)  
-       for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
-       for ba-int = (uuid-integer-128-to-byte-array int)
-       always (equalp ba-int ba))))
+     (loop 
+        repeat 1000
+        for uuid   = (make-v5-uuid (make-v4-uuid) (random-string))
+        for ba     = (uuid-to-byte-array uuid)  
+        for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
+        for ba-int = (uuid-integer-128-to-byte-array int)
+        always (equalp ba-int ba))))
 
 ;; `uuid-integer-128-to-byte-array' with v3 uuids
-(let ((alphabet (loop 
-                   for x from 97 below 123
-                   for y from 65 below 91 
-                   nconc (list (code-char x) (code-char y)) into alpha
-                   finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
-  (flet ((random-string ()
-           (loop
-              repeat (random 53)
-              for x = (aref alphabet (random 52)) collect x into rand
-              finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
-    (loop 
-       repeat 1000
-       for uuid   = (make-v3-uuid (make-v4-uuid) (random-string))
-       for ba     = (uuid-to-byte-array uuid)  
-       for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
-       for ba-int = (uuid-integer-128-to-byte-array int)
-       always (equalp ba-int ba))))
+ (let ((alphabet (loop 
+                    for x from 97 below 123
+                    for y from 65 below 91 
+                    nconc (list (code-char x) (code-char y)) into alpha
+                    finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
+   (flet ((random-string ()
+            (loop
+               repeat (random 53)
+               for x = (aref alphabet (random 52)) collect x into rand
+               finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
+     (loop 
+        repeat 1000
+        for uuid   = (make-v3-uuid (make-v4-uuid) (random-string))
+        for ba     = (uuid-to-byte-array uuid)  
+        for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
+        for ba-int = (uuid-integer-128-to-byte-array int)
+        always (equalp ba-int ba))))
 
 ;; `uuid-integer-128-to-byte-array' with v4 uuids
-(loop 
-   repeat 1000
-   for uuid   = (make-v4-uuid)
-   for ba     = (uuid-to-byte-array uuid)
-   for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
-   for ba-int = (uuid-integer-128-to-byte-array int)
-   always (equalp ba-int ba))
+ (loop 
+    repeat 1000
+    for uuid   = (make-v4-uuid)
+    for ba     = (uuid-to-byte-array uuid)
+    for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
+    for ba-int = (uuid-integer-128-to-byte-array int)
+    always (equalp ba-int ba))
 
 ;;; ==============================
 ;; `uuid-disassemble-ub48'
@@ -183,16 +185,16 @@
 ;;; ==============================
 ;; `uuid-request-integer'
 
-(eq (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6) 135426222453703)
+ (eq (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6) 135426222453703)
 
-(eq (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 135426222453703)
+ (eq (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 135426222453703)
 
-(eql (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6)
-     (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")))
+ (eql (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6)
+      (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")))
 
 ;;; ==============================
 ;; `*random-state-uuid*'
-(random-state-p  *random-state-uuid*)
+ (random-state-p  *random-state-uuid*)
 
 ;;; ==============================
 ;; test `uuid-request-integer', `%uuid_time-low-request',
@@ -201,74 +203,74 @@
 ;; `%uuid_node-request' with both v3 md5 and sha1 byte arrays as returned from
 ;; `uuid-digest-uuid-instance'
 
-(let ((digest-5 (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba"))
-      (digest-3 (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba")))
-  (equal 
-   (list 
-    ;; `%uuid_time-low-request'
-    (list                               ; v5
-     (%uuid_time-low-request digest-5)
-     (uuid-request-integer digest-5 0 4)
-     ;; (uuid-load-bytes digest-5 :start 0 :end 3)
-     )
-    (list                               ; v3
-     (%uuid_time-low-request digest-3)
-     (uuid-request-integer digest-3 0 4)
-     ;;(uuid-load-bytes digest-3 :start 0 :end 3)
-     )
-    ;; `%uuid_time-mid-request'
-    (list                               ; v5
-     (%uuid_time-mid-request digest-5)
-     (uuid-request-integer digest-5 4 2)
-     ;;(uuid-load-bytes digest-5 :start 4 :end 5)
-     )
-    (list                               ; v3   
-     (%uuid_time-mid-request digest-3)
-     (uuid-request-integer digest-3 4 2)
-     ;; (uuid-load-bytes digest-3 :start 4 :end 5)
-     )
-    ;; `%uuid_time-high-and-version-request'
-    (list                               ; v5
-     (%uuid_time-high-and-version-request digest-5 5)
-     ;;(dpb #b0101 (byte 4 12) (uuid-load-bytes digest-5 :start 6 :end 7))
-     ;;(dpb #b0101 (byte 4 12) (uuid-load-bytes digest-5 :start 6 :end 7))
-     )
-    (list                               ; v3
-     (%uuid_time-high-and-version-request digest-3 3)
-     ;; (dpb #b0011 (byte 4 12) (uuid-load-bytes digest-3 :start 6 :end 7))
-     ;; (dpb #b0011 (byte 4 12) (uuid-load-bytes digest-3 :start 6 :end 7))
-     )
-    ;; `%uuid_clock-seq-and-reserved-request'
-    (list                               ; v5 
-     (%uuid_clock-seq-and-reserved-request digest-5)
-     (dpb #b0010 (byte 2 6) (aref digest-5 8)))
-    (list                               ; v3
-     (%uuid_clock-seq-and-reserved-request digest-3)
-     (dpb #b0010 (byte 2 6) (aref digest-3 8)))
-    ;; `%uuid_clock-seq-low-request'
-    (list                               ; v5
-     (%uuid_clock-seq-low-request digest-5)
-     (aref digest-5 9))
-    (list                               ; v3
-     (%uuid_clock-seq-low-request digest-3)
-     (aref digest-3 9))
-    ;; `%uuid_node-request'
-    (list                               ; v5 
-     (%uuid_node-request digest-5)
-     (uuid-request-integer digest-5 10 6)
-     ;; (uuid-load-bytes digest-5 :start 10 :end 15)
-     )
-    (list                               ; v3
-     (%uuid_node-request digest-3)
-     (uuid-request-integer digest-3 10 6)
-     ;; (uuid-load-bytes digest-3 :start 10 :end 15)
-     ))
-   '((4003532894 4003532894) (1580337208 1580337208) (13953 13953) (29015 29015)
-     (20759) (12345) (153 153) (131 131) (182 182) (131 131)
-     (135426222453703 135426222453703) (111246471879293 111246471879293)))) 
+ (let ((digest-5 (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba"))
+       (digest-3 (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba")))
+   (equal 
+    (list 
+     ;; `%uuid_time-low-request'
+     (list                              ; v5
+      (%uuid_time-low-request digest-5)
+      (uuid-request-integer digest-5 0 4)
+      ;; (uuid-load-bytes digest-5 :start 0 :end 3)
+      )
+     (list                              ; v3
+      (%uuid_time-low-request digest-3)
+      (uuid-request-integer digest-3 0 4)
+      ;;(uuid-load-bytes digest-3 :start 0 :end 3)
+      )
+     ;; `%uuid_time-mid-request'
+     (list                              ; v5
+      (%uuid_time-mid-request digest-5)
+      (uuid-request-integer digest-5 4 2)
+      ;;(uuid-load-bytes digest-5 :start 4 :end 5)
+      )
+     (list                              ; v3   
+      (%uuid_time-mid-request digest-3)
+      (uuid-request-integer digest-3 4 2)
+      ;; (uuid-load-bytes digest-3 :start 4 :end 5)
+      )
+     ;; `%uuid_time-high-and-version-request'
+     (list                              ; v5
+      (%uuid_time-high-and-version-request digest-5 5)
+      ;;(dpb #b0101 (byte 4 12) (uuid-load-bytes digest-5 :start 6 :end 7))
+      ;;(dpb #b0101 (byte 4 12) (uuid-load-bytes digest-5 :start 6 :end 7))
+      )
+     (list                              ; v3
+      (%uuid_time-high-and-version-request digest-3 3)
+      ;; (dpb #b0011 (byte 4 12) (uuid-load-bytes digest-3 :start 6 :end 7))
+      ;; (dpb #b0011 (byte 4 12) (uuid-load-bytes digest-3 :start 6 :end 7))
+      )
+     ;; `%uuid_clock-seq-and-reserved-request'
+     (list                              ; v5 
+      (%uuid_clock-seq-and-reserved-request digest-5)
+      (dpb #b0010 (byte 2 6) (aref digest-5 8)))
+     (list                              ; v3
+      (%uuid_clock-seq-and-reserved-request digest-3)
+      (dpb #b0010 (byte 2 6) (aref digest-3 8)))
+     ;; `%uuid_clock-seq-low-request'
+     (list                              ; v5
+      (%uuid_clock-seq-low-request digest-5)
+      (aref digest-5 9))
+     (list                              ; v3
+      (%uuid_clock-seq-low-request digest-3)
+      (aref digest-3 9))
+     ;; `%uuid_node-request'
+     (list                              ; v5 
+      (%uuid_node-request digest-5)
+      (uuid-request-integer digest-5 10 6)
+      ;; (uuid-load-bytes digest-5 :start 10 :end 15)
+      )
+     (list                              ; v3
+      (%uuid_node-request digest-3)
+      (uuid-request-integer digest-3 10 6)
+      ;; (uuid-load-bytes digest-3 :start 10 :end 15)
+      ))
+    '((4003532894 4003532894) (1580337208 1580337208) (13953 13953) (29015 29015)
+      (20759) (12345) (153 153) (131 131) (182 182) (131 131)
+      (135426222453703 135426222453703) (111246471879293 111246471879293)))) 
 
 ;;; ==============================
-;; whether return value of `make-v5-uuid' and `format-v5-uuid' 
+;; Whether return value of `make-v5-uuid' and `format-v5-uuid' 
 ;; have `cl:equal' bit-vector representation
 ;; have `cl:equalp' byte-array representation
 ;; are uuid-eql (essentially a test for `uuid-bit-vector-eql')
@@ -298,30 +300,59 @@
    (uuid-eql cmp-a cmp-b)))
 
 ;;; ==============================
+;; :NOTE Hopefully following three tests aroudn `%verify-version-3-or-5',
+;; `%verify-digest-version', `uuid-digest-uuid-instance'and will catch stupid
+;; mistakes like that which occured with `%verify-digest-version' after the a
+;; change where we inadverdently moved to testing 
+;;  (logbitp <VERSION> 0) instead of (logbitp 1 <VERSION>)
+;; This has was corrected with the 2011-09-01.
+;;
 ;; `%verify-version-3-or-5'
-
-(let ((x 3) (y 5)) 
-  (and (eq x (%verify-version-3-or-5 x))
-       (eq y (%verify-version-3-or-5 y))))
+ (let ((v3 3) 
+       (v5 5) 
+       (v-invalid (list -1 0 1 2 4 6)))
+   (and (eq v3 (%verify-version-3-or-5 v3))
+        (eq v5 (%verify-version-3-or-5 v5))
+        (every #'null 
+               (mapcar #'(lambda (non-version) 
+                           (ignore-errors (%verify-version-3-or-5 non-version)))
+                       v-invalid))))
 
 ;;; ==============================
 ;; `%verify-digest-version'
+(let ((v3      3)
+      (v5      5)
+      (v-invalid (list -1 0 1 2 4 6)))
+  (and (eq   (%verify-digest-version v3) :MD5)
+       (eq   (%verify-digest-version v5) :SHA1)
+       (every #'null 
+              (mapcar #'(lambda (non-version) 
+                          (ignore-errors (%verify-digest-version non-version)))
+                      v-invalid))))
 
-(let ((x  3)
-      (y 5))
-  (and (eq (%verify-digest-version 3) :MD5)
-       (eq (%verify-digest-version 5) :SHA1)))
+;;; ==============================
+;; `uuid-digest-uuid-instance'
+(let ((v3-digest   (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba"))
+      (v5-digest   (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")))
+  (and 
+   (eq (length v3-digest) 16) 
+   (eq (length v5-digest) 20)))
 
 ;;; ==============================
 ;; `format-v3or5-uuid' 
-
-(let ((v5-digest (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba"))
+(let ((v5-digest   (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba"))
       (v5-instance (make-v5-uuid *uuid-namespace-dns* "bubba"))
-      (v3-digest (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba"))
+      (v3-digest   (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba"))
       (v3-instance (make-v3-uuid *uuid-namespace-dns* "bubba")))
   (and 
+   (eq (length v3-digest) 16) 
+   (eq (length v5-digest) 20)
    (uuid-eql (digested-v3or5-uuid v5-digest 5) v5-instance)
-   (uuid-eql (digested-v3or5-uuid v3-digest 3) v3-instance)))
+   (uuid-eql (digested-v3or5-uuid v3-digest 3) v3-instance)
+   (not (uuid-eql (digested-v3or5-uuid v3-digest 5) v5-instance)
+
+        
+))
 
 ;;; ==============================
 ;; `make-v4-uuid'
