@@ -416,7 +416,15 @@
         (uuid-eql v4-instance (make-uuid-from-string (uuid-princ-to-string v4-instance)))))
 
 ;;; ==============================
-;; `%verify-slot-boundp-and-type', gather condition values with `uuid-slot-unbound-error' and `uuid-slot-type-error'
+;; `%verify-slot-boundp-and-type' gather condition values with handled conditions
+;; `uuid-slot-unbound-error' and `uuid-slot-type-error'. Uses `uuid-copy-uuid' to ensure test returns
+;; nth-value 0 is t for a passed test
+;; nth-value 1 is plist where the property indicators are the symbols
+;; UUID-SLOT-UNBOUND-ERROR and UUID-SLOT-TYPE-ERROR the values of which are
+;; retrievable with `getf' e.g.:
+;;  (getf (nth-value 1 <VALUES>) 'uuid-slot-type-error)
+;;  (getf (nth-value 1 <VALUES>) 'uuid-slot-unbound-error)
+
  (let* ((v4-instance     (make-v4-uuid))
         (v5-instance     (make-v5-uuid *uuid-namespace-dns* "bubba"))
         (v3-instance     (make-v3-uuid *uuid-namespace-dns* "bubba"))
@@ -448,13 +456,13 @@
           (push (list :type-datum (type-error-datum te)
                       :type-expect (type-error-expected-type te))
                 caught-bad-type)
-          ;; setf slot to 0 
           ;; setf the unbound-slot back to value of slot in the copy uuid otherwise test won't return!
           (setf (slot-value o p) (slot-value o2 p)))))
-   (values 
-    (and (eq (length caught-unbound) 3)
-         (eq (length caught-bad-type) 3))
-    `(uuid-slot-unbound-error ,caught-unbound uuid-slot-type-error  ,caught-bad-type)))
+
+               (values 
+                (and (eq (length caught-unbound) 3)
+                     (eq (length caught-bad-type) 3))
+                `(uuid-slot-unbound-error ,caught-unbound uuid-slot-type-error  ,caught-bad-type)))
 
 ;;; ==============================
 ;; `uuid-copy-uuid'/`cl:equalp'/`cl:equal'/`eql'/`cl:eq'
