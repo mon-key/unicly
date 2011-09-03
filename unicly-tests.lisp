@@ -2,7 +2,7 @@
 ;;; :FILE unicly/unicly-tests.lisp
 ;;; ==============================
 
-;; :TODO This entire file needs to be backed up into a regression suite.
+;; :TODO This entire file needs to be wrapped up with a regression suite.
 
 
 (in-package #:unicly)
