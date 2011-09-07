@@ -108,6 +108,15 @@
     (declare (uuid-ub8 b1 b2))
     (values b1 b2)))
 
+(declaim (inline %uuid_byte-array-16-ub8-reqeust))
+(defun %uuid_byte-array-16-ub8-reqeust (byte-array offset)
+  ;; Only intended to be used in requests for octet values of
+  ;; `uuid-byte-array-16's e.g. `uuid-from-byte-array'
+  (declare (uuid-byte-array-16 byte-array)
+           ((integer 8 9) offset)
+           (optimize (speed 3)))
+  (the uuid-ub8 (uuid-request-integer byte-array offset 1)))
+
 (declaim (inline uuid-assemble-ub48))
 (defun uuid-assemble-ub48 (b1 b2 b3 b4 b5 b6)
   (declare (type uuid-ub8 b1 b2 b3 b4 b5 b6)
