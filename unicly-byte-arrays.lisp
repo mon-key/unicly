@@ -12,6 +12,16 @@
   (the uuid-byte-array-16
     (make-array (the uuid-bit-vector-16-length 16) :element-type 'uuid-ub8 :initial-element 0)))
 
+
+;; (uuid-get-namespace-bytes  (uuid-princ-to-string (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;; (uuid-get-namespace-bytes (make-uuid-from-string "eea1105e-3681-5117-99b6-7b2b5fe1f3c7"))
+;; ,----
+;; | x86-32 converting 1mil v4 UUIDs pre-cached in an array of 1mil elts in
+;; | consistently around 1.5 seconds real time:
+;; | 1.489 seconds of real time [ 0.143 seconds GC time, and 1.339 seconds non-GC time. ]
+;; | 99.53% CPU 4,454,788,950 processor cycles
+;; | 183,996,952 bytes consed
+;; `----
 (defun uuid-get-namespace-bytes (uuid)
   (declare (type unique-universal-identifier uuid)
            (inline uuid-byte-array-16-zeroed  %unique-universal-identifier-null-p)
@@ -25,16 +35,21 @@
       (declare (type uuid-ub32 %uuid_time-low)
                (type uuid-ub16 %uuid_time-mid %uuid_time-high-and-version)
                (type uuid-ub8  %uuid_clock-seq-and-reserved %uuid_clock-seq-low)
-               (type uuid-ub48 %uuid_node))
+               (type uuid-ub48 %uuid_node)
+               (inline uuid-disassemble-ub48 uuid-disassemble-ub32 uuid-disassemble-ub16))
       (make-array 16 
                   :element-type 'uuid-ub8
-                  :initial-contents (multiple-value-call #'list 
-                                      (uuid-disassemble-ub32 %uuid_time-low)
-                                      (uuid-disassemble-ub16 %uuid_time-mid)
-                                      (uuid-disassemble-ub16 %uuid_time-high-and-version)
+                  :initial-contents (multiple-value-call #'list
+                                      (the (values uuid-ub8 uuid-ub8 uuid-ub8 uuid-ub8 &optional)
+                                        (uuid-disassemble-ub32 %uuid_time-low))
+                                      (the (values uuid-ub8 uuid-ub8 &optional)
+                                        (uuid-disassemble-ub16 %uuid_time-mid))
+                                      (the (values uuid-ub8 uuid-ub8 &optional)
+                                        (uuid-disassemble-ub16 %uuid_time-high-and-version))
                                       %uuid_clock-seq-and-reserved
                                       %uuid_clock-seq-low
-                                      (uuid-disassemble-ub48 %uuid_node))))))
+                                      (the (values uuid-ub8 uuid-ub8 uuid-ub8 uuid-ub8 uuid-ub8 uuid-ub8 &optional)
+                                        (uuid-disassemble-ub48 %uuid_node)))))))
 
 ;;; ==============================
 ;; :NOTE UNICLY:UUID-GET-NAMESPACE-BYTES is equivalent to
@@ -46,11 +61,12 @@
         (fdefinition 'uuid-get-namespace-bytes)))
 
 ;;; ==============================
-;; :TODO We can get rid of the macrolet and dispatch with the %uuid-*-request
-;; fncns However, `%uuid_time-high-and-version' requires that we first find the
-;; uuid-version represented by BYTE-ARRAY in order to properly disassemble b/c
-;; not currently comfortable with the thought of accidentally messing up the
-;; version bits.
+;; :TODO We can get rid of the macrolet and dispatch with the functions:
+;; `uuid-assemble-ub48', `uuid-assemble-ub32', `uuid-assemble-ub16'
+;; However, `%uuid_time-high-and-version' requires that we first find the
+;; uuid-version represented by BYTE-ARRAY in order to properly disassemble
+;; esp. b/c I'm not currently comfortable with the thought of accidentally
+;; messing up someones version bits.
 (defun uuid-from-byte-array (byte-array)
   ;; :NOTE We declare this a uuid-byte-array-16 even though SHA-1s are arrays of 20 elts
   ;; IOW if we call this from uuid-digest-uuid-instance we deserve to fail.
@@ -77,6 +93,7 @@
                    :%uuid_clock-seq-and-reserved (the uuid-ub8 (aref byte-array 8))
                    :%uuid_clock-seq-low (the uuid-ub8 (aref byte-array 9))
                    :%uuid_node (the uuid-ub48 (arr-to-bytes 10 15 byte-array)))))
+
 
 ;;; ==============================
 ;;; :TODO Finish `uuid-byte-array-version'

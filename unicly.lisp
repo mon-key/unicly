@@ -360,6 +360,61 @@
       (the unique-universal-identifier-null *uuid-null-uuid*)
       (%make-null-uuid-loadtime)))
 
+
+;;; ==============================
+;; New version approx. 2-3 times faster on SBCL x86-32 1.50
+(defun uuid-from-byte-array (byte-array)
+  (declare (type uuid-byte-array-16 byte-array)
+           (inline %uuid-byte-array-null-p
+                   %uuid_time-low-request
+                   %uuid_time-mid-request
+                   %uuid_byte-array-16-ub8-reqeust
+                   %uuid_node-request)
+           (optimize (speed 3)))
+  #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
+                 "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
+  (when (%uuid-byte-array-null-p byte-array)
+    (return-from tt--uuid-from-byte-array 
+      ;; Remember, there can only be one *uuid-null-uuid*!
+      (make-instance 'unique-universal-identifier)))
+  (make-instance 'unique-universal-identifier
+                 :%uuid_time-low               (the uuid-ub32 (%uuid_time-low-request byte-array))
+                 :%uuid_time-mid               (the uuid-ub16 (%uuid_time-mid-request byte-array))
+                 :%uuid_time-high-and-version  (the uuid-ub16 (uuid-request-integer byte-array 6 2))
+                 :%uuid_clock-seq-and-reserved (the uuid-ub8  (%uuid_byte-array-16-ub8-reqeust byte-array 8)) ;; (aref byte-array 8))
+                 :%uuid_clock-seq-low          (the uuid-ub8  (%uuid_byte-array-16-ub8-reqeust byte-array 9)) ;; (aref byte-array 9))
+                 :%uuid_node                   (the uuid-ub48 (%uuid_node-request byte-array))))
+
+;;; ==============================
+;; :OLD VERSION
+;; (defun uuid-from-byte-array (byte-array)
+;;   ;; :NOTE We declare this a uuid-byte-array-16 even though SHA-1s are arrays of 20 elts
+;;   ;; IOW if we call this from uuid-digest-uuid-instance we deserve to fail.
+;;   (declare (type uuid-byte-array-16 byte-array)
+;;            (inline %uuid-byte-array-null-p))
+;;   #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
+;;                  "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
+;;   (when (%uuid-byte-array-null-p byte-array)
+;;     (return-from uuid-from-byte-array 
+;;       ;; Remember, there can only be one *uuid-null-uuid*!
+;;       (make-instance 'unique-universal-identifier)))
+;;   (macrolet ((arr-to-bytes (from to w-array)
+;;                "Helper macro used in `uuid-from-byte-array'."
+;;                (declare ((mod 17) from to))
+;;                `(loop 
+;;                    for i from ,from to ,to
+;;                    with res = 0
+;;                    do (setf (ldb (byte 8 (* 8 (- ,to i))) res) (aref ,w-array i))
+;;                    finally (return res))))
+;;     (make-instance 'unique-universal-identifier
+;;                    :%uuid_time-low (the uuid-ub32 (arr-to-bytes 0 3 byte-array))
+;;                    :%uuid_time-mid (the uuid-ub16 (arr-to-bytes 4 5 byte-array))
+;;                    :%uuid_time-high-and-version (the uuid-ub16 (arr-to-bytes 6 7 byte-array))
+;;                    :%uuid_clock-seq-and-reserved (the uuid-ub8 (aref byte-array 8))
+;;                    :%uuid_clock-seq-low (the uuid-ub8 (aref byte-array 9))
+;;                    :%uuid_node (the uuid-ub48 (arr-to-bytes 10 15 byte-array)))))
+
+
 ;;; ==============================
 
 
