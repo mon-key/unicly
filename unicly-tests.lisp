@@ -800,6 +800,13 @@
 ;;       (uuid:uuid-to-byte-array (uuid:make-v4-uuid))))
 ;;     4))
 ;;
+;; :NOTE Also that we don't currently test for v1 UUIDS!
+;;
+;; (null 
+;;  (unicly:uuid-version-uuid 
+;;   (unicly:uuid-from-byte-array 
+;;    (uuid:uuid-to-byte-array (uuid:make-v1-uuid)))))
+;;
 ;;; ==============================
 
 ;;; ==============================
