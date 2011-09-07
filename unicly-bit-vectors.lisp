@@ -287,6 +287,7 @@
 ;;
 ;; (%uuid-version-bit-vector-if (uuid-bit-vector-32-zeroed))
 ;; (uuid-version-bit-vector (uuid-bit-vector-32-zeroed))
+
 ;;; ==============================
 ;;  48 49 50 51
 ;; | 0  0  0  1  | 1  The time-based version specified in this document.
