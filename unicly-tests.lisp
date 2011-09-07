@@ -750,6 +750,58 @@
 ;;; UNICLY/ELISP/UUID
 ;;; ==============================
 
+
+;;; ==============================
+;; :NOTE On #{2011-09-07T19:33:39-04:00Z}#{11363} the following bit-vector tests
+;; were known to have passed. If at some point in the future they don't then one
+;; of us has a regression.
+;;
+;; Testing the version of UUIDs from the uuid library:
+;;
+;; (and 
+;;  (= (uuid-version-bit-vector
+;;      (uuid-to-bit-vector 
+;;       (make-uuid-from-string (format nil "~A" (uuid:make-v1-uuid)))))
+;;     1)
+;;  (= (uuid-version-bit-vector
+;;      (uuid-to-bit-vector 
+;;       (make-uuid-from-string (string-downcase (format nil "~A" (uuid:make-v5-uuid uuid:+namespace-dns+ "bubba"))))))
+;;     5)
+;;  (= (uuid-version-bit-vector
+;;      (uuid-to-bit-vector 
+;;       (make-uuid-from-string (string-downcase (format nil "~A" (uuid:make-v3-uuid uuid:+namespace-dns+ "bubba"))))))
+;;     3)
+;;  (= 
+;;   (uuid-version-bit-vector 
+;;    (uuid-to-bit-vector 
+;;     (make-uuid-from-string (string-downcase (format nil "~A" (uuid:make-v4-uuid)))))) 
+;;   4))
+;;
+;;
+;; :NOTE On #{2011-09-07T19:33:39-04:00Z}#{11363} the following
+;; uuid-version-uuid tests were known to have passed. If at some point in the
+;; future they don't then one of us has a regression.
+;; Note also that we don't currently test for v1 UUIDS!
+;;
+;; (and 
+;;  (= (unicly:uuid-version-uuid
+;;      (unicly:uuid-from-byte-array
+;;       (uuid:uuid-to-byte-array 
+;;        (uuid:make-v5-uuid uuid:+namespace-dns+ "bubba"))))
+;;     5)
+;;  (= (unicly:uuid-version-uuid
+;;      (unicly:uuid-from-byte-array
+;;       (uuid:uuid-to-byte-array 
+;;        (uuid:make-v3-uuid uuid:+namespace-dns+ "bubba"))))
+;;     3)
+;;
+;;  (= (unicly:uuid-version-uuid 
+;;      (unicly:uuid-from-byte-array 
+;;       (uuid:uuid-to-byte-array (uuid:make-v4-uuid))))
+;;     4))
+;;
+;;; ==============================
+
 ;;; ==============================
 ;; Compare output of unicly:make-v5-uuid uuid:make-v5-uuid and Elisp uuid.el
 ;; 
@@ -772,7 +824,7 @@
 ;; 
 ;; (insert (uuid-5 "6ba7b810-9dad-11d1-80b4-00c04fd430c8" "ésiaλ"))
 ;; => bb7cb880-7d2a-5db6-86ff-afadc974a7b3
-
+;;
 ;;; ==============================
 ;; :TEST v3
 ;;
