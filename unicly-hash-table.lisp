@@ -15,14 +15,18 @@
 #+sbcl 
 (sb-ext:define-hash-table-test uuid-eql sxhash-uuid)
 
-#-sbcl
+#+clisp
+(ext:define-hash-table-test uuid-eql uuid-eql sxhash-uuid)
+
+#+clisp
 (defun make-hash-table-uuid (&key synchronized) 
   (declare (ignore synchronized))
-  (make-hash-table :test 'equal))
+  (make-hash-table :test 'uuid-eql))
 
 #+sbcl
 (defun make-hash-table-uuid (&key synchronized) ;; &allow-other-keys ??
   (make-hash-table :test 'uuid-eql :synchronized synchronized))
+
 
 
 
