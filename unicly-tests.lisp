@@ -2,7 +2,7 @@
 ;;; :FILE unicly/unicly-tests.lisp
 ;;; ==============================
 
-;; :TODO This entire file needs to be backed up into a regression suite.
+;; :TODO This entire file needs to be wrapped up with a regression suite.
 
 
 (in-package #:unicly)
@@ -158,6 +158,33 @@
   (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ"))
   #*11001001011000010001100110100011000000000000000001010011101101001011101000111000101101001001000101110001101010000111110110001001)
 
+
+;; (EXT:CONVERT-STRING-FROM-BYTES vector encoding &KEY :START :END)
+;; #+sbcl (sb-ext:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8)
+;; #(225 184 187 102 225 184 137 225 184 178 195 173 195 175 60 195 178 98 71 194
+;;   166 62 71 225 184 156 195 174 225 185 137 195 173 64 66 51 195 129 195 187 63
+;;   225 184 185 60 109 195 190 225 184 169 195 186 39 195 129 225 185 146 194 172
+;;   38 93 225 184 142)
+;; #+clisp (ext:convert-string-to-bytes "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" CHARSET:UTF-8)
+;; #(225 184 187 102 225 184 137 225 184 178 195 173 195 175 60 195 178 98 71 194
+;;   166 62 71 225 184 156 195 174 225 185 137 195 173 64 66 51 195 129 195 187 63
+;;   225 184 185 60 109 195 190 225 184 169 195 186 39 195 129 225 185 146 194 172
+;;   38 93 225 184 142)
+;;
+;; (URL `http://www.clisp.org/impnotes.html/#string-byte')
+;; Encodings can also be used to convert directly between strings and their
+;; corresponding byte vector representation according to that encoding.
+;;
+;; (EXT:CONVERT-STRING-FROM-BYTES vector encoding &KEY :START :END)
+;;     converts the subsequence of vector (a (VECTOR (UNSIGNED-BYTE 8))) from start
+;;     to end to a STRING, according to the given encoding, and returns the
+;;     resulting string.
+;; (EXT:CONVERT-STRING-TO-BYTES string encoding &KEY :START :END)
+;;     converts the subsequence of string from start to end to a (VECTOR
+;;     (UNSIGNED-BYTE 8)), according to the given encoding, and returns the
+;;     resulting byte vector.
+
+
 ;;; ==============================
 ;; `uuid-digest-uuid-instance' for sha1 and md5 
 
@@ -187,9 +214,9 @@
 ;;; ==============================
 ;; `uuid-request-integer'
 
- (eq (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6) 135426222453703)
+ (eql (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6) 135426222453703)
 
- (eq (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 135426222453703)
+ (eql (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 135426222453703)
 
  (eql (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6)
       (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")))
@@ -542,8 +569,13 @@
 
 ;;; ==============================
 ;; `make-hash-table-uuid'
- (let ((ht (make-hash-table-uuid)))
-   (eq (hash-table-test ht) 'uuid-eql))
+#+sbcl (let ((ht (make-hash-table-uuid)))
+         (eq (hash-table-test ht) 'uuid-eql))
+
+#+clisp (let ((ht (make-hash-table-uuid)))
+          (equal (cons (symbol-function 'uuid-eql)
+                       (symbol-function 'sxhash-uuid))
+                 (hash-table-test ht)))
 
 ;; (defparameter *tt--unicly-ht* (make-hash-table-uuid))
  (let* ((ht (make-hash-table-uuid))
@@ -658,7 +690,8 @@
 ;; `uuid-version-uuid'
  (and (eq (uuid-version-uuid (make-v3-uuid *uuid-namespace-dns* "bubbb")) 3)
       (eq (uuid-version-uuid (make-v4-uuid)) 4)
-      (eq (uuid-version-uuid (make-v5-uuid *uuid-namespace-dns* "bubbb")) 5))
+      (eq (uuid-version-uuid (make-v5-uuid *uuid-namespace-dns* "bubbb")) 5)
+      (equal (multiple-value-list (uuid-version-uuid (make-null-uuid))) (list 0 'NULL-UUID)))
 
 ;;; ==============================
 
@@ -750,6 +783,65 @@
 ;;; UNICLY/ELISP/UUID
 ;;; ==============================
 
+
+;;; ==============================
+;; :NOTE On #{2011-09-07T19:33:39-04:00Z}#{11363} the following bit-vector tests
+;; were known to have passed. If at some point in the future they don't then one
+;; of us has a regression.
+;;
+;; Testing the version of UUIDs from the uuid library:
+;;
+;; (and 
+;;  (= (uuid-version-bit-vector
+;;      (uuid-to-bit-vector 
+;;       (make-uuid-from-string (format nil "~A" (uuid:make-v1-uuid)))))
+;;     1)
+;;  (= (uuid-version-bit-vector
+;;      (uuid-to-bit-vector 
+;;       (make-uuid-from-string (string-downcase (format nil "~A" (uuid:make-v5-uuid uuid:+namespace-dns+ "bubba"))))))
+;;     5)
+;;  (= (uuid-version-bit-vector
+;;      (uuid-to-bit-vector 
+;;       (make-uuid-from-string (string-downcase (format nil "~A" (uuid:make-v3-uuid uuid:+namespace-dns+ "bubba"))))))
+;;     3)
+;;  (= 
+;;   (uuid-version-bit-vector 
+;;    (uuid-to-bit-vector 
+;;     (make-uuid-from-string (string-downcase (format nil "~A" (uuid:make-v4-uuid)))))) 
+;;   4))
+;;
+;;
+;; :NOTE On #{2011-09-07T19:33:39-04:00Z}#{11363} the following
+;; uuid-version-uuid tests were known to have passed. If at some point in the
+;; future they don't then one of us has a regression.
+;; Note also that we don't currently test for v1 UUIDS!
+;;
+;; (and 
+;;  (= (unicly:uuid-version-uuid
+;;      (unicly:uuid-from-byte-array
+;;       (uuid:uuid-to-byte-array 
+;;        (uuid:make-v5-uuid uuid:+namespace-dns+ "bubba"))))
+;;     5)
+;;  (= (unicly:uuid-version-uuid
+;;      (unicly:uuid-from-byte-array
+;;       (uuid:uuid-to-byte-array 
+;;        (uuid:make-v3-uuid uuid:+namespace-dns+ "bubba"))))
+;;     3)
+;;
+;;  (= (unicly:uuid-version-uuid 
+;;      (unicly:uuid-from-byte-array 
+;;       (uuid:uuid-to-byte-array (uuid:make-v4-uuid))))
+;;     4))
+;;
+;; :NOTE Also that we don't currently test for v1 UUIDS!
+;;
+;; (null 
+;;  (unicly:uuid-version-uuid 
+;;   (unicly:uuid-from-byte-array 
+;;    (uuid:uuid-to-byte-array (uuid:make-v1-uuid)))))
+;;
+;;; ==============================
+
 ;;; ==============================
 ;; Compare output of unicly:make-v5-uuid uuid:make-v5-uuid and Elisp uuid.el
 ;; 
@@ -772,7 +864,7 @@
 ;; 
 ;; (insert (uuid-5 "6ba7b810-9dad-11d1-80b4-00c04fd430c8" "ésiaλ"))
 ;; => bb7cb880-7d2a-5db6-86ff-afadc974a7b3
-
+;;
 ;;; ==============================
 ;; :TEST v3
 ;;

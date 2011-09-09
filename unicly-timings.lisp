@@ -20,18 +20,20 @@
 ;;
 ;;; ==============================
 
-(in-package #:unicly)
+(in-package #:cl-user)
+
+;; (in-package #:unicly)
 ;; *package*
 
 
 #| 
  Uncomment the section below to run the timings code following this block:
 
-
  (defpackage #:unicly-timings (:use #:common-lisp))
+
  (in-package #:unicly-timings)
 
- (defvar *random-chars*  ; SBCL specific ;
+ (defvar *random-chars*  ; works with SBCL / CLISP
    (make-array 282 :element-type 'character :initial-contents
                (loop 
                   for ascii upfrom 33 below 127 ;; (* (- 127 33) 3) =>282 ;
@@ -109,6 +111,10 @@
         for x = (schar ascii-chars (random 52)) collect x into rand
         finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
 
+ (defun generic-gc ()
+   #+sbcl (sb-ext:gc :full t)
+   #+clisp (ext:gc))
+
  (vardoc '*random-chars*
          "An array of 282 characters for use with `make-random-char-array' and `make-random-string'.~%~@
 Array contains the ASCII chars in the range 33,127~%~@
@@ -151,45 +157,63 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
+
 |#
 
 
 ;;; ==============================
 ;;; :UNICLY-TIMINGS
 ;;; ==============================
-(defparameter *tt--rnd* (make-array 1000000))
+(defconstant +tt--size+
+  #+sbcl  #xf4240    ; 1mil
+  #+clisp #x2710)   ; 10k
 
-(loop for x from 0 below 1000000
+;; (defconstant +tt--size+ 10000)
+
+
+
+(defparameter *tt--rnd* (make-array +tt--size+))
+
+;; (array-dimensions *tt--rnd*)
+
+(loop 
+   for x from 0 below +tt--size+
    do (setf (aref *tt--rnd* x) (make-random-string 36)))
 
-(sb-ext:gc :full t)
+
+
+
+;; Clisp -- Real time: 24.94456 sec.
+;; SBCL  -- 0.197 seconds of real time
+(generic-gc)
 (time
  (loop 
     for x across *tt--rnd*
-    do (uuid:make-v5-uuid uuid:+NAMESPACE-OID+ x)))
+    do (unicly::make-v5-uuid unicly::*uuid-namespace-dns* x)))
 
-(sb-ext:gc :full t)
-
-
+(generic-gc)
 (progn 
-  (loop for x from 0 below 1000000
-     do (setf (aref *tt--rnd* x) (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (make-random-string 36)))))
-  (aref *tt--rnd* 999999))
+  (loop for x from 0 below +tt--size+
+     do (setf (aref *tt--rnd* x) 
+              (unicly::uuid-to-bit-vector (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (make-random-string 36)))))
+  (aref *tt--rnd* 
+        (1- +tt--size+)))
 
 ;;; ==============================
 ;; compare uuid-to-bit-vector-eql with cl:equal
-(sb-ext:gc :full t)
+
+(generic-gc)
 (time 
  (loop 
-    for x from 0 below 999999
+    for x from 0 below (1- +tt--size+)
     for y = (abs (lognot x))
-    count (uuid-bit-vector-eql (aref *tt--rnd* x) (aref *tt--rnd* y)) into cnt
+    count (unicly::uuid-bit-vector-eql (aref *tt--rnd* x) (aref *tt--rnd* y)) into cnt
     finally (return  cnt)))
 
-(sb-ext:gc :full t)
+(generic-gc)
 (time 
  (loop 
-    for x from 0 below 999999
+    for x from 0 below (1- +tt--size+)
     for y = (abs (lognot x))
     count (equal (aref *tt--rnd* x) (aref *tt--rnd* y)) into cnt
     finally (return  cnt)))
@@ -197,88 +221,96 @@ Return value is shuffled as if by `mon:nshuffle-vector'.~%~@
 ;;; ==============================
 ;; timing with sxhash of string
 (progn 
-  (setq  *tt--rnd* (make-array 1000000 :element-type 'string ))
-  (aref *tt--rnd* 999999))
+  (setq  *tt--rnd* (make-array +tt--size+ :element-type 'string ))
+  (aref *tt--rnd* (1- +tt--size+)))
 
 (loop 
-   for x from 0 below 1000000 
-   do (setf (aref *tt--rnd* x) (uuid-print-bytes nil (make-v5-uuid *uuid-namespace-dns* (make-random-string 36))))
-   finally (return (aref *tt--rnd* 999999)))
+   for x from 0 below +tt--size+ 
+   do (setf (aref *tt--rnd* x) 
+            (unicly::uuid-print-bytes nil (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (make-random-string 36))))
+   finally (return (aref *tt--rnd* (1- +tt--size+))))
 
-(sb-ext:gc :full t)
+(generic-gc)
 (time (loop for x across *tt--rnd* do (sxhash x)))
 
 ;;; ==============================
 ;;; timing with sxhash of bit-vector
-(defparameter *tt--rnd2* (make-array 1000000))
+(defparameter *tt--rnd2* (make-array +tt--size+))
 
 (loop
-   for x from 0 below 1000000 
-   do (setf (aref *tt--rnd2* x) (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (make-random-string 36))))
-   finally (return (aref *tt--rnd2* 999999)))
+   for x from 0 below +tt--size+
+   do (setf (aref *tt--rnd2* x)
+            (unicly::uuid-to-bit-vector (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (make-random-string 36))))
+   finally (return (aref *tt--rnd2* (1- +tt--size+))))
 
-(sb-ext:gc :full t)
+(generic-gc)
 (time (loop for x across *tt--rnd2* do (sxhash x)))
+
+;; (setq *tt--rnd2* nil)
 
 ;;; ==============================
 ;; timing make-v5-uuid
-(sb-ext:gc :full t)
+(generic-gc)
 (time
  (loop 
-    for x from 0 below 100000
-    do (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* x))))
+    for x from 0 below +tt--size+
+    do (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (aref *tt--rnd* x))))
 
 ;; timing uuid-get-namespace-bytes/make-v5-uuid
-(sb-ext:gc :full t)
+(generic-gc)
 (time
- (dotimes (i 100000) 
-   (uuid-get-namespace-bytes (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
+ (dotimes (i +tt--size+) 
+   (unicly::uuid-get-namespace-bytes (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (aref *tt--rnd* i)))))
 
 ;; timing uuid-get-namespace-bytes/make-v5-uuid
-(sb-ext:gc :full t)
+
+(generic-gc)
 (time
- (dotimes (i 100000) 
-   (uuid-get-namespace-bytes (make-v3-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
+ (dotimes (i +tt--size+) 
+   (unicly::uuid-get-namespace-bytes (unicly::make-v3-uuid unicly::*uuid-namespace-dns* (aref *tt--rnd* i)))))
 
 ;;; ==============================
 ;; The timing differences between `make-v5-uuid'/`make-v3-uuid' are negligible but MD5 allocates 1/3 less
 ;; timing 1mil make-v5-uuid
-(sb-ext:gc :full t)
+
+(generic-gc)
 (time
- (dotimes (i 1000000) 
-   (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* i))))
+ (dotimes (i +tt--size+) 
+   (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (aref *tt--rnd* i))))
 ;;
 ;; timing 1mil make-v3-uuid
-(sb-ext:gc :full t)
+
+(generic-gc)
 (time
- (dotimes (i 1000000) 
-   (make-v3-uuid *uuid-namespace-dns* (aref *tt--rnd* i))))
+ (dotimes (i +tt--size+) 
+   (unicly::make-v3-uuid unicly::*uuid-namespace-dns* (aref *tt--rnd* i))))
 
 ;;; ==============================
 ;; There is little additional overhead associated with the uuid-to-bit-vector
 ;; conversion once the UUID is allocated.
 ;; timing 1mil uuid-to-bit-vector/make-v5-uuid
-(sb-ext:gc :full t)
+
+(generic-gc)
 (time
- (dotimes (i 1000000) 
-   (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
+ (dotimes (i +tt--size+) 
+   (unicly::uuid-to-bit-vector (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (aref *tt--rnd* i)))))
 
 ;; timing uuid-to-bit-vector/make-v3-uuid
-(sb-ext:gc :full t)
+(generic-gc)
 (time
- (dotimes (i 1000000) 
-   (uuid-to-bit-vector (make-v3-uuid *uuid-namespace-dns* (aref *tt--rnd* i)))))
+ (dotimes (i +tt--size+) 
+   (unicly::uuid-to-bit-vector (unicly::make-v3-uuid unicly::*uuid-namespace-dns* (aref *tt--rnd* i)))))
 
 ;; same without an aref lookup
-(sb-ext:gc :full t)
+(generic-gc)
 (time
- (dotimes (i 100000) 
-   (uuid-get-namespace-bytes (make-v5-uuid *uuid-namespace-dns* (make-random-string 36)))))
+ (dotimes (i +tt--size+) 
+   (unicly::uuid-get-namespace-bytes (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (make-random-string 36)))))
 
-(sb-ext:gc :full t)
+(generic-gc)
 (time
- (dotimes (i 100000) 
-   (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* (make-random-string 36)))))
+ (dotimes (i +tt--size+) 
+   (unicly::uuid-to-bit-vector (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (make-random-string 36)))))
 
 ;;; ==============================
 ;;; EOF

@@ -107,9 +107,9 @@
 ;;
 ;;                                       msbit.       lsbit.
 ;;                                            |            | 
-;; #x12  18 ;; => 18  (5 bits, #x12, #o22,  #b00010010) -> 01001000 
+;; #x12  18 ;; => 18  (5 bits, #x12, #o22,  #b00010010) -> 01001000
 ;; #x34  52 ;; => 52  (6 bits, #x34, #o64,  #b00110100) -> 00101100
-;; #x56  86 ;; => 86  (7 bits, #x56, #o126, #b01010110) -> 01101010 
+;; #x56  86 ;; => 86  (7 bits, #x56, #o126, #b01010110) -> 01101010
 ;; #x78 120 ;; => 120 (7 bits, #x78, #o170, #b01111000) -> 00011110
 ;; #x9A 154 ;; => 154 (8 bits, #x9A, #o232, #b10011010) -> 01011001
 ;; #xBC 188 ;; => 188 (8 bits, #xBC, #o274, #b10111100) -> 00111101
@@ -117,11 +117,16 @@
 (defun get-node-id ()
   ;; Don't bother getting the MAC address of an ethernet device. 
   ;; RFC4122 Section 5 says it is perfectly feasible to just use a random number.
+  ;; #x7fffffffffff 47 bits
   (declare (optimize (speed 3)))
   (let* ((*random-state* *random-state-uuid*)
          (rand-node (the uuid-ub48 (random #xffffffffffff))))
     (declare (uuid-ub48 rand-node))
     (the uuid-ub48 (dpb #b01 (byte 1 40) rand-node))))
+
+;; (dpb #b01 (byte 1 40) (random #xffffffffffff *random-state-uuid*))
+;; (dpb #b00 (byte 1 40) #b111111111111111111111111111111111111111111111111) ;; 48bit
+;; (dpb #b00 (byte 1 40) #x7fffffffffff) ;;47 bit
 
 
 ;; :NOTE closed over value uuids-this-tick should not exceed `unicly::*ticks-per-count-uuid*'.
@@ -138,11 +143,11 @@
        ;; 100 nano-seconds => (/ (expt 10 9) 100) => 10000000
        ;; (* 10010304000 (/ (expt 10 9) 100)) => 100103040000000000
        (let ((time-now 
-              #-sbcl(+ (* (get-universal-time) 10000000) 100103040000000000)
-              #+sbcl(+ (* 
-                        (+ (sb-ext:get-time-of-day) sb-impl::unix-to-universal-time)
-                        10000000)
-                       100103040000000000)))
+              #-sbcl (+ (* (get-universal-time) 10000000) 100103040000000000)
+              #+sbcl (+ (* 
+                         (+ (sb-ext:get-time-of-day) sb-impl::unix-to-universal-time)
+                         10000000)
+                        100103040000000000)))
          (if (and (/= last-time time-now)
                   (setf uuids-this-tick 0 
                         last-time time-now))
@@ -181,6 +186,7 @@
 ;;; :UNICLY-COMPAT-VARIABLES-DOCUMENTATION
 ;;; ==============================
 
+#+(or)
 (vardoc  '*clock-seq-uuid*
 "A clock sequence for use with `unicly:make-v1-uuid'.~%~@
 Intial value is 0 at beginning of current session.~%~@
@@ -191,6 +197,7 @@ Thereafter its value remains unchanged fur the duration of the session.~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `*ticks-per-count-uuid*', `make-v1-uuid'.~%▶▶▶")
 
+#+(or)
 (vardoc '*node-uuid*
 "A random number of type `uuid-ub48'.~%~@
 Per RFC4122 Section 4.5 \"Node IDs that Do Not Identify the Host\" the bit at
@@ -206,6 +213,7 @@ hardware network cards.~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
+#+(or)
 (vardoc '*ticks-per-count-uuid*
 "The number of version 1 UUIDS that can be generated in a given time interval.~%~@
 The function `unicly::get-timestamp-uuid' compares this value with the current
@@ -230,6 +238,7 @@ value is 1000, whereas on GNU CLISP 2.48 (2009-07-28) it is 1,000,000.~%~@
 ;;; :UNICLY-COMPAT-FUNCTIONS-DOCUMENTATION
 ;;; ==============================
 
+#+(or)
 (fundoc 'make-v1-uuid
 "Return a time based version 1 UUID.~%~@
 RFC4122 Section ????
@@ -244,9 +253,9 @@ value of `unicly::get-node-id'.~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v1-uuid', `make-null-uuid'.~%▶▶▶")
 
-#+nil
-(fundoc 'uuid-get-bytes ; ######
-            "Convert UUID-STRING to a string of characters.~%~@
+#+(or)
+(fundoc 'uuid-get-bytes                 ; ######
+        "Convert UUID-STRING to a string of characters.~%~@
 UUID-STRING is a is a string as returned by `uuid-print-bytes'.~%~@
 Return value is constructed from the `cl:code-char' of each number in UUID-STRING.~%~@
 Return value has is of type `uuid-byte-string' with the type signature:~%
@@ -259,7 +268,7 @@ Helper function for `make-v3-uuid' and `make-v5-uuid'.~%~@
 \(uuid-get-bytes \"5E320838715730398383652D96705A7D\"\)~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-#+nil
+#+(or)
 (fundoc '%uuid-get-bytes-if ; ######
 "Helper function for `uuid-get-bytes'.~%~@
 Verify that arg CHK-UUID-STR is of type `uuid-hex-string-32'.~%~@
@@ -270,7 +279,7 @@ Signal an error if not.~%~@
  \(%uuid-get-bytes-if \"6ba7b8109dad11d180b400c04fd430c8-Q\"\)~%~@
 :SEE-ALSO `uuid-hex-string-32-p'.~%▶▶▶")
 
-#+nil
+#+(or)
 (fundoc 'uuid-load-bytes ; ######
  "Helper function.~%~@
 Load as if by `cl:dpb' the bytes of BYTE-ARRAY.~%~@
@@ -282,7 +291,7 @@ END is the position to stop setting bytes.~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `<XREF>'.~%▶▶▶")
 
-#+nil
+#+(or)
 (fundoc 'uuid-to-byte-array ; ######
   "Convert UUID to a byte-array.~%~@
 Arg UUID should be an instance of the UNIQUE-UNIVERSAL-IDENTIFIER class.~%~@

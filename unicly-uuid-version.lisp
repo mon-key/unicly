@@ -14,8 +14,8 @@
   ;; (let ((v4uuid (make-v4-uuid)))
   ;;   (setf (slot-value v4uuid '%uuid_time-high-and-version) #xFFFF) 
   ;;   (%uuid-uuid-version-if (slot-value v4uuid '%uuid_time-high-and-version) v4uuid))
-  (declare (unique-universal-identifier uuid)
-           (uuid-ub16 uuid-time-high-and-version)
+  (declare (type unique-universal-identifier uuid)
+           (type uuid-ub16 uuid-time-high-and-version)
            (optimize (speed 3)))
   (when (ldb-test (byte 1 15) uuid-time-high-and-version)
     (error 'uuid-bit-48-error :uuid-bit-48-error-datum uuid)))
@@ -40,7 +40,7 @@
 (declaim (inline uuid-version-uuid))
 (defun uuid-version-uuid (uuid)
   ;; :WAS (declare  (unique-universal-identifier uuid)
-  (declare ((or unique-universal-identifier uuid-bit-vector-128) uuid)
+  (declare (type (or unique-universal-identifier uuid-bit-vector-128) uuid)
            (inline %unique-universal-identifier-null-p)
            (optimize (speed 3)))
   ;; :NOTE !EXPERIMENTAL!
@@ -51,7 +51,7 @@
     (return-from uuid-version-uuid (uuid-version-bit-vector uuid)))
   ;;
   (locally 
-      (declare (unique-universal-identifier uuid))
+      (declare (type unique-universal-identifier uuid))
     (when (%unique-universal-identifier-null-p uuid)
       (return-from uuid-version-uuid (values 0 'null-uuid)))
     (let ((uuid-thav (if (slot-boundp uuid '%uuid_time-high-and-version)
@@ -59,7 +59,7 @@
                          (error 'uuid-simple-error ;; 'uuid-slot-unbound-error
                           :format-control "slot %UUID_TIME-HIGH-AND-VERSION is not ~
                                               `cl:slot-boundp' in uuid object"))))
-      (declare (uuid-ub16 uuid-thav))
+      (declare (type uuid-ub16 uuid-thav))
       (%uuid-uuid-version-if uuid-thav uuid)
       (or (and (ldb-test (byte 1 13) uuid-thav)
                (ldb-test (byte 1 12) uuid-thav)

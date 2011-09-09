@@ -30,7 +30,7 @@
            (optimize (speed 3)))
   (multiple-value-bind (if-36 vector-5-or-null-uuid) (uuid-hex-string-36-p uuid-hex-string-36-if)
     (declare (boolean if-36)
-             ((or null function uuid-simple-vector-5) vector-5-or-null-uuid))
+             (type (or null function uuid-simple-vector-5) vector-5-or-null-uuid))
     (if if-36
         vector-5-or-null-uuid
         #-mon (error "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'~% ~
@@ -57,7 +57,7 @@
 ;; | statement about what syntax you're expecting as input.
 ;; `----
 (defun make-uuid-from-string (uuid-or-hex-string-36)
-  (declare ((or unique-universal-identifier string) uuid-or-hex-string-36)
+  (declare (type (or unique-universal-identifier string) uuid-or-hex-string-36)
            (inline make-uuid-from-string-if
                    uuid-hex-string-36-p
                    uuid-hex-vector-parse-time-low uuid-hex-vector-parse-time-mid
@@ -70,16 +70,16 @@
                          (return-from make-uuid-from-string (the unique-universal-identifier (uuid-copy-uuid uuid-or-hex-string-36))))
                         (string 
                          (let ((vec-or-fun (make-uuid-from-string-if uuid-or-hex-string-36)))
-                           (declare ((or function uuid-simple-vector-5) vec-or-fun))
+                           (declare (type (or function uuid-simple-vector-5) vec-or-fun))
                            (etypecase vec-or-fun
                              (function
                               (let ((null-id (funcall vec-or-fun)))
-                                (declare (unique-universal-identifier-null null-id))
+                                (declare (type unique-universal-identifier-null null-id))
                                 (return-from make-uuid-from-string
                                   (the unique-universal-identifier-null null-id))))
                              (uuid-simple-vector-5 (the uuid-simple-vector-5 vec-or-fun))))))))
     (declare ;;(optimize (speed 3))
-     (uuid-simple-vector-5 chk-uuid-str))
+     (type uuid-simple-vector-5 chk-uuid-str))
     (the unique-universal-identifier
       (make-instance 'unique-universal-identifier
                      :%uuid_time-low               (uuid-hex-vector-parse-time-low               chk-uuid-str)
@@ -106,7 +106,7 @@
 (defun uuid-string-to-md5-byte-array (string)
   (declare (type string string))
   (let ((digester (ironclad:make-digest :MD5)))
-    (declare (ironclad:MD5 digester))
+    (declare (type ironclad:MD5 digester))
     (ironclad:update-digest digester 
                             #+sbcl (sb-ext:string-to-octets string :external-format :UTF-8)
                             #-sbcl (flexi-streams:string-to-octets string :external-format :UTF-8))
