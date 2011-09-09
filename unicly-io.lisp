@@ -20,11 +20,11 @@
       (values nil maybe-stream)))
 
 (defun uuid-valid-stream-verify-io-type (maybe-valid-io-stream &key direction)
-  (declare ((member :input :output) direction)
+  (declare (type (member :input :output) direction)
            (inline uuid-valid-stream-p)
            (optimize (speed 3)))
   (multiple-value-bind (chk stream-val) (uuid-valid-stream-p maybe-valid-io-stream)
-    (declare (boolean chk))
+    (declare (type boolean chk))
     (unless (if (eql direction :output)
                 (and chk (output-stream-p (the stream stream-val)))
                 (and chk (input-stream-p  (the stream  stream-val))))
@@ -51,14 +51,14 @@
 ;; (let ((is (make-string-input-stream "bubba")))
 ;;   (uuid-valid-stream-verify-octet-stream-for-input is))
 (defun uuid-valid-stream-verify-io-octet-type (maybe-octet-stream &key direction)
-  (declare ((member :input :output) direction))
+  (declare (type (member :input :output) direction))
   (let* ((chk-stream 
           (ecase direction
             (:output (uuid-valid-stream-verify-for-output maybe-octet-stream))
             (:input  (uuid-valid-stream-verify-for-input maybe-octet-stream))))
          (elt-type    (stream-element-type (the stream chk-stream))))
     (multiple-value-bind (t1 t2) (subtypep elt-type 'uuid-ub8)
-      (declare (boolean t1 t2))
+      (declare (type boolean t1 t2))
       (unless (and t1 t2)
         (error "UUID-VALID-STREAM-VERIFY-IO-OCTET-TYPE -- arg MAYBE-OCTET-STREAM ~
                 has `cl:stream-element-type' not `cl:subtypep' of `uuid-ub8'~%~Twith-stream: ~S~%~Twith-type: ~S~%"
@@ -104,7 +104,7 @@
 ;; :NOTE Consider renaming this to `serialize-uuid-byte-array' and calling the
 ;; G-F in body.
 (defun uuid-serialize-byte-array-bytes (uuid-or-byte-array-16 stream-out)
-  (declare ((or uuid-byte-array-16 unique-universal-identifier) uuid-or-byte-array-16)
+  (declare (type (or uuid-byte-array-16 unique-universal-identifier) uuid-or-byte-array-16)
            (type stream stream-out)
            (optimize (speed 3)))
   (uuid-valid-stream-verify-octet-stream-for-output stream-out)
@@ -166,14 +166,14 @@
      finally (return bv)))
 
 (defun uuid-serialize-bit-vector-bits (bv-or-uuid stream-out)
-  (declare ((or uuid-bit-vector-128 unique-universal-identifier) bv-or-uuid)
+  (declare (type (or uuid-bit-vector-128 unique-universal-identifier) bv-or-uuid)
            (type stream stream-out))
   (uuid-valid-stream-verify-octet-stream-for-output stream-out)
   (let ((bv-128  (the uuid-bit-vector-128
                    (if (unique-universal-identifier-p bv-or-uuid)
                        (uuid-to-bit-vector bv-or-uuid)
                        bv-or-uuid))))
-    (declare (uuid-bit-vector-128 bv-128))
+    (declare (type uuid-bit-vector-128 bv-128))
     ;; (loop 
     ;;    ;; for bit-idx downfrom 127 to 0
     ;;    for bit-idx from  0 below 128 
@@ -192,7 +192,7 @@
 ;;         (v4-io  (uuid-read-bit-vector-bits (uuid-write-bit-vector-bits v4 tmp))))
 ;;    (uuid-bit-vector-eql v4 v4-io))
 (defun uuid-read-bit-vector-bits (input-pathname &key (if-does-not-exist :error))
-  (declare ((or pathname string) input-pathname))
+  (declare (type (or pathname string) input-pathname))
   (with-open-file (bv-in input-pathname
                          :direction :input
                          :if-does-not-exist if-does-not-exist

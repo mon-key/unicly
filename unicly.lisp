@@ -59,8 +59,8 @@
 
 ;; (declaim (inline %uuid-digest-uuid-instance-md5))
 (defun %uuid-digest-uuid-instance-md5 (namespace name)
-  (declare (uuid-byte-array-16 namespace)
-           (uuid-byte-array name)
+  (declare (type uuid-byte-array-16 namespace)
+           (type uuid-byte-array name)
            (optimize (speed 3)))
   (let ((digester  (ironclad:make-digest :MD5)))
     (declare (ironclad:md5 digester))
@@ -70,11 +70,11 @@
 
 (declaim (inline %uuid-digest-uuid-instance-sha1))
 (defun %uuid-digest-uuid-instance-sha1 (namespace name)
-  (declare (uuid-byte-array-16 namespace)
-           (uuid-byte-array name)
+  (declare (type uuid-byte-array-16 namespace)
+           (type uuid-byte-array name)
            (optimize (speed 3)))
   (let ((digester  (ironclad:make-digest :SHA1)))
-    (declare (ironclad:sha1 digester))
+    (declare (type ironclad:sha1 digester))
     (ironclad:update-digest digester namespace)
     (ironclad:update-digest digester name)
     ;; SHA-1 uses a 160-bit (20-byte) message size
@@ -82,17 +82,19 @@
 
 (declaim (inline %verify-version-3-or-5))
 (defun %verify-version-3-or-5 (version)
-  (declare ((mod 6) version)
+  (declare (type (mod 6) version)
            (optimize (speed 3)  (debug 0)))
   ;; (or (and (or (= version 3) (= version 5)) version)
   ;; (error "arg VERSION is not integer 3 nor 5"))
+  #-sbcl (etypecase version 
+           ((mod 6) version))
   (unless (logbitp 1 (logcount version))
     (error "arg VERSION is not integer 3 nor 5"))
   (the uuid-v3or5-int version))
 
 (declaim (inline %verify-digest-version))
 (defun %verify-digest-version (chk-version)
-  (declare ((mod 6) chk-version)
+  (declare (type (mod 6) chk-version)
            (inline %verify-version-3-or-5)
            (optimize (speed 3)))
   (if (logbitp 1 (the uuid-v3or5-int (%verify-version-3-or-5 chk-version)))
@@ -113,7 +115,7 @@
 (defun uuid-digest-uuid-instance (digest-version uuid-namespace-instance name)
   ;; This is step two of RFC4122 section 4.3 
   ;; -  Compute the hash of the name space ID concatenated with the name.
-  (declare ((mod 6) digest-version)
+  (declare (type (mod 6) digest-version)
            (unique-universal-identifier uuid-namespace-instance)
            (string name)
            (inline %verify-digest-version %uuid-digest-uuid-instance-sha1 %uuid-digest-uuid-instance-md5)
@@ -122,11 +124,11 @@
                    (uuid-get-namespace-bytes uuid-namespace-instance)))
         (name-ba
          ;; :NOTE What about Clisp's `ext:convert-string-to-bytes'?
-         #-(sbcl clisp) (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
+         #-(or sbcl clisp) (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
          #+clisp (the uuid-byte-array (ext:convert-string-to-bytes name charset:utf-8))
          #+sbcl  (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8))))
-    (declare (uuid-byte-array-16 uuid-ba)
-             (uuid-byte-array    name-ba))
+    (declare (type uuid-byte-array-16 uuid-ba)
+             (type uuid-byte-array    name-ba))
     (ecase (%verify-digest-version digest-version)
       (:MD5  (the (values uuid-byte-array-16 &optional)
                (%uuid-digest-uuid-instance-md5  uuid-ba name-ba))) 
@@ -218,7 +220,7 @@
 (declaim (inline %uuid_time-high-and-version-request))
 (defun %uuid_time-high-and-version-request (byte-array version)
   (declare (type uuid-byte-array byte-array)
-           ((mod 6) version)
+           (type (mod 6) version)
            (optimize (speed 3)))
   (the uuid-ub16 
     (dpb version (byte 4 12)
@@ -245,7 +247,7 @@
 
 (declaim (inline digested-v5-uuid))
 (defun digested-v5-uuid (v5-digest-byte-array)
-  (declare (uuid-byte-array-20 v5-digest-byte-array)
+  (declare (type uuid-byte-array-20 v5-digest-byte-array)
            (inline %uuid_time-low-request %uuid_time-mid-request %uuid_time-high-and-version-request
                    %uuid_clock-seq-and-reserved-request %uuid_node-request)
            (optimize (speed 3)))
@@ -260,7 +262,7 @@
 
 (declaim (inline digested-v3-uuid))
 (defun digested-v3-uuid (v3-digest-byte-array)
-  (declare (uuid-byte-array-16 v3-digest-byte-array)
+  (declare (type uuid-byte-array-16 v3-digest-byte-array)
            (inline %uuid_time-low-request %uuid_time-mid-request %uuid_time-high-and-version-request
                    %uuid_clock-seq-and-reserved-request %uuid_node-request)
            (optimize (speed 3)))
@@ -275,7 +277,7 @@
 
 (declaim (inline digested-v3or5-uuid))
 (defun digested-v3or5-uuid (digest-byte-array digest-3-or-5) 
-  (declare (uuid-byte-array digest-byte-array)
+  (declare (type uuid-byte-array digest-byte-array)
            (inline %verify-version-3-or-5 digested-v3-uuid digested-v5-uuid)
            (optimize (speed 3)))
   (let ((version-if  (%verify-version-3-or-5 digest-3-or-5)))
@@ -290,19 +292,17 @@
 
 (defun make-v3-uuid (namespace name)
   (declare (type string name)
-           (unique-universal-identifier namespace)
-           (inline 
-             digested-v3or5-uuid)
+           (type unique-universal-identifier namespace)
+           (inline digested-v3or5-uuid)
            (optimize (speed 3)))
   (the (values unique-universal-identifier &optional)
     (digested-v3or5-uuid (the uuid-byte-array-16 (uuid-digest-uuid-instance 3 namespace name)) 3)))
 
 (defun make-v5-uuid (namespace name)
   (declare (type string name)
-           (unique-universal-identifier namespace)
-           (inline 
-             uuid-digest-uuid-instance
-             digested-v3or5-uuid)
+           (type unique-universal-identifier namespace)
+           (inline uuid-digest-uuid-instance
+                   digested-v3or5-uuid)
            (optimize (speed 3)))
   (the (values unique-universal-identifier &optional)
     (digested-v3or5-uuid (the uuid-byte-array-20 (uuid-digest-uuid-instance 5 namespace name))  5)))
@@ -345,7 +345,7 @@
 
 (defun uuid-as-urn-string (stream uuid)
   (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream) 
-           (unique-universal-identifier uuid))
+           (type unique-universal-identifier uuid))
   ;; :NOTE RFC4122 Section 3. "Namespace Registration Template"
   ;; Case is significant on output.
   (format stream "~(urn:uuid:~A~)" uuid))

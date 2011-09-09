@@ -158,6 +158,7 @@
   (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ"))
   #*11001001011000010001100110100011000000000000000001010011101101001011101000111000101101001001000101110001101010000111110110001001)
 
+
 ;; (EXT:CONVERT-STRING-FROM-BYTES vector encoding &KEY :START :END)
 ;; #+sbcl (sb-ext:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8)
 ;; #(225 184 187 102 225 184 137 225 184 178 195 173 195 175 60 195 178 98 71 194
@@ -213,9 +214,9 @@
 ;;; ==============================
 ;; `uuid-request-integer'
 
- (eq (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6) 135426222453703)
+ (eql (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6) 135426222453703)
 
- (eq (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 135426222453703)
+ (eql (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 135426222453703)
 
  (eql (uuid-request-integer (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba") 10 6)
       (%uuid_node-request (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")))
@@ -568,8 +569,13 @@
 
 ;;; ==============================
 ;; `make-hash-table-uuid'
- (let ((ht (make-hash-table-uuid)))
-   (eq (hash-table-test ht) 'uuid-eql))
+#+sbcl (let ((ht (make-hash-table-uuid)))
+         (eq (hash-table-test ht) 'uuid-eql))
+
+#+clisp (let ((ht (make-hash-table-uuid)))
+          (equal (cons (symbol-function 'uuid-eql)
+                       (symbol-function 'sxhash-uuid))
+                 (hash-table-test ht)))
 
 ;; (defparameter *tt--unicly-ht* (make-hash-table-uuid))
  (let* ((ht (make-hash-table-uuid))
@@ -684,7 +690,8 @@
 ;; `uuid-version-uuid'
  (and (eq (uuid-version-uuid (make-v3-uuid *uuid-namespace-dns* "bubbb")) 3)
       (eq (uuid-version-uuid (make-v4-uuid)) 4)
-      (eq (uuid-version-uuid (make-v5-uuid *uuid-namespace-dns* "bubbb")) 5))
+      (eq (uuid-version-uuid (make-v5-uuid *uuid-namespace-dns* "bubbb")) 5)
+      (equal (multiple-value-list (uuid-version-uuid (make-null-uuid))) (list 0 'NULL-UUID)))
 
 ;;; ==============================
 
