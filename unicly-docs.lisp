@@ -476,7 +476,9 @@ frob objects of type `uuid-hex-string-36'.~%~@
 ;;; ==============================
 ;;; :UUID-MACRO-DOCUMENTATION
 ;;; ==============================
-
+;; For whaterver reason Clisp doesn't like evaluating fundoc for macros...
+#-clisp
+(progn
 (fundoc 'def-uuid-type-definer
         "Convenience macro for use by macros which define uuid sub-type specifiers.~%~@
 Arg PARENT-TYPE is an unquoted symbol naming a uuid-type specifer which
@@ -673,6 +675,7 @@ some value satisfies uuid-bit-vector-8-p and if not signals a condition of type
 `%uuid_time-high-and-version-request-bit-vector',
 `%uuid_clock-seq-and-reserved-request-bit-vector',
 `%uuid_clock-seq-low-request-bit-vector', `%uuid_node-request-bit-vector'.~%▶▶▶")
+)
 
 
 ;;; ==============================
@@ -1152,7 +1155,7 @@ suitable for use as the V5-DIGEST-BYTE-ARRAY argument to `digested-v5-uuid'.
 
 (fundoc 'digested-v3or5-uuid ; ######
 "Helper function to format UUIDv3 and UUIDv5 hashes according to UUID-VERSION.~%~@
-DIGEST-BYTE-ARRAY is an argument suitable as the BYTE-ARRAY arg to `uuid-load-bytes'.~%~@
+DIGEST-BYTE-ARRAY is an argument suitable as the BYTE-ARRAY arg to `uuid-request-integer'.~%~@
 DIGEST-BYTE-ARRAY is as per the the return value of `digested-v3or5-uuid'
 UUID-VERSION should satisfy `%verify-version-3-or-5', an error is signaled if not.~%~@
 :EXAMPLE~%~@
