@@ -2,6 +2,12 @@
 ;;; :FILE unicly/unicly-io.lisp
 ;;; ==============================
 
+;; :NOTE Consider using Patrick Stein's Userial for uuid serialization/deserialization
+;; Doing so would allow frobbing UUIDs representations according to which
+;; ContextL layer is currently active.
+;; :SEE (URL `http://nklein.com/software/unet/userial/')
+
+
 (in-package #:unicly)
 ;; *package*
 

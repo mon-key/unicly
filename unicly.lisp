@@ -121,8 +121,10 @@
   (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
                    (uuid-get-namespace-bytes uuid-namespace-instance)))
         (name-ba
-         #-sbcl (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
-         #+sbcl (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8))))
+         ;; :NOTE What about Clisp's `ext:convert-string-to-bytes'?
+         #-(sbcl clisp) (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
+         #+clisp (the uuid-byte-array (ext:convert-string-to-bytes name charset:utf-8))
+         #+sbcl  (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8))))
     (declare (uuid-byte-array-16 uuid-ba)
              (uuid-byte-array    name-ba))
     (ecase (%verify-digest-version digest-version)
@@ -374,7 +376,7 @@
   #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
                  "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
   (when (%uuid-byte-array-null-p byte-array)
-    (return-from tt--uuid-from-byte-array 
+    (return-from uuid-from-byte-array 
       ;; Remember, there can only be one *uuid-null-uuid*!
       (make-instance 'unique-universal-identifier)))
   (make-instance 'unique-universal-identifier

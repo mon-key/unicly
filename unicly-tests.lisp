@@ -158,6 +158,32 @@
   (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ"))
   #*11001001011000010001100110100011000000000000000001010011101101001011101000111000101101001001000101110001101010000111110110001001)
 
+;; (EXT:CONVERT-STRING-FROM-BYTES vector encoding &KEY :START :END)
+;; #+sbcl (sb-ext:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8)
+;; #(225 184 187 102 225 184 137 225 184 178 195 173 195 175 60 195 178 98 71 194
+;;   166 62 71 225 184 156 195 174 225 185 137 195 173 64 66 51 195 129 195 187 63
+;;   225 184 185 60 109 195 190 225 184 169 195 186 39 195 129 225 185 146 194 172
+;;   38 93 225 184 142)
+;; #+clisp (ext:convert-string-to-bytes "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" CHARSET:UTF-8)
+;; #(225 184 187 102 225 184 137 225 184 178 195 173 195 175 60 195 178 98 71 194
+;;   166 62 71 225 184 156 195 174 225 185 137 195 173 64 66 51 195 129 195 187 63
+;;   225 184 185 60 109 195 190 225 184 169 195 186 39 195 129 225 185 146 194 172
+;;   38 93 225 184 142)
+;;
+;; (URL `http://www.clisp.org/impnotes.html/#string-byte')
+;; Encodings can also be used to convert directly between strings and their
+;; corresponding byte vector representation according to that encoding.
+;;
+;; (EXT:CONVERT-STRING-FROM-BYTES vector encoding &KEY :START :END)
+;;     converts the subsequence of vector (a (VECTOR (UNSIGNED-BYTE 8))) from start
+;;     to end to a STRING, according to the given encoding, and returns the
+;;     resulting string.
+;; (EXT:CONVERT-STRING-TO-BYTES string encoding &KEY :START :END)
+;;     converts the subsequence of string from start to end to a (VECTOR
+;;     (UNSIGNED-BYTE 8)), according to the given encoding, and returns the
+;;     resulting byte vector.
+
+
 ;;; ==============================
 ;; `uuid-digest-uuid-instance' for sha1 and md5 
 
