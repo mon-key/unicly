@@ -368,6 +368,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
     (and (unique-universal-identifier-null-p uuid-a) (unique-universal-identifier-null-p uuid-b)))
 
   (:method ((uuid-a unique-universal-identifier) (uuid-b unique-universal-identifier))
+    ;; 
     (uuid-bit-vector-eql (uuid-to-bit-vector uuid-a) (uuid-to-bit-vector uuid-b)))
   
   (:method ((uuid-a bit-vector) (uuid-b bit-vector))

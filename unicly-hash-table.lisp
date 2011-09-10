@@ -2,15 +2,43 @@
 ;;; :FILE unicly/unicly-hash-table.lisp
 ;;; ==============================
 
+;; :NOTE Keep the sxhash/hash-table stuff here or in a file which comes after
+;; unicly-class.lisp otherwise the compiler complains about open coding
+
 
 (in-package #:unicly)
 
-;; :NOTE Keep the sxhash/hash-table stuff here or in a file which comes after unicly-class.lisp 
-;; otherwise the compiler complains about open coding
+
+#+sbcl
+(defconstant +%%uuid-sxhash-truncating-node%%+
+  (and (<= sb-vm:n-positive-fixnum-bits 48)
+       sb-vm:n-positive-fixnum-bits))
+
+;; on SBCL x86-32 
+;; 1mil invocations of sxhash-uuid for array of 1mil v4uuids
+;;  0.212967 seconds of total run time (0.211968 user, 0.000999 system)
+;; 1mil invocations of cl:sxhash with same array of 1mil v4uuids
+;;  0.018997 seconds of total run time (0.018997 user, 0.000000 system)
 (defun sxhash-uuid (uuid)
   (declare (unique-universal-identifier uuid)
            (optimize (speed 3)))
-  (sxhash (the uuid-bit-vector-128 (uuid-to-bit-vector uuid))))
+  ;; :NOTE The used to be:
+  ;;   (sxhash (the uuid-bit-vector-128 (uuid-to-bit-vector uuid)))
+  ;; On SBCL we can do better than that by verifying that a slot value is not zerop 
+  ;; (if it is we don't want to use that as our hash)
+  ;; and knocking down the 48 bits to (unsigned-byte 29) on SBCL-x8632 
+  #-sbcl (sxhash uuid)
+  ;; We don't bother checking slot-boundp of the UUID arg on the assumption that
+  ;; only a madman would slot-makunbound %uuid_node
+  #+sbcl (let ((node-int (slot-value uuid '%uuid_node)))
+           (declare (type uuid-ub48 node-int))
+           (if (zerop node-int)
+               (sxhash uuid)
+               (if +%%uuid-sxhash-truncating-node%%+
+                   ;; (mask-field (byte (the (mod 49) +%%uuid-sxhash-truncating-node%%+) 0) node-int)
+                   (logand node-int
+                           (dpb -1 (byte (the (mod 49) +%%uuid-sxhash-truncating-node%%+) 0) 0))
+                   node-int))))
 
 #+sbcl 
 (sb-ext:define-hash-table-test uuid-eql sxhash-uuid)
@@ -27,7 +55,10 @@
 (defun make-hash-table-uuid (&key synchronized) ;; &allow-other-keys ??
   (make-hash-table :test 'uuid-eql :synchronized synchronized))
 
-
+;; (defparameter *tt--uuid-ht* (make-hash-table-uuid))
+;; (setf (gethash (make-v5-uuid *uuid-namespace-dns* "bubba") *tt--uuid-ht* )
+;;       "bubba")
+  
 
 
 ;;; ==============================

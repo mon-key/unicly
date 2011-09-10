@@ -123,7 +123,6 @@
   (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
                    (uuid-get-namespace-bytes uuid-namespace-instance)))
         (name-ba
-         ;; :NOTE What about Clisp's `ext:convert-string-to-bytes'?
          #-(or sbcl clisp) (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
          #+clisp (the uuid-byte-array (ext:convert-string-to-bytes name charset:utf-8))
          #+sbcl  (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8))))
