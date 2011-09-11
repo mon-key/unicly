@@ -51,6 +51,10 @@
   (declare (ignore synchronized))
   (make-hash-table :test 'uuid-eql))
 
+#+lispworks
+(defun make-hash-table-uuid (&key synchronized)
+  (make-hash-table :test 'uuid-eql :hash-function 'sxhash-uuid :single-thread synchronized))
+
 #+sbcl
 (defun make-hash-table-uuid (&key synchronized) ;; &allow-other-keys ??
   (make-hash-table :test 'uuid-eql :synchronized synchronized))
