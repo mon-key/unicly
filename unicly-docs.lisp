@@ -16,7 +16,7 @@
 :EXAMPLE~%
  *random-state-uuid*~%
  \(random-state-p  *random-state-uuid*\)~%~@
-:SEE-ALSO `cl:random-state', `cl:random-state-p'.~%▶▶▶")
+:SEE-ALSO `cl:random-state', `cl:random-state-p'.~%")
 
 ;;; ==============================
 (vardoc '*uuid-namespace-dns*
@@ -35,7 +35,7 @@ These are:
 #xb4                          ;; uuid-ub8
 #x00 #xc0 #x4f #xd4 #x30 #xc8 ;; uuid-ub48~%~@
 With the string representation: \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"
-:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%▶▶▶")
+:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%")
  
 (vardoc '*uuid-namespace-url*
 "An URL namespace as provided with RFC4122 Appendix C. \"Some Name Space IDs\".~%~@
@@ -53,7 +53,7 @@ These are:
 #xb4                              ;; uuid-ub8 
 #x00 #xc0, #x4f, #xd4, #x30, #xc8 ;; uuid-ub48~%~@
 With the string representation: \"6ba7b811-9dad-11d1-80b4-00c04fd430c8\"~%~@
-:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%▶▶▶")
+:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%")
 
 (vardoc '*uuid-namespace-oid*
 "An OID namespace as provided with RFC4122 Appendix C. \"Some Name Space IDs\".~%~@
@@ -71,7 +71,7 @@ provided with RFC4122 Appendix C. - \"Some- Name Space IDs\" page 29.~%~@
 #x00 #xc0, #x4f, #xd4, #x30, #xc8 ;; uuid-ub48~%~@
 With the string representaton: \"6ba7b812-9dad-11d1-80b4-00c04fd430c8\"~%~@
 :SEE (URL `http://www.techabulary.com/o/oid/')~%~@
-:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%▶▶▶")
+:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%")
 
 (vardoc '*uuid-namespace-x500*
 "An x500 namespace as provided with RFC4122 Appendix C. \"Some Name Space IDs\".~%~@
@@ -91,7 +91,7 @@ provided with RFC4122 Appendix C. - \"Some- Name Space IDs\" page 29.~%~@
 With the string representaton: \"6ba7b812-9dad-11d1-80b4-00c04fd430c8\"~%~@
 :SEE \(URL `http://en.wikipedia.org/wiki/X.500'\)~%
 :SEE \(URL `http://luca.ntop.org/Teaching/Appunti/asn1.html'\) esp. Section 6. ~%~@
-:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%▶▶▶")
+:SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v4-uuid'.~%")
 
 (vardoc '*uuid-null-uuid*
          "The default null-uuid per RFC4122 Section 4.1.7 \"Nil UUID\".~%
@@ -110,7 +110,7 @@ are methods specialized it, e.g.:~%~@
 :NOTE The value of this variable should always return t for the following:~%
  \(and \(slot-exists-p *uuid-null-uuid* '%uuid_null\)
       \(slot-value *uuid-null-uuid* '%uuid_null\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 
 ;;; ==============================
@@ -122,7 +122,7 @@ are methods specialized it, e.g.:~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-ub128', `uuid-ub64', `uuid-ub48', `uuid-ub32', `uuid-ub16',
-`uuid-ub8'.~%▶▶▶")
+`uuid-ub8'.~%")
 
 (typedoc 'uuid-ub128
 "An object of type: \(unsigned-byte 128\)~%~@
@@ -137,7 +137,7 @@ of the slots of class `unique-universal-identifier'.~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO 
 `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48', `uuid-ub32',
-`uuid-ub16', `uuid-ub8'.~%▶▶▶")
+`uuid-ub16', `uuid-ub8'.~%")
 
 (typedoc 'uuid-ub64
 "An object of type: \(unsigned-byte 64\)~%~@
@@ -146,7 +146,7 @@ of a  slot of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
-`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%")
 
 (typedoc 'uuid-ub48
 "An object of type: \(unsigned-byte 48\)~%~@
@@ -163,7 +163,7 @@ of a  slot of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
-`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%")
 
 (typedoc 'uuid-ub32
 "An object of type: \(unsigned-byte 32\)~%~@
@@ -178,7 +178,7 @@ Capable of representing the integer value of slot `%uuid_time-low' of class
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
-`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%")
 
 (typedoc 'uuid-ub16
 "An object of type: \(unsigned-byte 16\)~%~@
@@ -193,7 +193,7 @@ Capable of representing the integer value of slots `%uuid_time-mid' and
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
-`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%")
 
 (typedoc 'uuid-ub8
          "An object of type: \(unsigned-byte 8\)~%~@
@@ -210,7 +210,7 @@ Capable of representing integer of any any element in an object of type
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-unsigned-byte-size', `uuid-ub128', `uuid-ub64', `uuid-ub48',
-`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%▶▶▶")
+`uuid-ub32', `uuid-ub16', `uuid-ub8'.~%")
 
 (typedoc 'uuid-string-36
 "An object with the type signature: \(array character \(32\)\)
@@ -218,7 +218,7 @@ Capable of representing integer of any any element in an object of type
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-byte-string', `uuid-byte-array-16', `uuid-string-32',
 `uuid-string-36', `uuid-hex-string-32', `uuid-hex-string-36',
-`uuid-hex-string-32-p', `uuid-hex-string-36-p',.~%▶▶▶")
+`uuid-hex-string-32-p', `uuid-hex-string-36-p',.~%")
 
 (typedoc 'uuid-string-32
 "An object with the type signature: \(array character \(36\)\)~%~@
@@ -226,7 +226,7 @@ Capable of representing integer of any any element in an object of type
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-byte-string', `uuid-byte-array-16', `uuid-string-32',
 `uuid-string-36', `uuid-hex-string-32', `uuid-hex-string-36',
-`uuid-hex-string-32-p', `uuid-hex-string-36-p'.~%▶▶▶")
+`uuid-hex-string-32-p', `uuid-hex-string-36-p'.~%")
 
 (typedoc 'uuid-hex-string-36
 "An object of type \(array character \(36\)\) satsfying `uuid-hex-string-36-p'.~%~@
@@ -236,7 +236,7 @@ Capable of representing integer of any any element in an object of type
  \(typep \"6BA7B810-9DAD-11D1-80B4-00C04FD430C8\" 'uuid-hex-string-36-p\)~%~@
 ;; Following fails successfully:~%
  \(typep \"6BA7B810--9DAD-11D1-80B4-00C04FD430C8\ 'uuid-hex-string-36-p\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (typedoc 'uuid-hex-string-32
 "An object with the type signature:~%
@@ -246,13 +246,13 @@ And satisfies `mon:string-all-hex-char-p'.~%~@
  \(typep \(uuid-print-bytes nil *uuid-namespace-dns*\) 'uuid-hex-string-32\)~%
 ;; Following fails successfully:~%
  \(typep \(print-object *uuid-namespace-dns* nil\) 'uuid-hex-string-32\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (typedoc 'uuid-byte-string
  "An object of with type signature: \(simple-array character \(16\)\)~%~@
 :EXAMPLE~%
  \(typep \(uuid-get-bytes \(uuid-print-bytes nil *uuid-namespace-dns*\)\) 'uuid-byte-string\)~%~@
-:SEE-ALSO `uuid-byte-array-16', `uuid-hex-string-36'.~%▶▶▶")
+:SEE-ALSO `uuid-byte-array-16', `uuid-hex-string-36'.~%")
 
 (typedoc 'uuid-bit-vector
 "An object of type \(simple-bit-vector <LENGTH>\).
@@ -261,7 +261,7 @@ values of slots of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%
  \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
-`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%")
 
 ;; uuid-bit-vector-128
 
@@ -274,7 +274,7 @@ be used to represent the integer value of the combined slots of class
 :EXAMPLE~%
  \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
-`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%")
 
 (typedoc 'uuid-bit-vector-48
 "An object of type \(simple-bit-vector 48\) capable of representing 48
@@ -286,7 +286,7 @@ be used to represent the integer values of the slot `%uuid_node' of class
  \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 48) 'uuid-bit-vector-48\)~%
  \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
-`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%")
 
 (typedoc 'uuid-bit-vector-32
 "An object of type \(simple-bit-vector 32\) capable of representing 32
@@ -298,7 +298,7 @@ be used to represent the integer values of the slot `%uuid_time-low' of class
  \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 32) 'uuid-bit-vector-32\)~%
  \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-32\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
-`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%")
 
 (typedoc 'uuid-bit-vector-16
 "An object of type \(simple-bit-vector 16\) capable of representing 16
@@ -310,7 +310,7 @@ be used to represent the integer values of the slots `%uuid_time-mid' and
  \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 16) 'uuid-bit-vector-16\)~%
  \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
-`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%")
 
 (typedoc 'uuid-bit-vector-8
 "An object of type \(simple-bit-vector 128\) capable of representing 8
@@ -324,7 +324,7 @@ be used to represent an `uuid-ub8' value of any sub-sequence of bits in a
  \(typep  (subseq \(uuid-bit-vector-128-zeroed\) 0 8) 'uuid-bit-vector-8\)~%
  \(typep  \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector', `uuid-bit-vector-128', `uuid-bit-vector-48',
-`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%▶▶▶")
+`uuid-bit-vector-32', `uuid-bit-vector-16', `uuid-bit-vector-8'.~%")
 
 (typedoc 'uuid-bit-vector-length
 "An object of type (integer <SIZE> <SIZE>).~%~@
@@ -333,7 +333,7 @@ be used to represent an `uuid-ub8' value of any sub-sequence of bits in a
  \(typep 17 '\(uuid-bit-vector-length 16\)\) => NIL~%~@
 :SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
 `uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
-`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%")
 
 (typedoc 'uuid-bit-vector-128-length
 "An object of type \(uuid-bit-vector-length 128\).~%~@
@@ -345,7 +345,7 @@ combined slots of class `unique-universal-identifier'.~%~@
  \(typep 127 '\(uuid-bit-vector-127-length\)\) => NIL~%~@
 :SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
 `uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
-`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%")
 
 (typedoc 'uuid-bit-vector-48-length
 "An object of type \(uuid-bit-vector-length 48\).~%~@
@@ -357,7 +357,7 @@ Objects of this type correspond with the length of a simple-bit-vector of type
  \(typep 47 '\(uuid-bit-vector-48-length\)\) => NIL~%~@
 :SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
 `uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
-`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%")
 
 (typedoc 'uuid-bit-vector-32-length
 "An object of type \(uuid-bit-vector-length 32\).~%~@
@@ -369,7 +369,7 @@ Objects of this type correspond with the length of a simple-bit-vector of type
  \(typep 31 '\(uuid-bit-vector-31-length\)\) => NIL~%~@
 :SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
 `uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
-`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%")
 
 (typedoc 'uuid-bit-vector-16-length
 "An object of type \(uuid-bit-vector-length 16\).~%~@
@@ -382,7 +382,7 @@ Objects of this type correspond with the length of a simple-bit-vector of type
  \(typep 17 '\(uuid-bit-vector-16-length\)\) => NIL~%~@
 :SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
 `uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
-`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%")
 
 (typedoc 'uuid-bit-vector-8-length
 "An object of type \(uuid-bit-vector-length 8\).~%~@
@@ -395,19 +395,19 @@ Objects of this type correspond with the length of a simple-bit-vector of type
  \(typep 8 '\(uuid-bit-vector-8-length\)\) => NIL~%~@
 :SEE-ALSO `uuid-bit-vector-length', `uuid-bit-vector-128-length',
 `uuid-bit-vector-48-length', `uuid-bit-vector-32-length',
-`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%▶▶▶")
+`uuid-bit-vector-16-length', `uuid-bit-vector-8-length'.~%")
 
 (typedoc 'uuid-byte-array-16
  "An object which has the type signature: \(simple-array \(unsigned-byte 8\) \(16\)\)~%~@
 :EXAMPLE~%
  \(typep \(uuid-to-byte-array *uuid-namespace-dns*\) 'uuid-byte-array-16\)~%~@
-:SEE-ALSO `uuid-hex-string-36'.~%▶▶▶")
+:SEE-ALSO `uuid-hex-string-36'.~%")
 
 (typedoc 'uuid-byte-array-20
  "An object which has the type signature: \(simple-array \(unsigned-byte 8\) \(20\)\)~%~@
 :EXAMPLE~%
  \(typep \(uuid-string-to-sha1-byte-array \"bubba\"\) 'uuid-byte-array-20\)~%~@
-:SEE-ALSO `uuid-hex-string-36'.~%▶▶▶")
+:SEE-ALSO `uuid-hex-string-36'.~%")
 
 (typedoc 'uuid-byte-array-null
         "An object of type `unicly:uuid-byte-array-16' with each element `cl:zerop'.~%~@
@@ -416,7 +416,7 @@ Objects of this type correspond with the length of a simple-bit-vector of type
  \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\) 'uuid-byte-array-null\)~%
  \(not \(typep \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\) 'uuid-byte-array-null\)\)~%
  \(not \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-byte-array-null\)\)~%
-:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
+:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%")
 
 (typedoc 'uuid-bit-vector-null
 "An object of type `unicly:uuid-bit-vector-128' and satisfying
@@ -426,7 +426,7 @@ Objects of this type correspond with the length of a simple-bit-vector of type
   \(typep \(make-array 128 :element-type 'bit :initial-element 1\) 'uuid-bit-vector-null\)~%
   \(not \(typep \(uuid-byte-array-16-zeroed\) 'uuid-bit-vector-null\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-128', `uuid-bit-vector-128-zeroed',
-`uuid-byte-array-16-zeroed', `uuid-byte-array-null'.~%▶▶▶")
+`uuid-byte-array-16-zeroed', `uuid-byte-array-null'.~%")
 
 (typedoc 'uuid-simple-vector-5
         "Objects of this type are passed as the cl:nth-value 1 by funcitions which
@@ -435,42 +435,42 @@ frob objects of type `uuid-hex-string-36'.~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-delimited-string-36-p', `uuid-hex-string-36-p', 
 `%uuid-hex-string-36-null-string-p', 
- `make-uuid-from-string-if', `make-uuid-from-string'.~%▶▶▶")
+ `make-uuid-from-string-if', `make-uuid-from-string'.~%")
 
 (typedoc 'uuid-hex-string-length
 "A simple-array with element-type  character of length STRING-LENGTH ~%~@
 :EXAMPLE~%~@
  \(typep \(svref #\(\"e3115c49\" \"6e13\" \"4d21\" \"9a37\" \"a1af250a8f88\"\) 4\) '\(uuid-hex-string-length 12\)\)~%~@
 :SEE-ALSO `uuid-hex-string-length', `uuid-hex-string-12', `uuid-hex-string-8',
-`uuid-hex-string-4', `uuid-hex-string-2'.~%▶▶▶")
+`uuid-hex-string-4', `uuid-hex-string-2'.~%")
 
 (typedoc 'uuid-hex-string-12
 "An object of type `uuid-hex-string-length' with length 12.~%~@
 :EXAMPLE~%~@
  \(typep \(svref #\(\"e3115c49\" \"6e13\" \"4d21\" \"9a37\" \"a1af250a8f88\"\) 4\) 'uuid-hex-string-12\)~%~@
 :SEE-ALSO `uuid-hex-string-length', `uuid-hex-string-12', `uuid-hex-string-8',
-`uuid-hex-string-4', `uuid-hex-string-2'.~%▶▶▶")
+`uuid-hex-string-4', `uuid-hex-string-2'.~%")
 
 (typedoc 'uuid-hex-string-8
 "An object of type `uuid-hex-string-length' with length 8. ~%~@
 :EXAMPLE~%~@
  \(typep \(svref #\(\"e3115c49\" \"6e13\" \"4d21\" \"9a37\" \"a1af250a8f88\"\) 0\) 'uuid-hex-string-8\)~%~@
 :SEE-ALSO `uuid-hex-string-length', `uuid-hex-string-12', `uuid-hex-string-8',
-`uuid-hex-string-4', `uuid-hex-string-2'.~%▶▶▶")
+`uuid-hex-string-4', `uuid-hex-string-2'.~%")
 
 (typedoc 'uuid-hex-string-4
 "An object of type `uuid-hex-string-length' with length 4.~%~@
 :EXAMPLE~%~@
  \(typep \(svref #\(\"e3115c49\" \"6e13\" \"4d21\" \"9a37\" \"a1af250a8f88\"\) 1\) 'uuid-hex-string-4\)~%~@
 :SEE-ALSO `uuid-hex-string-length', `uuid-hex-string-12', `uuid-hex-string-8',
-`uuid-hex-string-4', `uuid-hex-string-2'.~%▶▶▶")
+`uuid-hex-string-4', `uuid-hex-string-2'.~%")
 
 (typedoc 'uuid-hex-string-2
 "An object of type `uuid-hex-string-length' with length   ~%~@
 :EXAMPLE~%~@
  \(typep \(subseq \(svref #\(\"e3115c49\" \"6e13\" \"4d21\" \"9a37\" \"a1af250a8f88\"\) 3\) 0 2\) 'uuid-hex-string-2\)~%~@
 :SEE-ALSO `uuid-hex-string-length', `uuid-hex-string-12', `uuid-hex-string-8',
-`uuid-hex-string-4', `uuid-hex-string-2'.~%▶▶▶")
+`uuid-hex-string-4', `uuid-hex-string-2'.~%")
 
 
 ;;; ==============================
@@ -494,7 +494,7 @@ FORMAT-STRING and as the argument to its PARENT-TYPE.~%~@
 :SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
 `def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
 `def-uuid-unsigned-byte-integer-length',
-`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%")
 
 (fundoc 'def-uuid-unsigned-byte-size
 "Convenience macro for defining subtypes of type `uuid-unsigned-byte-size'.~%~@
@@ -504,7 +504,7 @@ Arg SIZE-BYTES is an positive integer value indicating the size of an unsigned-b
 :SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
 `def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
 `def-uuid-unsigned-byte-integer-length',
-`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%")
 
 (fundoc 'def-uuid-bit-vector-N-type
         "Convenience macro for defining subtypes of type `uuid-bit-vector'.~%~@
@@ -514,7 +514,7 @@ Arg BV-LENGTH-TYPE is an positive integer value indicating the number of bits in
 :SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
 `def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
 `def-uuid-unsigned-byte-integer-length',
-`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%")
 
 (fundoc 'def-uuid-bit-vector-length-type
         "Convenience macro for defining subtypes of type `uuid-bit-vector-length'.~%~@
@@ -524,7 +524,7 @@ Arg BV-LENGTH is an positive integer value indicating the length of a uuid-bit-v
 :SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
 `def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
 `def-uuid-unsigned-byte-integer-length',
-`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%")
 
 (fundoc 'def-uuid-byte-array-length
         "Convenience macro for defining subtypes of type `uuid-byte-array'.~%~@
@@ -534,7 +534,7 @@ BYTE-ARRAY-LENGTH is a positive integer indication the length of a simple-array 
 :SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
 `def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
 `def-uuid-unsigned-byte-integer-length',
-`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%▶▶▶")
+`def-uuid-uuid-hex-string-length', `def-uuid-byte-array-length'.~%")
 
 (fundoc 'def-uuid-unsigned-byte-integer-length
 "Convenience macro for defining subtypes of type `uuid-unsigned-byte-integer-length'.~%~@
@@ -546,7 +546,7 @@ unsigned-byte.~%~@
 :SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
 `def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
 `def-uuid-unsigned-byte-integer-length',
-`def-uuid-uuid-hex-string-length'.~%▶▶▶")
+`def-uuid-uuid-hex-string-length'.~%")
 
 (fundoc 'def-uuid-uuid-hex-string-length
 "Convenience macro for defining subtypes of type `uuid-hex-string-length'.~%~@
@@ -556,7 +556,7 @@ Arg HEX-STRING-LENGTH is an positive integer value indicating the length of a si
 :SEE-ALSO `def-uuid-type-definer', `def-uuid-unsigned-byte-size',
 `def-uuid-bit-vector-N-type', `def-uuid-bit-vector-length-type',
 `def-uuid-unsigned-byte-integer-length',
-`def-uuid-uuid-hex-string-length'.~%▶▶▶")
+`def-uuid-uuid-hex-string-length'.~%")
 
 (fundoc 'def-indexed-hexstring-integer-parser
         "Convenience macro for defining functions which `cl:parse-integer' of the
@@ -593,7 +593,7 @@ Expands to a function defining form with the following format:~%
 :SEE-ALSO `uuid-hex-vector-parse-time-low', `uuid-hex-vector-parse-time-mid',
 `uuid-hex-vector-parse-time-high-and-version',
 `uuid-hex-vector-parse-clock-seq-and-reserved',
-`uuid-hex-vector-parse-clock-seq-low', `uuid-hex-vector-parse-node'.~%▶▶▶")
+`uuid-hex-vector-parse-clock-seq-low', `uuid-hex-vector-parse-node'.~%")
 
 (fundoc 'uuid-svref-for-parse-integer
         "Convenience macro for declared references to STRING-TYPEs at INDEX of SIMPLE-VECTOR-5.~%~@
@@ -608,7 +608,7 @@ should be a subtype of `uuid-hex-string-length'. Valid types are:~%
  \(macroexpand-1 '\(uuid-svref-for-parse-integer
                   \(nth-value 1 \(uuid-hex-string-36-p \(uuid-princ-to-string \(make-v4-uuid\)\)\)\)
                   4 uuid-hex-string-12\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-string-parse-integer
 "Helper macro for `make-uuid-from-string' to `cl:parse-integer' a hex-string.~%~@
@@ -633,7 +633,7 @@ index bounded by START and END Valid types are:~%
        \(gthr '\(\)\)\)
    \(dolist \(m parse-specs \(setf gthr \(nreverse gthr\)\)\)
      \(push \(apply #'uuid-string-parse-integer m\) gthr\)\)\)~%~@
-:SEE-ALSO `make-uuid-from-string-if'.~%▶▶▶")
+:SEE-ALSO `make-uuid-from-string-if'.~%")
 
 (fundoc 'def-uuid-predicate-and-type-check-definer
         "Convenience macro for defining predicate and check-type functions for Unicly types.~%~@
@@ -659,7 +659,7 @@ some value satisfies uuid-bit-vector-8-p and if not signals a condition of type
 :NOTE The body of this macro expands into two addtional macros:~%
  `unicly::def-uuid-type-predicate-definer'
  `unicly::def-uuid-type-check-definer'~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'def-uuid-request-integer-bit-vector
  "Convenience macro for functions which extract slot values of class `unique-universal-identifier'.~%~@
@@ -674,7 +674,7 @@ some value satisfies uuid-bit-vector-8-p and if not signals a condition of type
 `%uuid_time-low-request-bit-vector', `%uuid_time-mid-request-bit-vector',
 `%uuid_time-high-and-version-request-bit-vector',
 `%uuid_clock-seq-and-reserved-request-bit-vector',
-`%uuid_clock-seq-low-request-bit-vector', `%uuid_node-request-bit-vector'.~%▶▶▶")
+`%uuid_clock-seq-low-request-bit-vector', `%uuid_node-request-bit-vector'.~%")
 )
 
 
@@ -686,13 +686,13 @@ some value satisfies uuid-bit-vector-8-p and if not signals a condition of type
 "Whether object is of type `uuid-string-32'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-string-36-p
 "Whether object is of type `uuid-string-36'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-hex-string-32-p
 "Whether object is of type `uuid-hex-string-32'.~%~@
@@ -703,7 +703,7 @@ and satisfies `mon:string-all-hex-char-p'.~%~@
  \(uuid-hex-string-32-p \(uuid-print-bytes nil *uuid-namespace-dns*\)\)~%
 ;; Following fails successfully:~%
  \(uuid-hex-string-32-p \(print-object *uuid-namespace-dns* nil\)\)~%~@
-:SEE-ALSO `uuid-hex-string-36', `uuid-hex-string-36-p'.~%▶▶▶")
+:SEE-ALSO `uuid-hex-string-36', `uuid-hex-string-36-p'.~%")
 
 (fundoc 'uuid-delimited-string-36-p
 "Whether MAYBE-DELIM-STRING-36 is potentially of type `uuid-hex-string-36' or `uuid-hex-string-36-zeroed'~%~@
@@ -722,7 +722,7 @@ An object will satisfy `uuid-string-36-p' when following constraints are met:~%
  \(uuid-delimited-string-36-p \(uuid-princ-to-string \(make-v4-uuid\)\)\)~%
  \(uuid-delimited-string-36-p \(uuid-princ-to-string \(make-null-uuid\)\)\)~%
  \(uuid-delimited-string-36-p \(make-string 36 :initial-element #\\-\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-hex-string-36-p
 "Whether MAYBE-UUID-HEX-STRING-36 is a valid string representation of a UUID.~%~@
@@ -737,7 +737,7 @@ Return T when MAYBE-UUID-HEX-STRING-36 satisfies the following constraints:~%
 ;; Following fails successfully:~%
  \(uuid-hex-string-36-p \"6BA7B810--9DAD-11D1-80B4-00C04FD430C8\"\)~%~@
 :SEE-ALSO `uuid-hex-string-32-p', `uuid-hex-string-32',
-`%uuid-hex-string-36-null-string-p' `mon:split-string-on-chars'.~%▶▶▶")
+`%uuid-hex-string-36-null-string-p' `mon:split-string-on-chars'.~%")
 
 (fundoc '%uuid-hex-string-36-null-string-p
 "Whether MAYBE-ALL-ZERO-OR-DASH-STRING-36 is of type `uuid-hex-string-36' every
@@ -745,7 +745,7 @@ character is `cl:char=' either #\\0 or #\\-.~%~@
 :EXAMPLE~%
  \(%uuid-hex-string-36-null-string-p \"00000000-0000-0000-0000-000000000000\"\)~%
  \(%uuid-hex-string-36-null-string-p \"00000000-0000-0000-0000-000000000001\"\)~%~@
-:SEE-ALSO `uuid-hex-string-36-p'.~%▶▶▶")
+:SEE-ALSO `uuid-hex-string-36-p'.~%")
 
 (fundoc 'uuid-byte-array-16-p
 "Whether MAYBE-UUID-BYTE-ARRAY-16 is of type `uuid-byte-array-16'.~%~@
@@ -753,7 +753,7 @@ Return T when MAYBE-UUID-BYTE-ARRAY-16 has the type signature:~%
  \(simple-array \(unsigned-byte 8\) \(16\)\)~%~@
 :EXAMPLE~%
  \(uuid-byte-array-16-p \(uuid-to-byte-array *uuid-namespace-dns*\)\)~%~@
-:SEE-ALSO `uuid-hex-string-36', `uuid-hex-string-36-p'.~%▶▶▶")
+:SEE-ALSO `uuid-hex-string-36', `uuid-hex-string-36-p'.~%")
 
 (fundoc 'uuid-byte-array-20-p
 "Whether MAYBE-UUID-BYTE-ARRAY-16 is of type `uuid-byte-array-20'.~%~@
@@ -761,7 +761,7 @@ Return T when MAYBE-UUID-BYTE-ARRAY-16 has the type signature:~%
  \(simple-array \(unsigned-byte 8\) \(20\)\)~%~@
 :EXAMPLE~%
  \(uuid-byte-array-20-p \(uuid-string-to-sha1-byte-array \"bubba\"\)\)~%~@
-:SEE-ALSO `uuid-hex-string-36', `uuid-hex-string-36-p'.~%▶▶▶")
+:SEE-ALSO `uuid-hex-string-36', `uuid-hex-string-36-p'.~%")
 
 (fundoc 'uuid-byte-string-p
 "Whether object is of type `uuid-byte-string'.~%~@
@@ -769,7 +769,7 @@ Return T when object has the type signature:~%
  \(simple-array character \(16\)\)~%~@
 :EXAMPLE~%
  \(uuid-byte-string-p \(uuid-get-bytes \(uuid-print-bytes nil *uuid-namespace-dns*\)\)\)~%~@
-:SEE-ALSO `uuid-hex-string-36-p', `uuid-byte-array-16-p'.~%▶▶▶")
+:SEE-ALSO `uuid-hex-string-36-p', `uuid-byte-array-16-p'.~%")
 
 (fundoc 'uuid-bit-vector-v3-p
 " <DOCSTR> ~%~@
@@ -777,7 +777,7 @@ Return T when object has the type signature:~%
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
-`uuid-eql'.~%▶▶▶")
+`uuid-eql'.~%")
 
 (fundoc 'uuid-bit-vector-v4-p
 " <DOCSTR> ~%~@
@@ -785,7 +785,7 @@ Return T when object has the type signature:~%
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
-`uuid-eql'.~%▶▶▶")
+`uuid-eql'.~%")
 
 (fundoc 'uuid-bit-vector-v5-p
 " <DOCSTR> ~%~@
@@ -793,7 +793,7 @@ Return T when object has the type signature:~%
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
-`uuid-eql'.~%▶▶▶")
+`uuid-eql'.~%")
 
 (fundoc 'uuid-bit-vector-null-p
 "Whether BIT-VECTOR-MAYBE-NULL is of type `unicly:uuid-bit-vector-null'.~%~@
@@ -802,7 +802,7 @@ Return T when object has the type signature:~%
  \(uuid-bit-vector-null-p \(make-array 128 :element-type 'bit :initial-element 1\)\)~%
  \(null \(uuid-bit-vector-null-p \(uuid-byte-array-16-zeroed\)\)\)~%~@
 :SEE-ALSO `unicly:uuid-bit-vector-eql', `unicly:uuid-bit-vector-128-zeroed',
-`unicly:uuid-bit-vector-128', `unicly:uuid-bit-vector-128-p'.~%▶▶▶")
+`unicly:uuid-bit-vector-128', `unicly:uuid-bit-vector-128-p'.~%")
 
 (fundoc 'uuid-byte-array-null-p
         "Whether object is of type `unicly:uuid-byte-array-null'.~%~@
@@ -811,7 +811,7 @@ Return T when object has the type signature:~%
  \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 0\)\)~%
  \(not \(uuid-byte-array-null-p \(make-array 16 :element-type 'uuid-ub8 :initial-element 1\)\)\)~%
  \(not \(uuid-byte-array-null-p \(uuid-bit-vector-128-zeroed\)\)\)~%~@
-:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%▶▶▶")
+:SEE-ALSO `uuid-byte-array-16-zeroed', `uuid-byte-array-16-p'.~%")
 
 
 ;;; ==============================
@@ -837,7 +837,7 @@ If for some reason bit 48 of object is not `cl:zerop' an error is signaled.~%~@
    \(uuid-version-bit-vector bv-z\)\)~%~@
 :SEE-ALSO `uuid-version-bit-vector', `uuid-bit-vector-v3-p',
 `uuid-bit-vector-v4-p' `uuid-bit-vector-v5-p', `uuid-bit-vector-128',
-`uuid-eql'.~%▶▶▶")
+`uuid-eql'.~%")
 
 (fundoc '%verify-slot-boundp-and-type
 "Check that VERIFY-UUID has all slots `cl:slot-boundp' and of the correct type.~%~@
@@ -845,7 +845,7 @@ Signal either a `cl:simple-condition' or `cl:type-error' error if not.~%~@
 Helper function for `uuid-copy-uuid'.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-copy-uuid
 "Copy slot-value's of UUID-INSTANCE to new instance and return new instance.~%~@
@@ -871,7 +871,7 @@ not satisfy `unique-universal-identifier-null-p'. For example:~%
  \(unique-universal-identifier-null-p \(make-null-uuid\)\)~%
  \(unique-universal-identifier-null-p \(uuid-copy-uuid \(make-null-uuid\)\)\)~%
  \(type-of \(uuid-copy-uuid \(make-null-uuid\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-bit-vector-128-zeroed
 "Return a bit vector of 128 elements with all elements zeroed.~%~@
@@ -879,7 +879,7 @@ not satisfy `unique-universal-identifier-null-p'. For example:~%
  \(uuid-bit-vector-128-zeroed\)~%
  \(typep \(uuid-bit-vector-128-zeroed\) 'uuid-bit-vector-128\)~%~@
 :SEE-ALSO `uuid-bit-vector-128', `uuid-deposit-octet-to-bit-vector',
-`uuid-byte-array-to-bit-vector', `make-null-uuid'.~%▶▶▶")
+`uuid-byte-array-to-bit-vector', `make-null-uuid'.~%")
 
 (fundoc 'uuid-byte-array-16-zeroed
 "Return an array of type `uuid-byte-array-16' with all elements zeroed.~%~@
@@ -888,7 +888,7 @@ not satisfy `unique-universal-identifier-null-p'. For example:~%
  \(typep \(uuid-byte-array-16-zeroed\) 'uuid-byte-array-16\)~%
  \(uuid-byte-array-16-p \(uuid-byte-array-16-zeroed\)\)~%~@
 :SEE-ALSO `uuid-bit-vector-128-zeroed', `uuid-byte-array-16-p',
-`uuid-byte-array-null-p', `uuid-byte-array-null'.~%▶▶▶")
+`uuid-byte-array-null-p', `uuid-byte-array-null'.~%")
 
 (fundoc 'uuid-bit-vector-to-integer
   "Return BIT-VECTOR's representation as a positive integer.~%~@
@@ -898,7 +898,7 @@ BIT-VECTOR is an object of type `cl:simple-bit-vector'.~%~@
 :NOTE This is a modified version of a a \"BIT-VECTOR-TO-INTEGER\" function
 written by Stas Boukarev using `cl:flet' and `cl:loop'.
 :SEE :FILE unicly/unicly.lisp for additional details.~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-bit-vector-to-byte-array
 "Convert UUID-BV-128 to a UUID-BYTE-ARRAY-16.~%~@
@@ -907,7 +907,7 @@ Arg UUID-BV-128 should satisfy `uuid-bit-vector-128-check-type'.~%~@
  \(equalp             
   \(uuid-bit-vector-to-byte-array \(uuid-to-bit-vector \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
   \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-request-integer
   "Decode an integer of LENGTH octets from ARRAY starting at OFFSET.~%~@
@@ -918,7 +918,7 @@ LENGTH is :end where :end => \(+ offset length\)
 x86-32 OSs are LITTLE-ENDIAN but network-byte-order is big-endian...~%~@
 :EXAMPLE~%
   \(uuid-request-integer \(uuid-number-to-byte-array 281474976710654\) 0 6\)~%
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-disassemble-ub48
 "Return U48 as six integer values of type uuid-ub8 as if by `cl:values'.~%~@
@@ -928,7 +928,7 @@ an instance of class `unique-universal-identifier'.~%~@
  \(multiple-value-list
   \(uuid-disassemble-ub48
    \(slot-value \(make-v5-uuid *uuid-namespace-dns* \"buuba\"\) '%uuid_node\)\)\)
-:SEE-ALSO `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16'.~%▶▶▶")
+:SEE-ALSO `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16'.~%")
 
 (fundoc 'uuid-disassemble-ub32
 "Return U32 as four integer values of type `uuid-ub8' as if by `cl:values'.~%~@
@@ -938,7 +938,7 @@ of an instance of class `unique-universal-identifier'.~%~@
  \(slot-value  \(make-v4-uuid\) '%UUID_TIME-LOW\)~%
  \(uuid-disassemble-ub32 \(slot-value \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%
  \(equal \(multiple-value-list \(uuid-disassemble-ub16 13953\)\) '\(54 129\)\)~%~@
-:SEE-ALSO `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16'.~%▶▶▶")
+:SEE-ALSO `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16'.~%")
 
 (fundoc 'uuid-disassemble-ub16
 "Return two uuid-ub8 octets of U16 as if by `cl:values'.~%~@
@@ -951,7 +951,7 @@ U16 is an integer of type `uuid-ub16' corresponding to either the
  \(multiple-value-list \(uuid-disassemble-ub16 13953\)\)~%
  \(eq \(nth-value 0 \(uuid-disassemble-ub16 13953\)\) 54\)~%
  \(eq \(nth-value 0 \(uuid-disassemble-ub16 13953\)\) 129\)~%~@
-:SEE-ALSO `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16'.~%▶▶▶")
+:SEE-ALSO `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16'.~%")
 
 (fundoc 'uuid-assemble-ub48
 "Return an integer of type `uuid-ub48' constructed of the uuid-ub8 octets B1, B2, B3, B4, B5, and B6.~%
@@ -963,7 +963,7 @@ U16 is an integer of type `uuid-ub16' corresponding to either the
      \(eql \(uuid-assemble-ub48 b1 b2 b3 b4 b5 b6\) ub48\)\)\)~%~@
 :SEE-ALSO `uuid-assemble-ub32', `uuid-assemble-ub16',
 `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16',
-`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%▶▶▶")
+`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%")
 
 (fundoc 'uuid-assemble-ub32
 "Return an integer of type `uuid-ub32' constructed of the uuid-ub8 octets B1, B2, B3, and B4.~%
@@ -975,7 +975,7 @@ U16 is an integer of type `uuid-ub16' corresponding to either the
      \(eql \(uuid-assemble-ub32 b1 b2 b3 b4\) ub32\)\)\)~%~@
 :SEE-ALSO `uuid-assemble-ub48', `uuid-assemble-ub16',
 `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16',
-`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%▶▶▶")
+`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%")
 
 (fundoc 'uuid-assemble-ub16
 "Return an integer of type `uuid-ub48' constructed of the uuid-ub8 octets B1 and B2.~%
@@ -987,7 +987,7 @@ U16 is an integer of type `uuid-ub16' corresponding to either the
      \(eql \(uuid-assemble-ub16 b1 b2\) ub16\)\)\)~%~@
 :SEE-ALSO `uuid-assemble-ub48', `uuid-assemble-ub32',
 `uuid-disassemble-ub48', `uuid-disassemble-ub32', `uuid-disassemble-ub16',
-`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%▶▶▶")
+`uuid-request-integer', `uuid-byte-array-16-to-integer'.~%")
 
 (fundoc 'uuid-get-namespace-bytes
   "Convert UUID to a byte-array.~%~@
@@ -997,7 +997,7 @@ Return value is an array of type `uuid-byte-array-16' with the type signature:~%
 It will satisfy the predicate `uuid-byte-array-16-p'.~%~@
 :EXAMPLE~%
  \(uuid-get-namespace-bytes *uuid-namespace-dns*\)~%~@
-:SEE-ALSO `uuid-from-byte-array'.~%▶▶▶")
+:SEE-ALSO `uuid-from-byte-array'.~%")
 
 (fundoc 'make-hash-table-uuid
         "Return a hash-table specialized to hold UUIDs as keys.~%~@
@@ -1005,7 +1005,7 @@ On SBCL this this is a hash-table with `uuid-eql' as `cl:hash-table-test'.~%~@
 Keyword :SYNCHRONIZED when non-nile indicates hash-table may have multiple concurrent readers.
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `sb-ext:with-locked-hash-table'.~%▶▶▶")
+:SEE-ALSO `sb-ext:with-locked-hash-table'.~%")
 
 (fundoc 'sxhash-uuid
         "Return the `sxhash' of UUID's representation as an object of type `uuid-bit-vector-128'.~%~@
@@ -1023,7 +1023,7 @@ UUID is an instance of the class `unique-universal-identifier'.~%~@
             \(sxhash-uuid \(uuid-copy-uuid v3-instance\)\)\)
         \(eq \(sxhash-uuid v4-instance\)
             \(sxhash-uuid \(uuid-copy-uuid v4-instance\)\)\)\)\)~%~@
-:SEE-ALSO `uuid-eql', `uuid-copy-uuid', `uuid-to-bit-vector', `sb-int:bit-vector-='.~%▶▶▶")
+:SEE-ALSO `uuid-eql', `uuid-copy-uuid', `uuid-to-bit-vector', `sb-int:bit-vector-='.~%")
 
 (fundoc '%uuid_time-low-request
 "Step three of RFC4122 Section 4.3:~%~@
@@ -1032,14 +1032,14 @@ UUID is an instance of the class `unique-universal-identifier'.~%~@
  \(%uuid_time-low-request \(uuid-get-namespace-bytes \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%
  \(%uuid_time-low-request \(uuid-get-namespace-bytes \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%
  \(%uuid_time-low-request \(uuid-get-namespace-bytes \(make-v4-uuid *uuid-namespace-dns* \"bubba\"\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc '%uuid_time-mid-request
 "Step four of RFC4122 Section 4.3:~%~@
  - Set octets zero and one of the time_mid field to octets 4 and 5 of the digest hash.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc '%uuid_time-high-and-version-request
 "Steps five and six of RFC4122 Section 4.3:~%~@
@@ -1077,7 +1077,7 @@ UUID v4 bit-field
 :NOTE Per RFC 4.1.3 bit 48 in a uuid-bit-vector-128 should always be 0.
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc '%uuid_clock-seq-and-reserved-request
 "Steps seven and eight of RFC4122 Section 4.3:~%~@
@@ -1088,21 +1088,21 @@ Step eight:~%
    to zero and one, respectively. IOW, set bit 6 to 0 - Set bit 7 to 1~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc '%uuid_clock-seq-low-request
 "Step nine of RFC4122 Section 4.3:~%
  - Set the clock_seq_low field to octet 9 of the hash.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc '%uuid_node-request
 "Step ten or RFC4122 Section 4.3:~%
  - Set octets zero through five of the node field to octets 10 through 15 of the digest hash.~%
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc '%verify-version-3-or-5
 "Verify that arg VERSION is either the integer 3 or 5.~%~@
@@ -1113,7 +1113,7 @@ Helper function for `digested-v3or5-uuid'.~%~@
   \(%verify-version-3-or-5 5\)~%~@
 ;; Following fails successfully:~%
   \(%verify-version-3-or-5 6\)~%~@
-:SEE-ALSO `%verify-digest-version'.~%▶▶▶")
+:SEE-ALSO `%verify-digest-version'.~%")
 
 (fundoc '%verify-digest-version
 "Return one of the symbols :MD5 or :SHA1 depending on value of CHK-VERSION.
@@ -1126,7 +1126,7 @@ Helper function for `uuid-digest-uuid-string'~%~@
   \(%verify-digest-version 5\)~%
 ;; Following fails successfully:~%
   \(%verify-digest-version 6\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-digest-uuid-instance
 "This is step two of RFC4122 Section 4.3:
@@ -1147,7 +1147,7 @@ suitable for use as the V5-DIGEST-BYTE-ARRAY argument to `digested-v5-uuid'.
  \(uuid-digest-uuid-instance 5 *uuid-namespace-dns* \"bubba\"\)~%
  \(uuid-byte-array-16-p \(uuid-digest-uuid-instance 3 *uuid-namespace-dns* \"bubba\"\)\)~%
  \(uuid-byte-array-20-p \(uuid-digest-uuid-instance 5 *uuid-namespace-dns* \"bubba\"\)\)~%~@
-:SEE-ALSO `%uuid-digest-uuid-instance-md5', `%uuid-digest-uuid-instance-sha1'.~%▶▶▶")
+:SEE-ALSO `%uuid-digest-uuid-instance-md5', `%uuid-digest-uuid-instance-sha1'.~%")
 
 ;; uuid-get-namespace-bytes
 ;; sb-ext:string-to-octets
@@ -1160,7 +1160,7 @@ DIGEST-BYTE-ARRAY is as per the the return value of `digested-v3or5-uuid'
 UUID-VERSION should satisfy `%verify-version-3-or-5', an error is signaled if not.~%~@
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'make-v4-uuid ; ######
   "Return a version 4 \(random\) UUID.~%~@
@@ -1188,7 +1188,7 @@ A v4 UUID is one generatied UUIDs from truly-random or pseudo-random numbers.~%~
  |     `-> Slots `%uuid_time-low', `%uuid_time-mid', `%uuid-clock-seq-low', `%uuid_node'
  `----~%~@
 :SEE-ALSO `make-v3-uuid', `make-v5-uuid', `make-v1-uuid', `make-null-uuid',
-`*random-state-uuid*', `cl:random'.~%▶▶▶")
+`*random-state-uuid*', `cl:random'.~%")
 
 (fundoc 'make-v3-uuid ; ######
 "Generate an RFC4122 version 3 (named based MD5) UUID for NAME in NAMESPACE.~%~@
@@ -1197,7 +1197,7 @@ NAMESPACE is a UUID namespace object.~%~@
 NAME is a string.~%~@
 :EXAMPLE~%~@
  \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'make-v5-uuid ; ######
   "Generates an RFC4122 version 5 (nambe based SHA1) UUID with NAME in NAMESPACE.~%~@
@@ -1206,7 +1206,7 @@ NAMESPACE is a UUID namespace object.~%~@
 NAME is a string.~%~@
 :EXAMPLE~%
  \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-as-urn-string ; ######
   "Print UUID as a URN \(Universal Resource Name\) to STREAM.~%~@
@@ -1223,7 +1223,7 @@ STREAM is an output-stream of type `stream-or-boolean-or-string-with-fill-pointe
  `----~%~@
 :SEE-ALSO `make-uuid-from-string', `uuid-print-bytes',
 `uuid-print-bytes-to-string', `uuid-princ-to-string',
-`uuid-string-parse-integer'.~%▶▶▶")
+`uuid-string-parse-integer'.~%")
 
 (fundoc 'make-null-uuid ; ######
 "Generate a NULL UUID.~%~@
@@ -1249,7 +1249,7 @@ uuid-bit-vector-128 format:~%
  \(uuid-eql
   \(make-instance 'unique-universal-identifier\) 
   \(make-instance 'unique-universal-identifier\)\)~%~@
-:SEE-ALSO `uuid-bit-vector-128-zeroed'.~%▶▶▶")
+:SEE-ALSO `uuid-bit-vector-128-zeroed'.~%")
 
 (fundoc 'unique-universal-identifier-null-p
 "Whether object is an instance of the class
@@ -1262,7 +1262,7 @@ special variable `unicly::*uuid-null-uuid*'.~%~@
 ;; Following both fail successfully:~%
  \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier-null\)\)~%
  \(unique-universal-identifier-null-p \(make-instance 'unicly::unique-universal-identifier\)\)~%
-:SEE-ALSO `unicly:unique-universal-identifier-p'.~%▶▶▶")
+:SEE-ALSO `unicly:unique-universal-identifier-p'.~%")
 
 (fundoc 'uuid-from-byte-array ; ######
  "Convert BYTE-ARRAY to a UUID.~%~@
@@ -1272,7 +1272,7 @@ type `uuid-to-byte-array' and satisfy the predicate
 `uuid-to-byte-array-p':~%
 :EXAMPLE~%~@
  \(uuid-from-byte-array \(uuid-to-byte-array \(make-uuid-from-string \"6ba7b814-9dad-11d1-80b4-00c04fd430c8\"\)\)\)
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'make-uuid-from-string-if
 "Helper function for `make-uuid-from-string'.~%~@
@@ -1281,7 +1281,7 @@ If the constraint fails signal a `mon:simple-error-mon' condition.~%~@
 :EXAMPLE~%~@
  \(make-uuid-from-string-if \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\)~%
  \(make-uuid-from-string-if \"6ba7b810-9dad--11d1-80b4-00c04fd430c8\"\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'make-uuid-from-string ; ######
  "Create an instance of class UNIQUE-UNIVERSAL-IDENTIFIER from UUID-OR-HEX-STRING-36.~%~@
@@ -1296,14 +1296,14 @@ It should satisfy one of `unique-universal-identifier-p' or
         \(make-uuid-from-string \(uuid-princ-to-string *uuid-namespace-dns*\)\)\)~%~@
 ;; :Following successfully signals an error:~%
  \(make-uuid-from-string \"Q6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-simple-type-error
         "Convenience function for signaling conditions of type `unicly::uuid-simple-type-error'.~%~@
 Keywords DATUM and EXPECTED-TYPE are as per condition class CL:TYPE-ERROR.~%~@
 :EXAMPLE~%
  \(uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-valid-stream-p
 "Whether STREAM is `cl:streamp' and `cl:open-stream-p'.
@@ -1318,7 +1318,7 @@ Return as if by `cl:values':~%
  \(uuid-valid-stream-p \"bubba\"\)~%~@
 :SEE-ALSO `uuid-valid-stream-verify-io-type',
 `uuid-valid-stream-verify-for-input',
-`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+`uuid-valid-stream-verify-for-output'.~%")
 
 (fundoc 'uuid-valid-stream-verify-io-type
 "Return STREAM if it is valid for use as when writing a UUID representation.~%~@
@@ -1329,7 +1329,7 @@ When DIRECTION is :OUTPUT and stream is not `cl:output-stream-p' an error is sig
 When DIRECTION is :INPUT and stream is not `cl:input-stream-p' an error is signaled.~%~@
 :SEE-ALSO `uuid-valid-stream-verify-io-type',
 `uuid-valid-stream-verify-for-input',
-`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+`uuid-valid-stream-verify-for-output'.~%")
 
 (fundoc 'uuid-valid-stream-verify-for-output
 "Return STREAM if it is valid for use as when writing a UUID representation.~%~@
@@ -1340,7 +1340,7 @@ Signal an error if STREAM is not true for either `uuid-valid-stream-p' or `cl:ou
         \(princ \"bubba is ok\" bubba\)\)\)~%~@
 ;; Following fails succesfully:~%
   \(uuid-valid-stream-verify-for-output \"bubba\"\)~%~@
-:SEE-ALSO `uuid-valid-stream-verify-io-type', `uuid-valid-stream-verify-for-input'.~%▶▶▶")
+:SEE-ALSO `uuid-valid-stream-verify-io-type', `uuid-valid-stream-verify-for-input'.~%")
 ;;
 (fundoc 'uuid-valid-stream-verify-for-input
 "Return STREAM if it is valid for use as when reading a UUID representation.~%~@
@@ -1354,7 +1354,7 @@ Signal an error if STREAM is not true for either `uuid-valid-stream-p' or `cl:in
 ;; Following fails succesfully:~%
  \(uuid-valid-stream-verify-for-input \"bubba\"\)~%~@
 :SEE-ALSO `uuid-valid-stream-verify-io-type',
-`uuid-valid-stream-verify-for-output'.~%▶▶▶")
+`uuid-valid-stream-verify-for-output'.~%")
 
 (fundoc 'uuid-serialize-byte-array-bytes
 "Serialize UUID to STREAM.~%~@
@@ -1384,7 +1384,7 @@ Stream should have an :element-type '\(unsigned-byte 8\).~%~@
               gthr
               w-uuid\)
      \(delete-file file\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-byte-array-16-to-integer
         "Convert a UUID byte-array representaton to its decimal integer representaton.
@@ -1400,7 +1400,7 @@ Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
  \(uuid-byte-array-16-to-integer
   \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)
   ;=> 317192554773903544674993329975922389959~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 (fundoc 'uuid-integer-128-to-bit-vector
 "Convert the decimal integer representation of a UUID to a `uuid-bit-vector-128'.~%~@
@@ -1409,7 +1409,7 @@ Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
                      \(uuid-to-bit-vector \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
 \(uuid-bit-vector-eql \(uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959\)~%
                      \(uuid-byte-array-to-bit-vector \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 
 ;;; ==============================
@@ -1429,7 +1429,7 @@ Emacs lisp' `sha1-binary':
         => #\(32 193 148 189 4 164 89 163 52 78 106 202 121 61 200 118 132 25 134 11\)
  elisp> \(vconcat \(sha1-binary \"bubba\"\)\)
          => [32 193 148 189 4 164 89 163 52 78 106 202 121 61 200 118 132 25 134 11]~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 #+(or)
 (fundoc 'uuid-number-to-byte-array
@@ -1456,7 +1456,7 @@ byte-array is in big-endian format with LSB as first elt and MSB as last elt.~%~
          \(multiple-value-bind \(arr len\) \(uuid-number-to-byte-array rnd-trip-17\)
            \(request-integer  arr 0 len\)\)\)
    \(setf rslt `\(,\(eql rnd-trip-17 rslt\) ,rslt\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 #+(or)
 (fundoc 'uuid-get-bytes-for-integer
@@ -1474,7 +1474,7 @@ E.g. the following integer is in the third octet:~%~@
  \(typep #b11111111111111111 '\(unsigned-byte 17\)\)~%~@
 However, RFC4122 doesn't specify that any sub-value of the UUID will be 3
 octet integer so we play it safe and bump that puppy up to four.~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 #+(or)
 (fundoc 'uuid-digest-uuid-string ; ######
@@ -1488,7 +1488,7 @@ UUID is an instance of unique-universal-identifier class.
 Used for the generation of UUIDv3 and UUIDv5 UUID by `make-v5-uuid' and `make-v3-uuid'.
 :EXAMPLE~%~@
  \(uuid-digest-uuid-string 5 \(uuid-get-bytes \(uuid-print-bytes nil *uuid-namespace-dns*\)\) \"bubba\"\)
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
 
 
 ;;; ==============================
