@@ -136,25 +136,26 @@
 
 ;; complex-type
 (deftype uuid-string-32 ()
-  #+(sbcl clisp) 
+  #+(or sbcl clisp) 
   '(array character (32))
   #+lispworks
-  '(or (array base-character (32))
-      (array character (32))))
-
+  '(or (array base-char (32)) (array character (32))))
+;; 
 ;; complex-type
 (deftype uuid-string-36 ()
-  #+(sbcl clisp) 
+  #+(or sbcl clisp) 
   '(array character (36))
   #+lispworks 
-  '(or (array base-character (36))
-      (array character (36))))
-
-
+  '(or (array base-char (36)) (array character (36))))
 
 ;; complex-type
 (deftype uuid-byte-string ()
-  '(simple-array character (16)))
+  #+(or sbcl clisp)
+  '(simple-array character (16))
+  #+lispworks
+  (or 
+   '(simple-array base-char (16))
+   '(simple-array character (16))))
 
 ;;; ==============================
 ;; :NOTE These notes are w/r/t method `uuid-print-bytes-to-string' specialized
