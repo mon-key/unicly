@@ -61,10 +61,10 @@
   (error 'uuid-simple-type-error :datum datum :expected-type expected-type))
 
 (define-condition uuid-slot-unbound-error (uuid-error)
-  ((:uuid-slot-unbound-name
+  ((uuid-slot-unbound-name
     :initarg :uuid-slot-unbound-name
     :reader uuid-slot-unbound-name)
-   (:uuid-slot-unbound-object
+   (uuid-slot-unbound-object
     :initarg :uuid-slot-unbound-object
     :reader uuid-slot-unbound-object))
   (:report (lambda (condition stream)
