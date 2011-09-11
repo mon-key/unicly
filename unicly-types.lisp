@@ -136,11 +136,21 @@
 
 ;; complex-type
 (deftype uuid-string-32 ()
-  '(array character (32)))
+  #+(sbcl clisp) 
+  '(array character (32))
+  #+lispworks
+  '(or (array base-character (32))
+      (array character (32))))
 
 ;; complex-type
 (deftype uuid-string-36 ()
-  '(array character (36)))
+  #+(sbcl clisp) 
+  '(array character (36))
+  #+lispworks 
+  '(or (array base-character (36))
+      (array character (36))))
+
+
 
 ;; complex-type
 (deftype uuid-byte-string ()
