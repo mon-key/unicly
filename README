@@ -7,6 +7,11 @@ DESCRIPTION:
 Unicly is a Common Lisp library for generation of UUIDs (Universally Unique
 Identifiers) as described by RFC 4122.
 
+Unicly is known to compile on SBCL 1.47+ and CLisp 2.49
+
+As of 2011-09-12 Unicly is not known to be 100% compatible with LispWorks
+Personal Edition 6.0 (work is ongoing see INSTALLATION-ISSUES below).
+
 INSTALLATION:
 
 SHELL> cd /parent/dir/where/you/put/cl-repos/
@@ -15,7 +20,7 @@ SHELL> git clone git://github.com/mon-key/unicly.git
 
 SHELL> cd unicly
 
-Unicly is loadable by Quicklisp assuming a directory containing unicly.asd is
+Unicly is loadable with Quicklisp assuming a directory containing unicly.asd is
 present as an element of ASDF:*CENTRAL-REGISTRY*.
 
 CL-USER> (push #P"/parent/dir/where/you/put/cl-repos/unicly/" asdf:*central-registry*)
@@ -25,6 +30,51 @@ CL-USER> (quicklisp:quickload 'unicly)
 Or for the perverse who'd like to see what their lisp can't optimize away:
 
 CL-USER> (quicklisp:quickload 'unicly :verbose t :explain t)
+
+INSTALLATION-ISSUES:
+
+- SBCL
+
+In the past there have been some reports that Unicly will not compile on SBCLs
+running under a MacOS due to the presence of the characters "▶▶▶" in Unicly
+docstrings, e.g.:
+
+CL-USER> (code-char #x25b6)
+;=> #\BLACK_RIGHT-POINTING_TRIANGLE 
+
+We believe this is not MacOS specific but rather a side-effect of the buildtime
+environmental variables LOCALE and LC_CTYPE and their influence on value of
+sb-impl::*default-external-format* such that when its value was other than
+:UTF-8 the docstrings would not compile.
+
+A Fix for the problem was to ensure that the variable
+`sb-impl::*default-external-format*' evaluated to :UTF-8 and if not to set it to
+do so with:
+
+ (setf sb-impl::*default-external-format* :UTF-8)
+
+However this may or may not be an acceptable solution for your application.
+As such, as of 2011-09-12 the offending string of "▶▶▶" characters have been
+removed from all Unicly docstrings and we believe that this will no longer pose
+a problem.  This said, should you experience compiler decoding errors with
+Unicly please do let us know.
+
+Note, when building Unicly on SBCL we assume that your system is Unicode capable
+and that :SB-UNICODE is present in *features* e.g.:
+
+CL-USER> (and (car (member :SB-UNICODE *features*)) t)
+;=> T
+
+- LISPWORKS
+
+Although most of the Unicly system builds on Lispworks there are known problems
+around Unicly's declarations of objects of type CL:CHARACTER and
+CL:STRING. Unicly is strongly typed and excessively inlined and some
+declarations conflict with the way LispWorks internal handles objets of type
+lw:simple-character, lw:text-string, etc.  We have made some effort to bridge
+the differences but work is ongoing.  The work required to get Unicly up to
+speed on LispWorks is not insurmountable but does require input from a capable
+LispWorks user.  Needless to say, Patches are welcome.
 
 USAGE:
 
