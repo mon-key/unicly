@@ -9,7 +9,7 @@
 (in-package #:unicly)
 
 
-#+sbcl
+#+:sbcl
 (defconstant +%%uuid-sxhash-truncating-node%%+
   (and (<= sb-vm:n-positive-fixnum-bits 48)
        sb-vm:n-positive-fixnum-bits))
@@ -40,18 +40,22 @@
                            (dpb -1 (byte (the (mod 49) +%%uuid-sxhash-truncating-node%%+) 0) 0))
                    node-int))))
 
-#+sbcl 
+#+:sbcl 
 (sb-ext:define-hash-table-test uuid-eql sxhash-uuid)
 
-#+clisp
+#+:clisp
 (ext:define-hash-table-test uuid-eql uuid-eql sxhash-uuid)
 
-#+clisp
+#+:clisp
 (defun make-hash-table-uuid (&key synchronized) 
   (declare (ignore synchronized))
   (make-hash-table :test 'uuid-eql))
 
-#+sbcl
+#+:lispworks
+(defun make-hash-table-uuid (&key synchronized)
+  (make-hash-table :test 'uuid-eql :hash-function 'sxhash-uuid :single-thread synchronized))
+
+#+:sbcl
 (defun make-hash-table-uuid (&key synchronized) ;; &allow-other-keys ??
   (make-hash-table :test 'uuid-eql :synchronized synchronized))
 
