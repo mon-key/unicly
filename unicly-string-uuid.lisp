@@ -13,7 +13,7 @@
                  uuid-hex-vector-parse-clock-seq-low
                  uuid-hex-vector-parse-node))
 ;;
-(def-indexed-hexstring-integer-parser  "TIME-LOW"               0 uuid-hex-string-8  0 8  UUID-UB32)
+(def-indexed-hexstring-integer-parser  "TIME-LOW"               0 uuid-hex-string-8  0 8  uuid-ub32)
 (def-indexed-hexstring-integer-parser  "TIME-MID"               1 uuid-hex-string-4  0 4  uuid-ub16)
 (def-indexed-hexstring-integer-parser  "TIME-HIGH-AND-VERSION"  2 uuid-hex-string-4  0 4  uuid-ub16)
 (def-indexed-hexstring-integer-parser  "CLOCK-SEQ-AND-RESERVED" 3 uuid-hex-string-4  0 2  uuid-ub8)
