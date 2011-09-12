@@ -61,10 +61,10 @@
   (error 'uuid-simple-type-error :datum datum :expected-type expected-type))
 
 (define-condition uuid-slot-unbound-error (uuid-error)
-  ((:uuid-slot-unbound-name
+  ((uuid-slot-unbound-name
     :initarg :uuid-slot-unbound-name
     :reader uuid-slot-unbound-name)
-   (:uuid-slot-unbound-object
+   (uuid-slot-unbound-object
     :initarg :uuid-slot-unbound-object
     :reader uuid-slot-unbound-object))
   (:report (lambda (condition stream)
@@ -89,7 +89,7 @@ UUID-SLOT-UNBOUND-OBJECT is the uuid instance of with the unbound slot.~%~@
    \(error 'uuid-slot-unbound-error 
           :uuid-slot-unbound-name '%uuid_time-high-and-version
           :uuid-slot-unbound-object v4uuid\)\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")))
+:SEE-ALSO `<XREF>'.~%")))
 
 (define-condition uuid-bit-48-error (uuid-error)
   ((uuid-bit-48-error-datum 
@@ -167,7 +167,7 @@ the equivalent UUID API esp. where it may create spurious uuid objects by way of
 `uuid:make-v1-uuid' which sets the wrong bits of the class uuid's
 time-high-and-version slot-value.  It is wrong to propogate the errors of that implementations
 API further and we make some attempt to identify them.~%~@
-:SEE-ALSO `uuid-version-uuid', `uuid-version-bit-vector'.~%▶▶▶")))
+:SEE-ALSO `uuid-version-uuid', `uuid-version-bit-vector'.~%")))
 
 
 
