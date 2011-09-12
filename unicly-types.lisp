@@ -137,11 +137,16 @@
 
 ;; complex-type
 (deftype uuid-string-32 ()
-  '(array char-compat (32)))
+  #-:lispworks '(array char-compat (32))
+  #+:lispworks '(or (simple-array char-compat (32))
+                    (array char-compat (32))))
+
 
 ;; complex-type
 (deftype uuid-string-36 ()
-  '(array char-compat (36)))
+  #-:lispworks '(array char-compat (36))
+  #+:lispworks '(or (simple-array char-compat (32))
+                    (array char-compat (32))))
 
 ;; complex-type
 ;; currently unused :SEE `uuid-get-bytes' in unicly/unicly-deprecated.lisp
@@ -190,17 +195,18 @@
   '(and uuid-string-36 (satisfies uuid-hex-string-36-p)))
 
 (deftype uuid-hex-string-length (string-length)
+  ;; #-:lispworks `(or (simple-array char-compat (,string-length))
+  ;;                   (vector char-compat ,string-length)
+  ;;                   (simple-string ,simple-string))
   #-:lispworks `(simple-array char-compat (,string-length))
   #+:lispworks `(or (simple-array char-compat (,string-length))
                     (array char-compat (,string-length))))
 
-;; uuid-hex-string-<N>
 (def-uuid-uuid-hex-string-length 12)
 (def-uuid-uuid-hex-string-length  8)
 (def-uuid-uuid-hex-string-length  4)
 (def-uuid-uuid-hex-string-length  2)
 
-;; uuid-hex-string-8 (type-of (subseq "6ba7b810-9dad-11d1-80b4-00c04fd430c8" 0 8))
 
 
 ;;; ==============================
@@ -367,9 +373,10 @@
                for split of-type simple-string across (the uuid-simple-vector-5 split-36)
                always (string-all-hex-char-p split))
           (if (%uuid-hex-string-36-null-string-p  split-36)
-              (values (the boolean t) #'make-null-uuid);; (the function #'make-null-uuid))
+              (values (the boolean t) (the function #'make-null-uuid)) ;; #'make-null-uuid);; (the function #'make-null-uuid))
               (values (the boolean t) (the uuid-simple-vector-5 split-36))))))))
 
+;; (typep #'make-null-uuid 'compiled-function)
 ;; (uuid-hex-string-36-p (uuid-princ-to-string (make-v4-uuid)))
 ;; (type-of (svref #("e3115c49" "6e13" "4d21" "9a37" "a1af250a8f88") 0))
 ;; (simple-array-chacter (8)) 8 4 4 4 12)

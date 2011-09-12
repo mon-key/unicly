@@ -32,7 +32,12 @@
     (declare (boolean if-36)
              (type (or null function uuid-simple-vector-5) vector-5-or-null-uuid))
     (if if-36
-        vector-5-or-null-uuid
+        ;; (the uuid-simple-vector-5 vector-5-or-null-uuid)
+        (etypecase vector-5-or-null-uuid
+          #+(or :clisp :sbcl) 
+          (compiled-function    (the compiled-function vector-5-or-null-uuid))
+          (function             (the function vector-5-or-null-uuid))
+          (uuid-simple-vector-5 (the (simple-array simple-string (5)) vector-5-or-null-uuid)))
         #-mon (error "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'~% ~
              got: ~S~% ~
              type-of: ~S~%" uuid-hex-string-36-if (type-of uuid-hex-string-36-if))
@@ -43,6 +48,15 @@
                                     :w-type-of t
                                     :signal-or-only nil))))
 
+;; (multiple-value-bind (if-36 vector-5-or-null-uuid) (unicly::uuid-hex-string-36-p "00000000-0000-0000-0000-000000000000") 
+;;   (list if-36 vector-5-or-null-uuid))
+;; (multiple-value-bind (if-36 vector-5-or-null-uuid) (unicly::uuid-hex-string-36-p "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+;;   (list if-36 vector-5-or-null-uuid))
+;; (typep (unicly::make-uuid-from-string-if "6ba7b810-9dad-11d1-80b4-00c04fd430c8") '(simple-array simple-string (5)))
+;; (unicly::make-uuid-from-string-if "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+;; (typep (unicly::make-uuid-from-string-if "00000000-0000-0000-0000-000000000000") 'compiled-function)
+;;
+;; (make-uuid-from-string "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 
 ;;; ==============================
 ;; :TODO This should also check for a uuid-hex-string-32 and parse at different
@@ -68,18 +82,19 @@
   (let ((chk-uuid-str (etypecase uuid-or-hex-string-36
                         (unique-universal-identifier 
                          (return-from make-uuid-from-string (the unique-universal-identifier (uuid-copy-uuid uuid-or-hex-string-36))))
-                        (string 
+                        (string
                          (let ((vec-or-fun (make-uuid-from-string-if uuid-or-hex-string-36)))
-                           (declare (type (or function uuid-simple-vector-5) vec-or-fun))
+                           (declare (type (or function compiled-function uuid-simple-vector-5) vec-or-fun))
                            (etypecase vec-or-fun
-                             (function
+                             ((or function compiled-function)
                               (let ((null-id (funcall vec-or-fun)))
                                 (declare (type unique-universal-identifier-null null-id))
                                 (return-from make-uuid-from-string
                                   (the unique-universal-identifier-null null-id))))
                              (uuid-simple-vector-5 (the uuid-simple-vector-5 vec-or-fun))))))))
     (declare ;;(optimize (speed 3))
-     (type uuid-simple-vector-5 chk-uuid-str))
+     ;; (type uuid-simple-vector-5 chk-uuid-str)
+     (type (simple-array simple-string (5)) chk-uuid-str))
     (the unique-universal-identifier
       (make-instance 'unique-universal-identifier
                      :%uuid_time-low               (uuid-hex-vector-parse-time-low               chk-uuid-str)
@@ -88,6 +103,7 @@
                      :%uuid_clock-seq-and-reserved (uuid-hex-vector-parse-clock-seq-and-reserved chk-uuid-str)
                      :%uuid_clock-seq-low          (uuid-hex-vector-parse-clock-seq-low          chk-uuid-str)
                      :%uuid_node                   (uuid-hex-vector-parse-node                   chk-uuid-str)))))
+
 
 
 ;;; ==============================
