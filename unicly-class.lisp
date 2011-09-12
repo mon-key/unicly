@@ -13,7 +13,7 @@
  "Print the bit-vector representation of UUID in a format suitable to its class to STREAM.~%~@
 UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
 STREAM is an output-stream.~%~@
-:SEE-ALSO `uuid-print-bytes-to-string'.~%▶▶▶")))
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")))
 
 (defgeneric uuid-print-byte-array (stream uuid)
   (:documentation 
@@ -21,7 +21,7 @@ STREAM is an output-stream.~%~@
  "Print the byte-array representation of UUID in a format suitable to its class to STREAM.~%~@
 UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
 STREAM is an output-stream.~%~@
-:SEE-ALSO `uuid-print-bytes-to-string'.~%▶▶▶")))
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")))
 
 (defgeneric uuid-print-bytes (stream uuid)
   (:documentation 
@@ -29,7 +29,7 @@ STREAM is an output-stream.~%~@
              "Print the bytes of UUID in a format suitable to its class to STREAM.~%~@
 UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
 STREAM is an output-stream.~%~@
-:SEE-ALSO `uuid-print-bytes-to-string'.~%▶▶▶")))
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")))
 
 (defgeneric uuid-print-bytes-to-string (uuid &optional string)
   (:documentation 
@@ -37,13 +37,13 @@ STREAM is an output-stream.~%~@
  "Print the bytes of UUID in a format suitable to its class to a string.~%~@
 When optional arg STRING is non-nil print bytes to STRING.
 STRING should satisfy `string-with-fill-pointer-p'.~%~@
-:SEE-ALSO `uuid-print-bytes'.~%▶▶▶")))
+:SEE-ALSO `uuid-print-bytes'.~%")))
 
 (defgeneric uuid-princ-to-string (uuid &key)
   (:documentation 
    #.(format nil
              "Return string representation of UUID-INSTANCE as if by `cl:princ-to-string'.~%~@
-:SEE-ALSO `uuid-print-bytes-to-string', `uuid-print-bytes'.~%▶▶▶")))
+:SEE-ALSO `uuid-print-bytes-to-string', `uuid-print-bytes'.~%")))
 
 
 ;;; ==============================
@@ -189,7 +189,7 @@ In long-form this number is:~%
  decillion, 366 nonillion, 920 octillion, 938 septillion, 463 sextillion, 463~%~
  quintillion, 374 quadrillion, 607 trillion, 431 billion, 768 million, 211~%~
  thousand and 455~%~@
-:SEE-ALSO `<XREF>'.▶▶▶~%~%")))
+:SEE-ALSO `<XREF>'.~%~%")))
 
 (defclass unique-universal-identifier-null (unique-universal-identifier)
   ;; :NOTE We don't advertise `*uuid-null-uuid*' and `%make-null-uuid-loadtime'
@@ -221,7 +221,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
          \(make-instance 'unique-universal-identifier\)\)~%
  \(equalp \(make-instance 'unique-universal-identifier\) 
          \(make-instance 'unique-universal-identifier\)\)~%
-:SEE-ALSO `make-null-uuid'.~%▶▶▶")))
+:SEE-ALSO `make-null-uuid'.~%")))
 
 (declaim (inline %unique-universal-identifier-null-p))
 (defun %unique-universal-identifier-null-p (object)
@@ -420,7 +420,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
 `unicly::unique-universal-identifier-null' they are only considered to be
 `unicly:uuid-eql' if both objects are `cl:eql' the value of special variable
 `unicly::*uuid-null-uuid*'.~%~@
-:SEE-ALSO `unique-universal-identifier-p'.~%▶▶▶")))
+:SEE-ALSO `unique-universal-identifier-p'.~%")))
 
 ;;; ==============================
 ;;; :NOTE using generic fun instead.
@@ -446,7 +446,7 @@ one of its subclasses.~%~@
  \(unique-universal-identifier-p *uuid-namespace-dns*\)~%
  \(unique-universal-identifier-p \(uuid-to-bit-vector *uuid-namespace-dns*\)\)~%
  \(unique-universal-identifier-p t\)~%~@
-:SEE-ALSO `uuid-eql', `unicly::unique-universal-identifier-null-p'.~%▶▶▶")))
+:SEE-ALSO `uuid-eql', `unicly::unique-universal-identifier-null-p'.~%")))
 
 ;;; ==============================
 ;; We can speed up make-v5-uuid/make-v3-uuid if an objects is routinely used as
@@ -573,7 +573,7 @@ Output of return value has the format:~%
  | The hexadecimal values \"a\" through \"f\" are output as
  | lower case characters and are case insensitive on input.
  `----~%~@
-:SEE-ALSO `uuid-print-bytes-to-string'.~%▶▶▶")
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")
   (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream)
            (optimize (speed 3)))
   ;; Should we (declare (ignore uuid)) this?
@@ -610,7 +610,7 @@ Default method speciaclized on instances of class `unique-universal-identifier'.
  | The hexadecimal values \"a\" through \"f\" are output as
  | lower case characters and are case insensitive on input.
  `----~%~@
-:SEE-ALSO `uuid-print-bytes', `uuid-print-bit-vector', `uuid-princ-to-string'.~%▶▶▶")
+:SEE-ALSO `uuid-print-bytes', `uuid-print-bit-vector', `uuid-princ-to-string'.~%")
   (declare ((or null STRING-WITH-FILL-POINTER) string))
   ;; #-sbcl (assert (STRING-WITH-FILL-POINTER-P "string")
   ;;                () 
@@ -674,7 +674,7 @@ UUID should be an object of type `uuid-bit-vector-128', sigal an error if not.~%
 :EXAMPLE~%
  \(uuid-print-bit-vector nil (uuid-bit-vector-128-zeroed))~%
  \(find-method #'uuid-print-bit-vector nil '\(t simple-bit-vector\)\)~%~@
-:SEE-ALSO `uuid-to-bit-vector'.~%▶▶▶~%")
+:SEE-ALSO `uuid-to-bit-vector'.~%~%")
   (declare (uuid-bit-vector-128 uuid)
            (optimize (speed 3)))
   ;; #-sbcl (etypecase bv2 (uuid-bit-vector-128 t))
@@ -694,7 +694,7 @@ UUID is an instance of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%
  \(uuid-print-bit-vector nil \(make-v4-uuid\)\)~%
  \(find-method #'uuid-print-bit-vector nil '\(t unique-universal-identifier\)\)~%~@
-:SEE-ALSO `uuid-princ-to-string'.~%▶▶▶~%")
+:SEE-ALSO `uuid-princ-to-string'.~%~%")
   (declare (optimize (speed 3)))
   (let ((id-to-bv (uuid-to-bit-vector uuid)))
     (declare (uuid-bit-vector-128 id-to-bv)
@@ -716,7 +716,7 @@ If not, an error is signaled.~%~@
 uuid-bit-vector-128 representation printed with this method.
 IOW, it is an error to attempe to create objects instantiated as if by:~%
  \(make-instance 'unique-universal-identifier-null\)~%~@
-:SEE-ALSO `<XREF>'.~%▶▶▶")
+:SEE-ALSO `<XREF>'.~%")
   (if (unique-universal-identifier-null-p uuid)
       (uuid-print-bit-vector stream (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed)))
       (let ((streamed (make-string-output-stream))
