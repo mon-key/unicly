@@ -96,16 +96,16 @@
 ;; :SOURCE flexi-streams/mapping.lisp
 (deftype char-compat ()
   ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
-  #-:lispwokrs 'character
+  #-:lispworks 'character
   #+:lispworks '(or character lw:simple-char base-char standard-char))  
 
 (deftype string-compat ()
   ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
-  #-:lispwokrs 'string
-  #+:lispworks '(or string lw:text-string simple-base-string system:simple-augmented-string simple-text-string))
+  #-:lispworks 'string
+  #+:lispworks '(or string simple-string lw:text-string simple-base-string system:simple-augmented-string simple-text-string))
 
 (deftype hexadecimal-char () 
-  ;; #-:lispwokrs `(and standard-char (member ,@*hexadecimal-chars*))
+  ;; #-:lispworks `(and standard-char (member ,@*hexadecimal-chars*))
   ;; #+:lispworks `(and char-compat  (member ,@*hexadecimal-chars*)))
   `(and char-compat  (member ,@*hexadecimal-chars*)))
 
@@ -113,21 +113,30 @@
   '(not null))
 
 (deftype string-empty ()
-  '(and string-compat
-    (or 
-     (array char-compat (0)) ;; <- (vector character 0)
-     #-:lispworks (array nil (0)) ;; <- (vector nil 0) ;; :NOTE This is not be a valid type-spec on LispWorks
-     #-:lispworks (array base-char (0))))) ;; <- (base-string 0)
+  #-:lispworks '(and string-compat
+                 (or 
+                  (array char-compat (0)) ;; <- (vector character 0)
+                  (array nil (0)) ;; <- (vector nil 0) ;; :NOTE This is not be a valid type-spec on LispWorks
+                  (array base-char (0)))) ;; <- (base-string 0)
+  #+:lispworks '(and string-compat 
+                 (satisfies %lw-string-zerop)))
+
+(defun %lw-string-zerop (string)
+  (declare 
+   (string-compat string)
+   (optimize (speed 3)))
+  (zerop (length string)))
 
 (deftype string-not-empty ()
   '(and string-compat (not string-empty)))
 
 (deftype string-or-null () 
-  '(or 
-    null
-    (array char-compat (*))      ;; (vector character)
-    #-:lispworks (array nil (*)) ;; (vector nil)
-    #-:lispworks (array base-char (*))))
+  #-:lispworks '(or 
+                 null
+                 (array char-compat (*)) ;; (vector character)
+                 (array nil (*))         ;; (vector nil)
+                 (array base-char (*)))
+  #+:lispworks (or null string-empty))
 
 (deftype string-not-null-or-empty ()
   '(and not-null string-not-empty))
