@@ -121,6 +121,7 @@
 (deftype uuid-byte-array (&optional size)
   (let ((sz (or size '*)))
     `(simple-array uuid-ub8 (,sz))))
+
 ;; (mon:type-expand-all 'uuid-byte-array-16)
 (def-uuid-byte-array-length 20)
 (def-uuid-byte-array-length 16)
@@ -136,15 +137,17 @@
 
 ;; complex-type
 (deftype uuid-string-32 ()
-  '(array character (32)))
+  '(array char-compat (32)))
 
 ;; complex-type
 (deftype uuid-string-36 ()
-  '(array character (36)))
+  '(array char-compat (36)))
 
 ;; complex-type
+;; currently unused :SEE `uuid-get-bytes' in unicly/unicly-deprecated.lisp
 (deftype uuid-byte-string ()
-  '(simple-array character (16)))
+  #-:lispworks '(simple-array char-compat (16))
+  #+:lispworks '(array char-compat (16)))
 
 ;;; ==============================
 ;; :NOTE These notes are w/r/t method `uuid-print-bytes-to-string' specialized
@@ -187,12 +190,17 @@
   '(and uuid-string-36 (satisfies uuid-hex-string-36-p)))
 
 (deftype uuid-hex-string-length (string-length)
-  `(simple-array character (,string-length)))
+  #-:lispworks `(simple-array char-compat (,string-length))
+  #+:lispworks `(or (simple-array char-compat (,string-length))
+                    (array char-compat (,string-length))))
+
 ;; uuid-hex-string-<N>
 (def-uuid-uuid-hex-string-length 12)
 (def-uuid-uuid-hex-string-length  8)
 (def-uuid-uuid-hex-string-length  4)
 (def-uuid-uuid-hex-string-length  2)
+
+;; uuid-hex-string-8 (type-of (subseq "6ba7b810-9dad-11d1-80b4-00c04fd430c8" 0 8))
 
 
 ;;; ==============================
@@ -271,7 +279,7 @@
   (unless (uuid-string-36-p maybe-delim-string-36)
     (return-from uuid-delimited-string-36-p (the boolean nil)))
   (labels ((char-dash-p (maybe-dash)
-             (declare (character maybe-dash))
+             (declare (char-compat maybe-dash))
              (char= #\- maybe-dash))
            (delimit-seq (string-seq offset length)
              (declare (uuid-string-36 string-seq)
@@ -285,6 +293,7 @@
                   for dest-idx from 0 below length
                   do (setf (char rtn-sub dest-idx)
                            (char string-seq source-idx))
+                  ;; #+:lispworks finally (return (the system:simple-augmented-string rtn-sub)))))
                   finally (return (the simple-string rtn-sub)))))
            (delimited-subseqs (string-for-subs)
              (declare (uuid-string-36 string-for-subs))

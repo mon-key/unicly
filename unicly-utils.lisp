@@ -17,39 +17,120 @@
 ;; string-with-fill-pointer vector-with-fill-pointer-p
 ;;
 ;; type-specifier-p doc-set fundoc vardoc typedoc
+;;; ==============================
 ;;
 ;;; ==============================
+;; I'm at a bit of a loss about what to do with LispWorks strings...
+;; Advice/Patches welcome!
+;; Following are some of my notes as I tried to track down differences across
+;; implementations:
+;;
+;; lw:sb-char
+;; lw:sg-char
+;; lw:stchar
+;; lw:base-string-p
+;; lw:base-character
+;; lw:base-char-p
+;; lw:8-bit-string
+;; lw:16-bit-string
+;; lw:general-string
+;; lw:general-string-p
+;; lw:simple-char
+;; lw:simple-char-p
+;; lw:simple-base-string-p
+;; lw:simple-text-string
+;; lw:simple-text-string-p
+;;
+;; SBCL> (type-of (make-array 0 :element-type nil))
+;; => (simple-array nil (0))
+;;
+;; SBCL> (array-element-type (make-array 0 :element-type nil))
+;; => NIL
+;;
+;; SBCL> (upgraded-array-element-type  (array-element-type (make-array 0 :element-type nil)))
+;; => NIL
+;;
+;; LW> (array-element-type (make-array 0))
+;; => T
+;;
+;; LW> (upgraded-array-element-type  (array-element-type (make-array 0 :element-type 'null)))
+;; => T
+;;
+;; LW> (make-array 36 :element-type 'null)
+;;
+;; SBCL> (make-array 36 :element-type 'null)
+;; => #(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+;;
+;; LW> (make-array 36 :element-type 'null)
+;; => #(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+;;     NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+;;
+;; (array-dimension (make-array 0) 0)
+;; (make-string 0 :initial-element #\0)  (make-array 0) 0)
+;; (type-of (make-string 0)) '(array character (0)))
+;; (type-of (make-string 0))
+;;
+;;
+;; Is `simple-string-p' LispWorks compatible?
+;; lispworks> (type-of (make-array 36 :element-type 'character :initial-contents "6ba7b810-9dad-11d1-80b4-00c04fd430c8"))
+;; ;=>  system:simple-augmented-string
+;;
+;; lispworks> (type-of (make-array 36 :element-type 'lw:simple-char :initial-contents "6ba7b810-9dad-11d1-80b4-00c04fd430c8"))
+;; ;=>  simple-text-string
+;;
+;; lispworks> (type-of (aref (make-array 36 :element-type 'lw:simple-char :initial-contents "6ba7b810-9dad-11d1-80b4-00c04fd430c8") 0))
+;; ;=>  character
+;;
+;; (deftype simple-string-compat ()
+;; #+:lispworks 'system:simple-augmented-string)
+;; #-:lisworks 'simple-string)
+;;
+;;; ==============================
+
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar *hexadecimal-chars* 
     '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9
       #\A #\B #\C #\D #\E #\F #\a #\b #\c #\d #\e #\f)))
 
+;; :SOURCE flexi-streams/mapping.lisp
+(deftype char-compat ()
+  ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
+  #-:lispwokrs 'character
+  #+:lispworks '(or character lw:simple-char base-char standard-char))  
+
+(deftype string-compat ()
+  ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
+  #-:lispwokrs 'string
+  #+:lispworks '(or string lw:text-string simple-base-string system:simple-augmented-string simple-text-string))
+
 (deftype hexadecimal-char () 
-  `(and standard-char (member ,@*hexadecimal-chars*)))
+  ;; #-:lispwokrs `(and standard-char (member ,@*hexadecimal-chars*))
+  ;; #+:lispworks `(and char-compat  (member ,@*hexadecimal-chars*)))
+  `(and char-compat  (member ,@*hexadecimal-chars*)))
 
 (deftype not-null ()
   '(not null))
 
-(deftype string-not-null-or-empty ()
-  '(and not-null string-not-empty))
+(deftype string-empty ()
+  '(and string-compat
+    (or 
+     (array char-compat (0)) ;; <- (vector character 0)
+     #-:lispworks (array nil (0)) ;; <- (vector nil 0) ;; :NOTE This is not be a valid type-spec on LispWorks
+     #-:lispworks (array base-char (0))))) ;; <- (base-string 0)
 
 (deftype string-not-empty ()
-  '(and string (not string-empty)))
-
-(deftype string-empty ()
-  '(and string
-    (or 
-     (array character (0)) ;; <- (vector character 0)
-     (array nil (0))	      ;; <- (vector nil 0)
-     (array base-char (0))))) ;; <- (base-string 0)
+  '(and string-compat (not string-empty)))
 
 (deftype string-or-null () 
   '(or 
     null
-    (array character (*))   ;; (vector character)
-    (array nil (*))         ;; (vector nil)
-    (array base-char (*))))
+    (array char-compat (*))      ;; (vector character)
+    #-:lispworks (array nil (*)) ;; (vector nil)
+    #-:lispworks (array base-char (*))))
+
+(deftype string-not-null-or-empty ()
+  '(and not-null string-not-empty))
 
 (declaim (inline hexadecimal-char-p))
 (defun hexadecimal-char-p (maybe-hex-char)
@@ -68,8 +149,8 @@
                    hexadecimal-char-p)
            (optimize (speed 3)))
   (and maybe-hex-string ;; allow null and bail
-       (string-not-null-or-empty-p (the string maybe-hex-string))
-       (or (simple-string-p (the string maybe-hex-string))
+       (string-not-null-or-empty-p (the string-compat maybe-hex-string))
+       (or (simple-string-p (the string-compat maybe-hex-string))
            (setf maybe-hex-string (copy-seq maybe-hex-string)))
        (loop 
           for chk-hex across (the simple-string maybe-hex-string)
@@ -87,8 +168,11 @@
 ;;        'string-with-fill-pointer)
 ;; :SEE-ALSO `string-with-fill-pointer-p', `string-with-fill-pointer-check-type'
 (deftype string-with-fill-pointer ()
-  `(and (or (vector character) (vector base-char))
-        (satisfies vector-with-fill-pointer-p)))
+  #-:lispworks `(and (or (vector character) 
+                         (vector base-char))
+                     (satisfies vector-with-fill-pointer-p))
+  #+:lispworks `(and (vector char-compat)
+                     (satisfies vector-with-fill-pointer-p)))
 
 (deftype stream-or-boolean ()
   '(or stream boolean))
@@ -119,20 +203,20 @@
 (defun doc-set (name object-type string args);&rest args)
   (declare (type symbol name) 
            ((member variable type function) object-type)
-           ((or null string) string))
+           ((or null string-compat) string))
   (let ((doc-or-null 
          (if (null string)
              string
              (apply #'format nil `(,string ,@args)))))
-        (ecase object-type
+    (ecase object-type
           (function
            (setf (documentation (fdefinition name) object-type) 
                  (setf (documentation name object-type) doc-or-null)))
-      (variable 
-       (locally (declare (special name))
-         (setf (documentation name object-type) doc-or-null)))
-      (type 
-       (setf (documentation name object-type) doc-or-null)))))
+          (variable 
+           (locally (declare (special name))
+             (setf (documentation name object-type) doc-or-null)))
+          (type 
+           (setf (documentation name object-type) doc-or-null)))))
 
 (defun fundoc (name &optional string &rest args)
   (declare (type symbol name) ((or null string) string))
@@ -141,12 +225,12 @@
 (defun vardoc (name &optional string &rest args)
   (declare (type symbol name)
            (special name) 
-           ((or null string) string))
+           ((or null string-compat) string))
   (doc-set name 'variable string args))
 
 (defun typedoc (name &optional string &rest args)
   (declare (type symbol name) 
-           ((or null string) string))
+           ((or null string-compat) string))
   (when (type-specifier-p name)
     (doc-set name 'type string args)))
 
