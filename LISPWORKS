@@ -1,0 +1,270 @@
+;;; :FILE-CREATED <Timestamp: #{2011-09-13T14:46:48-04:00Z}#{11372} - by MON>
+;;; :FILE /unicly/LISPWORKS
+;;; ==============================
+
+;;; ==============================
+ I'm at a bit of a loss about what to do with LispWorks strings...
+ Advice/Patches welcome!
+ Following are some of my notes as I tried to track down differences across
+ implementations:
+
+ lw:sb-char
+ lw:sg-char
+ lw:stchar
+ lw:base-string-p
+ lw:base-character
+ lw:base-char-p
+ lw:8-bit-string
+ lw:16-bit-string
+ lw:general-string
+ lw:general-string-p
+ lw:simple-char
+ lw:simple-char-p
+ lw:simple-base-string-p
+ lw:simple-text-string
+ lw:simple-text-string-p
+
+ SBCL> (type-of (make-array 0 :element-type nil))
+ => (simple-array nil (0))
+
+ SBCL> (array-element-type (make-array 0 :element-type nil))
+ => NIL
+
+ SBCL> (upgraded-array-element-type  (array-element-type (make-array 0 :element-type nil)))
+ => NIL
+
+ LW> (array-element-type (make-array 0))
+ => T
+
+ LW> (upgraded-array-element-type  (array-element-type (make-array 0 :element-type 'null)))
+ => T
+
+ LW> (make-array 36 :element-type 'null)
+
+ SBCL> (make-array 36 :element-type 'null)
+ => #(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+ LW> (make-array 36 :element-type 'null)
+ => #(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+     NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+
+ (array-dimension (make-array 0) 0)
+ (make-string 0 :initial-element #\0)  (make-array 0) 0)
+ (type-of (make-string 0)) '(array character (0)))
+ (type-of (make-string 0))
+
+ Is `simple-string-p' LispWorks compatible?
+ lispworks> (type-of (make-array 36 :element-type 'character :initial-contents "6ba7b810-9dad-11d1-80b4-00c04fd430c8"))
+ ;=>  system:simple-augmented-string
+
+ lispworks> (type-of (make-array 36 :element-type 'lw:simple-char :initial-contents "6ba7b810-9dad-11d1-80b4-00c04fd430c8"))
+ ;=>  simple-text-string
+
+ lispworks> (type-of (aref (make-array 36 :element-type 'lw:simple-char :initial-contents "6ba7b810-9dad-11d1-80b4-00c04fd430c8") 0))
+ ;=>  character
+
+
+:NOTE LispWorks encodings and character types:
+ `lispworks:*external-formats*'
+ `lispworks:*default-character-element-type*'
+ `system:locale-file-encoding',
+ `system:*file-encoding-detection-algorithm*', `system:find-encoding-option',
+ `system:guess-external-format'
+ `lispworks:sbchar', `lispworks:stchar',
+
+:SEE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-466.htm') 
+
+,----
+| LispWorks User Guide and Reference Manual > 22 Internationalization > 
+|           22.2 Character and String types > 22.2.3 String types > 
+|           22.2.3.1 String types at runtime
+| 
+| The type string (and hence simple-string ) is defined by ANSI Common Lisp to be
+| a union of all the character array types. This makes a call like:
+|  (coerce s 'simple-string)
+| 
+| ambiguous because it needs to select a concrete type (such as simple-base-string
+| or simple-text-string).
+| 
+| When LispWorks is running with *default-character-element-type* set to
+| base-char, it expects that you will want strings with element type base-char, so
+| functions like coerce treat references to simple-string as if they were
+| (simple-array base-char (*)).
+| 
+| If you call set-default-character-element-type with a larger character type,
+| then simple-string becomes a union of the array types that are subtypes of that
+| character type.
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-457.htm#pgfId-893335')
+
+,----
+| lispworks:*default-character-element-type*
+|
+| Provides defaults for all character type parameters.
+| Description
+| 
+| This variable provides defaults for all character type parameters. 
+| The legal values are:
+|  `cl:base-char' `lw:simple-char' `cl:character' 
+| 
+| Its value must only be set via a call to `lw:set-default-character-element-type'.
+| This is intended mainly for running old 8-bit applications efficiently. If you
+| write for a fat character implementation you should already be aware of these
+| issues, and make some attempt to provide explicit types.
+| 
+| When the compiler does type inferencing it behaves as if this variable was bound
+| to character ; if you want assumptions about types to be hard-coded into your
+| program, you must supply explicit declarations and type arguments.
+|
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-839.htm#59860')
+
+:NOTE `liswpworks:simple-char' is specified as the type of simple characters:
+ (standard term for chars with null implementation-defined attributes, that
+  is, no bits).
+:SEE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-910.htm#pgfId-995731')
+
+,----
+| set-default-character-element-type type => type-defaults
+| 
+| Configures the value of `lispworks:*default-character-element-type*'.
+| 
+| TYPE is a character type. This can take any of the values:
+|  `base-char', `lw:simple-char' `character'
+| 
+| Set the new value of lw:*default-character-element-type* .
+| Description
+| 
+| The function `lispworks:set-default-character-element-type' sets the value of
+| `lispworks:*default-character-element-type*', ensuring that the system's
+| internal state is also updated accordingly.
+| 
+| If you are running an existing 8-bit application you will only need to have this
+| in your site or user configuration file:
+|  (lw:set-default-character-element-type 'base-char)
+| 
+| It would be a mistake to call this function in a loadable package and it is not
+| intended to be called while running code. In particular, it is global, not
+| thread-specific.
+| 
+| Hence we consider lw:*default-character-element-type* a parameter.
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-908.htm#30578')
+
+
+The type common-lisp:string on LispWorks
+In which is added an extra parameter ELEMENT-TYPE! 
+,----
+| common-lisp:string length element-type
+| 
+| LENGTH is the length of the string (or * , meaning any).
+| 
+| ELEMENT-TYPE is t he type of string element. 
+| Default is the value of lispworks:*default-character-element-type* rather than *.
+| 
+| The union of all string types as specified in the standard, but extended with an
+| extra parameter: ELEMENT-TYPE .
+| 
+| (string <length> <element-type>) means all string types whose element type is a subtype of element-type. 
+| 
+| That is:
+|  (string * base-char)      = (vector base-char *)
+|  (string * lw:simple-char) = (or (vector base-char *)
+|                                  (vector lw:simple-char *))
+|  (string * character)      = (or (vector base-char *)
+|                                  (vector lw:simple-char *)
+|                                  (vector character *))
+| Example
+| 
+|  CL-USER> (lw:set-default-character-element-type 'base-char)
+|  ;=> BASE-CHAR
+|  CL-USER 236 > (concatenate 'string "f" "o" "o")
+|  ;=> "foo"
+|  CL-USER 237 > (type-of *)
+|  ;=> SIMPLE-BASE-STRING
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-627.htm#85954')
+
+
+,----
+| 22.2.1 Character types
+| 
+| The following subtypes of character are defined:
+| 
+| cl:base-char   -- simple characters with char-code less than base-char-code-limit ( 256 ).
+| lw:simple-char -- simple characters with char-code less than char-code-limit ( 65536 ).
+| cl:character   -- All characters including non-simple characters (that is, with non-null bits attributes).
+|
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-454.htm#pgfId-889007')
+
+,----
+| LispwWorks  String types
+| 
+| String types are supplied which are capable of holding each of the character
+| types mentioned above.
+| The following string types are defined:
+| 
+| cl:base-string -- holds any cl:base-char
+| lw:text-string -- holds any lw:simple-char
+| augmented-string -- holds any cl:character
+| 
+| In particular, lw:text-string is the type that can hold all characters used in
+| texts.
+| 
+| The types above include non-simple strings - those which are displaced,
+| adjustable or with a fill-pointer.
+| 
+| The following types are subtypes of `cl:simple-string'.
+| 
+| Note that in the names of the string types, 'simple' refers to the string object
+| and does not mean that the string's elements are simple-chars.
+| 
+| simple-base-string      -- holds any cl:base-char
+| simple-text-string      -- holds any lw:simple-char
+| system:simple-augmented-string -- holds any cl:character
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-456.htm')
+
+,----
+| system:augmented-string [Type]
+| augmented-string <LENGTH>
+| 
+| The augmented string type.
+| 
+| LENGTH is The length of the string (or * , meaning any).
+| 
+| This is the string type that can hold any character. 
+| Equivalent to:
+|  (vector character length)
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-1273.htm#71194')
+
+(mon:type-expand-all '(vector character 8))
+
+;; (subtypep '(vector character 8) '(array character 8))
+
+,----
+| lispworks:text-string <TYPE>
+| 
+| The text string type.
+| 
+| text-string <LENGTH>
+| 
+| LENGTH is the length of the string (or * , meaning any).
+| 
+| The type of strings that can hold any simple character, that is:
+|  (vector lw:simple-char length)
+| 
+| This is the string type that is guaranteed to always hold any character used in
+| writing text (program text or natural language). 
+| 
+| It will not hold character objects which have non-null attributes.
+| 
+| It is equivalent to 16-bit-string.
+`---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-920.htm#82128')
+
+
+(URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-920.htm#pgfId-1008122')
+`lw:8-bit-string'
+(URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-823.htm#49784')
+`lw:16-bit-string'
+(URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-824.htm#52913')
+
+
+
+;;; ==============================
+;;; EOF
