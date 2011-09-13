@@ -23,6 +23,7 @@ UNICLY_GIT=$CL_MON_CODE/unicly-GIT
 UNICLY_FILES="unicly.asd
 package.lisp
 unicly-bit-vectors.lisp
+unicly-bridge.lisp
 unicly-byte-arrays.lisp
 unicly-class.lisp
 unicly-compat.lisp
@@ -44,6 +45,7 @@ unicly-utils.lisp
 unicly.lisp
 LICENSE.txt
 README
+LISPWORKS
 unicly-move-to-git.sh"
 
 cd $UNICLY_SRC
