@@ -7,10 +7,19 @@ DESCRIPTION:
 Unicly is a Common Lisp library for generation of UUIDs (Universally Unique
 Identifiers) as described by RFC 4122.
 
-Unicly is known to compile on SBCL 1.47+ and CLisp 2.49
 
-As of 2011-09-12 Unicly is not known to be 100% compatible with LispWorks
-Personal Edition 6.0 (work is ongoing see INSTALLATION-ISSUES below).
+As of 2011-09-13 Unicly is known to compile on: 
+   SBCL 1.47+  (on Linux x86oids) [1]
+   CLisp 2.49  (on Linux x86 32)
+   LispWorks 6 (Personal on Linux 86 32) [2]
+
+Please do let us know if you can confirm whether Unicly is known to build on
+your platform and implementation.
+
+[1] SBCL should build on MacOS providing that sb-impl::*default-external-format*
+    is set to :UTF-8 and :SB-UNICODE is present as a member cl:*features*
+
+[2] See notes below regarding LispWorks optimization opportunities
 
 INSTALLATION:
 
@@ -67,14 +76,16 @@ CL-USER> (and (car (member :SB-UNICODE *features*)) t)
 
 - LISPWORKS
 
-Although most of the Unicly system builds on Lispworks there are known problems
-around Unicly's declarations of objects of type CL:CHARACTER and
-CL:STRING. Unicly is strongly typed and excessively inlined and some
-declarations conflict with the way LispWorks internal handles objets of type
+Although Unicly system builds on Lispworks there are known deficiencies around
+Unicly's declarations of objects of type CL:CHARACTER and CL:STRING. Unicly is
+strongly typed and excessively inlined and some declarations do not make full
+use of internal LispWorks character handling around objets of type
 lw:simple-character, lw:text-string, etc.  We have made some effort to bridge
-the differences but work is ongoing.  The work required to get Unicly up to
-speed on LispWorks is not insurmountable but does require input from a capable
-LispWorks user. Likely further inspection of the manual is required: 
+the differences but work is ongoing and there are likely myriad opportunities to
+make Unicly faster on Lispworks. This said, the work required to get an optimized
+Unicly up to speed on LispWorks is not insurmountable but will require input
+from capable LispWorks user(s). Some notes are available in unicly/LISPWORKS
+Likely further inspection of the manual is required:
  (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw.htm')
 Needless to say, Patches are welcome.
 
