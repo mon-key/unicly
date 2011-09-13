@@ -135,24 +135,25 @@
 (deftype uuid-simple-vector-5 ()
   '(simple-vector 5))
 
+(deftype uuid-simple-string-vector-5 ()
+  #-:lispworks '(simple-array simple-string (5))
+  #+:lispworks 'uuid-simple-vector-5)
+
 ;; complex-type
 (deftype uuid-string-32 ()
-  #-:lispworks '(array char-compat (32))
-  #+:lispworks '(or (simple-array char-compat (32))
-                    (array char-compat (32))))
-
+  #-:lispworks '(array character (32))
+  #+:lispworks '(simple-stringn-length-compat 36))
 
 ;; complex-type
 (deftype uuid-string-36 ()
-  #-:lispworks '(array char-compat (36))
-  #+:lispworks '(or (simple-array char-compat (32))
-                    (array char-compat (32))))
+  #-:lispworks '(array character (36))
+  #+:lispworks '(string-n-length-compat 36))
 
 ;; complex-type
 ;; currently unused :SEE `uuid-get-bytes' in unicly/unicly-deprecated.lisp
 (deftype uuid-byte-string ()
-  #-:lispworks '(simple-array char-compat (16))
-  #+:lispworks '(array char-compat (16)))
+  #-:lispworks '(simple-array character (16))
+  #+:lispworks '(simple-string-n-length-compat 16))
 
 ;;; ==============================
 ;; :NOTE These notes are w/r/t method `uuid-print-bytes-to-string' specialized
@@ -195,12 +196,9 @@
   '(and uuid-string-36 (satisfies uuid-hex-string-36-p)))
 
 (deftype uuid-hex-string-length (string-length)
-  ;; #-:lispworks `(or (simple-array char-compat (,string-length))
-  ;;                   (vector char-compat ,string-length)
-  ;;                   (simple-string ,simple-string))
-  #-:lispworks `(simple-array char-compat (,string-length))
-  #+:lispworks `(or (simple-array char-compat (,string-length))
-                    (array char-compat (,string-length))))
+  #-:lispworks `(simple-array character (,string-length))
+  #+:lispworks `(or (simple-string-n-length-compat ,string-length)
+                    (string-n-length-compat ,string-length)))
 
 (def-uuid-uuid-hex-string-length 12)
 (def-uuid-uuid-hex-string-length  8)
@@ -299,13 +297,22 @@
                   for dest-idx from 0 below length
                   do (setf (char rtn-sub dest-idx)
                            (char string-seq source-idx))
-                  ;; #+:lispworks finally (return (the system:simple-augmented-string rtn-sub)))))
-                  finally (return (the simple-string rtn-sub)))))
+                  finally (return (the simple-string-compat rtn-sub)))))
            (delimited-subseqs (string-for-subs)
              (declare (uuid-string-36 string-for-subs))
-             (the uuid-simple-vector-5
+             (the uuid-simple-string-vector-5
+               #+:lispworks 
                (make-array 5 
-                           :element-type 'simple-string
+                           :element-type 'system:simple-augmented-string
+                           :initial-contents (list 
+                                              (the uuid-hex-string-8  (delimit-seq string-for-subs 0  8))
+                                              (the uuid-hex-string-4  (delimit-seq string-for-subs 9  4))
+                                              (the uuid-hex-string-4  (delimit-seq string-for-subs 14 4))
+                                              (the uuid-hex-string-4  (delimit-seq string-for-subs 19 4))
+                                              (the uuid-hex-string-12 (delimit-seq string-for-subs 24 12))))
+               #-:lispworks
+               (make-array 5 
+                           :element-type 'simple-string 
                            :initial-contents (list 
                                               (the uuid-hex-string-8  (delimit-seq string-for-subs 0  8))
                                               (the uuid-hex-string-4  (delimit-seq string-for-subs 9  4))
@@ -332,7 +339,7 @@
                  (if (and (= cnt 4)
                           (= psns 62))
                      (values (the boolean t)
-                             (the uuid-simple-vector-5
+                             (the uuid-simple-string-vector-5 ;; uuid-simple-vector-5
                                (delimited-subseqs maybe-delim-string-36)))
                      (the boolean nil))))))
 
@@ -343,13 +350,13 @@
   (uuid-simple-vector-5-check-type split-vec)
   (labels 
       ((all-zero-char-p (split-string)
-         (declare (simple-string split-string))
+         (declare (simple-string-compat split-string))
          (loop 
             for maybe-zero across split-string
             always (char= #\0 maybe-zero)))
        (all-strings-zero-p ()
          (loop 
-            for split of-type simple-string across split-vec
+            for split of-type simple-string-compat across split-vec
             always (all-zero-char-p split))))
     (all-strings-zero-p)))
 ;;
@@ -365,16 +372,17 @@
                    uuid-delimited-string-36-p)
            (optimize (speed 3)))
   (when (uuid-string-36-p maybe-uuid-hex-string-36)
-    (multiple-value-bind (is-36 split-36) (uuid-delimited-string-36-p 
-                                           (the uuid-string-36 maybe-uuid-hex-string-36))
+    (multiple-value-bind (is-36 split-36) (uuid-delimited-string-36-p (the uuid-string-36 maybe-uuid-hex-string-36))
       (when is-36
-        (when 
-            (loop 
-               for split of-type simple-string across (the uuid-simple-vector-5 split-36)
-               always (string-all-hex-char-p split))
-          (if (%uuid-hex-string-36-null-string-p  split-36)
-              (values (the boolean t) (the function #'make-null-uuid)) ;; #'make-null-uuid);; (the function #'make-null-uuid))
-              (values (the boolean t) (the uuid-simple-vector-5 split-36))))))))
+        (locally 
+            (declare (type uuid-simple-string-vector-5 split-36))
+          (when (loop 
+                   ;; for split of-type simple-string-compat across (the uuid-simple-string-vector-5 split-36)
+                   for split of-type simple-string-compat across split-36
+                   always (string-all-hex-char-p split))
+            (if (%uuid-hex-string-36-null-string-p  split-36)
+                (values (the boolean t) (the function #'make-null-uuid)) ;; #'make-null-uuid);; (the function #'make-null-uuid))
+                (values (the boolean t) (the uuid-simple-vector-5 split-36)))))))))
 
 ;; (typep #'make-null-uuid 'compiled-function)
 ;; (uuid-hex-string-36-p (uuid-princ-to-string (make-v4-uuid)))

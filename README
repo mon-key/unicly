@@ -74,7 +74,9 @@ declarations conflict with the way LispWorks internal handles objets of type
 lw:simple-character, lw:text-string, etc.  We have made some effort to bridge
 the differences but work is ongoing.  The work required to get Unicly up to
 speed on LispWorks is not insurmountable but does require input from a capable
-LispWorks user.  Needless to say, Patches are welcome.
+LispWorks user. Likely further inspection of the manual is required: 
+ (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw.htm')
+Needless to say, Patches are welcome.
 
 USAGE:
 

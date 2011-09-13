@@ -34,8 +34,13 @@
   :depends-on (:ironclad 
                :split-sequence
                #-:sbcl :flexi-streams
-               #+:sbcl :sb-unicode)
-  :components ((:file "package")
+               #-(and :sbcl :sb-unicode) :flexi-streams
+               )
+  :components (
+               ;; (:static "README")
+               ;; (:static "LISPWORKS")
+               ;; (:static "LICENSE.txt")
+               (:file "package")
                (:file "unicly-specials")
                (:file "unicly-bridge")
                (:file "unicly-utils")

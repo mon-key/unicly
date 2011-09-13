@@ -10,24 +10,70 @@
 
 (in-package #:unicly)
 
+#+:sbcl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (unless (member :SB-UNICODE *features*)
+    (warn "~&~%Feature :SB-UNICODE not present in `cl:*features*'~%~
+               If current SBCL is :UTF-8 compatible please evaluate~%~% ~
+                \(require :sb-unicode\)~%~@
+               and try reloading Unicly~%"))
+  (unless (eql sb-impl::*default-external-format* :UTF-8)
+    (warn "~&~%Value of SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* not :UTF-8~%~%~
+               Current default external-format is: ~S~%~@
+               Unicly explicity assumes that all string arguments to the functions:~%~% ~
+               UNICLY:MAKE-V3-UUID and UNICLY:MAKE-V5-UUID~%~@
+               are contained of character data encoded as UTF-8 \(or a compatible subset\)~%~%~
+               Assuming your current SBCL is :UTF-8 compatible and that currrent OS~%~
+               is reasonably capable of supporting UTF-8 character encodings, you may wish~%~
+               to consider altering the value of SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* in your~%~
+               user-init file, e.g. by setting its value to :UTF-8 in your ~~/.sbclrc~%~@
+               If altering SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* is not an option,~%~
+               please take care to ensure that string arguments to Unicly functions:~%~% ~
+               UNICLY:MAKE-V3-UUID and UNICLY:MAKE-V5-UUID~%~@
+               are properly encoded as UTF-8 \(or a compatible subset\)~%"
+          sb-impl::*default-external-format*)))
+
 ;; :SOURCE flexi-streams/mapping.lisp
 (deftype char-compat ()
   ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
   #-:lispworks 'character
-  #+:lispworks '(or character lw:simple-char base-char))
+  #+:lispworks '(or base-char character lw:simple-char))
 
 (deftype string-compat ()
   ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
   #-:lispworks 'string
-  #+:lispworks '(or system:augmented-string lispworks:text-string))
+  #+:lispworks '(or cl:string
+                    cl:base-string
+                    system:augmented-string 
+                    lispworks:text-string))
 
 (deftype simple-string-compat ()
   ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
   #-:lispworks 'simple-string
-  #+:lispworks '(or system:simple-augmented-string lispworks:simple-text-string))
+  #+:lispworks '(or cl:simple-string
+                    cl:simple-base-string
+                    system:simple-augmented-string
+                    lispworks:simple-text-string))
 
-(defun %uuid-string-to-octets (name-arg &key (external-format #+clisp charset:utf-8 
-                                                              #-clisp :UTF-8))
+(deftype string-n-length-compat (size)
+  ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
+  #-:lispworks `(string ,size)
+  #+:lispworks 
+  `(or 
+    (cl:base-string ,size)
+    (system:augmented-string ,size)
+    (lispworks:text-string ,size)))
+
+(deftype simple-string-n-length-compat (size)
+  ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
+  #-:lispworks `(simple-string ,size)
+  #+:lispworks `(or (cl:simple-base-string ,size)
+                    (system:simple-augmented-string ,size)
+                    (lispworks:simple-text-string ,size)))
+
+;; (defun %uuid-string-to-octets (name-arg &key (start 0) end (external-format #+clisp charset:utf-8 #-clisp :UTF-8)) 
+#+:sbcl (declaim (inline %uuid-string-to-octets))
+(defun %uuid-string-to-octets (name-arg)   
   ;; NAME-ARG is a string to convert to octets. 
   ;; Characters of NAME-ARG should be encoded in UTF-8 or a subset thereof.
   ;; Convenience function for converting the NAME argument to make-v3-uuid and
@@ -36,28 +82,32 @@
   ;;  SBCL:          `sb-ext:string-to-octets'
   ;;  Clisp:         `ext:convert-string-to-bytes'
   ;;  Flexi-Streams: `flex:string-to-octets'
-  (the (simple-array (unsigned-byte 8) (*))
-    #+:clisp 
-    (ext:convert-string-to-bytes name-arg external-format))
-  
+  (declare (type string-compat name-arg)
+           (optimize (speed 3)))
+  #+:clisp 
+  (the (simple-array (unsigned-byte 8) (*))  
+    (ext:convert-string-to-bytes name-arg CHARSET:UTF-8))
   #-(or :clisp (and :sbcl :sb-unicode))
-  (flexi-streams:string-to-octets name-arg :external-format external-format)
-  
+  (the (simple-array (unsigned-byte 8) (*))  
+    (flexi-streams:string-to-octets name-arg :external-format :UTF-8))
   #+(and :sbcl :sb-unicode)
-  (sb-ext:string-to-octets name-arg :external-format external-format))
+  (the (values (simple-array (unsigned-byte 8) (*)) &optional)
+    (sb-ext:string-to-octets name-arg :external-format :UTF-8)))
 
 ;; :NOTE we could declare convert-byte-array to be an array of length 16 or 20
-;; if we know that uuid-octets-to-string is only called internally.
-(defun %uuid-octets-to-string (convert-byte-array &key (start 0) end (external-format #+clisp charset:utf-8 
-                                                                                      #-clisp :UTF-8))
-  (declare (simple-array (unsigned-byte 8) (*)))
+;; If we know that uuid-octets-to-string is only called internally.
+;;
+;; (defun %uuid-octets-to-string (convert-byte-array &key (start 0) end (external-format #+clisp charset:utf-8 #-clisp :UTF-8)) 
+(defun %uuid-octets-to-string (convert-byte-array)
+  (declare ((simple-array (unsigned-byte 8) (*)) convert-byte-array))
   (the simple-string-compat
     #+:clisp 
-    (ext:convert-string-from-bytes external-format :start start :end end)
+    (ext:convert-string-from-bytes CHARSET:UTF-8) ; :start start :end end)
     #-(or :clisp (and :sbcl :sb-unicode))
-    (flexi-streams:octets-to-string convert-byte-array :external-format :UTF-8 :start start :end end)
+    (flexi-streams:octets-to-string convert-byte-array :external-format :UTF-8) ; :start start :end end)
     #+(and :sbcl :sb-unicode)
-    (sb-ext:octets-to-string convert-byte-array :external-format external-format :start start :end end)))
+    (sb-ext:octets-to-string convert-byte-array :external-format :UTF-8) ; :start start :end end)))
+    ))
 
 ;;; ==============================
 ;; CLISP
