@@ -16,7 +16,7 @@
 
 (in-package #:unicly-asd)
 
-(defvar *authur-maintainer-contact* (format nil "MON KEY -- ~A"
+(defvar *author-maintainer-contact* (format nil "MON KEY -- ~A"
                                  (map 'string
                                       'code-char
                                       #(109 111 110 107 101 121 64 115 97 110 100 112 
@@ -27,9 +27,9 @@
   :licence "MIT"
   :version "2011.08.31"
   ;; :maintainer "MON KEY"
-  :maintainer #.*authur-maintainer-contact*
+  :maintainer #.*author-maintainer-contact*
   :description "UUID Generation per RFC 4122"
-  :long-description "Common Lisp UUIDs implementated per RFC 4122"
+  :long-description "UUID implementation for Common Lisp as per RFC 4122"
   :serial t
   :depends-on (:ironclad 
                :split-sequence
