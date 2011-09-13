@@ -168,8 +168,8 @@
                             ;; #-sbcl (trivial-utf-8:string-to-utf-8-bytes name))
                             ;; :NOTE sb-ext:string-to-octets is approx 11x
                             ;; faster and conses 75% less than flexi-streams:string-to-octets
-                            #-sbcl (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
-                            #+sbcl (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8)))
+                            #-(or :sbcl :sb-unicode) (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
+                            #+:sbcl (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8)))
     (the (values uuid-byte-array &optional) (ironclad:produce-digest digester))))
 
 

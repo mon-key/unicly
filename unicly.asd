@@ -16,19 +16,33 @@
 
 (in-package #:unicly-asd)
 
+(defvar *author-maintainer-contact* (format nil "MON KEY -- ~A"
+                                 (map 'string
+                                      'code-char
+                                      #(109 111 110 107 101 121 64 115 97 110 100 112 
+                                        102 114 97 109 105 110 103 46 99 111 109))))
+
 (defsystem #:unicly
   :name "unicly"
   :licence "MIT"
   :version "2011.08.31"
-  :maintainer "MON KEY"
+  ;; :maintainer "MON KEY"
+  :maintainer #.*author-maintainer-contact*
   :description "UUID Generation per RFC 4122"
-  :long-description "Lisp implementation of RFC 4122"
+  :long-description "UUID implementation for Common Lisp as per RFC 4122"
   :serial t
   :depends-on (:ironclad 
                :split-sequence
-               #-sbcl :flexi-streams)
-  :components ((:file "package")
+               #-:sbcl :flexi-streams
+               #-(and :sbcl :sb-unicode) :flexi-streams
+               )
+  :components (
+               ;; (:static "README")
+               ;; (:static "LISPWORKS")
+               ;; (:static "LICENSE.txt")
+               (:file "package")
                (:file "unicly-specials")
+               (:file "unicly-bridge")
                (:file "unicly-utils")
                (:file "unicly-macros")
                (:file "unicly-types")

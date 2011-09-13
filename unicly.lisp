@@ -117,15 +117,16 @@
   ;; -  Compute the hash of the name space ID concatenated with the name.
   (declare (type (mod 6) digest-version)
            (unique-universal-identifier uuid-namespace-instance)
-           (string name)
-           (inline %verify-digest-version %uuid-digest-uuid-instance-sha1 %uuid-digest-uuid-instance-md5)
+           (type string-compat name)
+           (inline %uuid-string-to-octets 
+                   %verify-digest-version
+                   %uuid-digest-uuid-instance-sha1
+                   %uuid-digest-uuid-instance-md5)
            (optimize (speed 3)))
   (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
                    (uuid-get-namespace-bytes uuid-namespace-instance)))
-        (name-ba
-         #-(or sbcl clisp) (the uuid-byte-array (flexi-streams:string-to-octets name :external-format :UTF-8))
-         #+clisp (the uuid-byte-array (ext:convert-string-to-bytes name charset:utf-8))
-         #+sbcl  (the uuid-byte-array (sb-ext:string-to-octets name :external-format :UTF-8))))
+        ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
+        (name-ba (%uuid-string-to-octets name))) 
     (declare (type uuid-byte-array-16 uuid-ba)
              (type uuid-byte-array    name-ba))
     (ecase (%verify-digest-version digest-version)
@@ -290,7 +291,7 @@
                             (digested-v5-uuid (the uuid-byte-array-20 digest-byte-array)))))))))
 
 (defun make-v3-uuid (namespace name)
-  (declare (type string name)
+  (declare (type string-compat name)
            (type unique-universal-identifier namespace)
            (inline digested-v3or5-uuid)
            (optimize (speed 3)))
@@ -298,7 +299,7 @@
     (digested-v3or5-uuid (the uuid-byte-array-16 (uuid-digest-uuid-instance 3 namespace name)) 3)))
 
 (defun make-v5-uuid (namespace name)
-  (declare (type string name)
+  (declare (type string-compat name)
            (type unique-universal-identifier namespace)
            (inline uuid-digest-uuid-instance
                    digested-v3or5-uuid)

@@ -32,21 +32,21 @@
     (declare (boolean if-36)
              (type (or null function uuid-simple-vector-5) vector-5-or-null-uuid))
     (if if-36
-        ;; (the uuid-simple-vector-5 vector-5-or-null-uuid)
         (etypecase vector-5-or-null-uuid
-          #+(or :clisp :sbcl) 
           (compiled-function    (the compiled-function vector-5-or-null-uuid))
           (function             (the function vector-5-or-null-uuid))
-          (uuid-simple-vector-5 (the (simple-array simple-string (5)) vector-5-or-null-uuid)))
-        #-mon (error "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'~% ~
+          (uuid-simple-vector-5 (the uuid-simple-string-vector-5 vector-5-or-null-uuid)))
+        #-:MON 
+        (error "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'~% ~
              got: ~S~% ~
              type-of: ~S~%" uuid-hex-string-36-if (type-of uuid-hex-string-36-if))
-        #+mon (MON:SIMPLE-ERROR-MON :w-sym  'make-uuid-from-string-if
-                                    :w-type 'function
-                                    :w-spec "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'"
-                                    :w-got uuid-hex-string-36-if
-                                    :w-type-of t
-                                    :signal-or-only nil))))
+        #+(and :IS-MON :MON) 
+        (MON:SIMPLE-ERROR-MON :w-sym  'make-uuid-from-string-if
+                              :w-type 'function
+                              :w-spec "Arg UUID-HEX-STRING-36-IF not `uuid-hex-string-36-p'"
+                              :w-got uuid-hex-string-36-if
+                              :w-type-of t
+                              :signal-or-only nil))))
 
 ;; (multiple-value-bind (if-36 vector-5-or-null-uuid) (unicly::uuid-hex-string-36-p "00000000-0000-0000-0000-000000000000") 
 ;;   (list if-36 vector-5-or-null-uuid))
@@ -91,10 +91,10 @@
                                 (declare (type unique-universal-identifier-null null-id))
                                 (return-from make-uuid-from-string
                                   (the unique-universal-identifier-null null-id))))
-                             (uuid-simple-vector-5 (the uuid-simple-vector-5 vec-or-fun))))))))
+                             (uuid-simple-vector-5 (the uuid-simple-string-vector-5 vec-or-fun))))))))
     (declare ;;(optimize (speed 3))
      ;; (type uuid-simple-vector-5 chk-uuid-str)
-     (type (simple-array simple-string (5)) chk-uuid-str))
+     (type uuid-simple-string-vector-5 chk-uuid-str))
     (the unique-universal-identifier
       (make-instance 'unique-universal-identifier
                      :%uuid_time-low               (uuid-hex-vector-parse-time-low               chk-uuid-str)
