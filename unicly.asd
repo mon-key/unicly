@@ -33,9 +33,11 @@
   :serial t
   :depends-on (:ironclad 
                :split-sequence
-               #-sbcl :flexi-streams)
+               #-:sbcl :flexi-streams
+               #+:sbcl :sb-unicode)
   :components ((:file "package")
                (:file "unicly-specials")
+               (:file "unicly-bridge")
                (:file "unicly-utils")
                (:file "unicly-macros")
                (:file "unicly-types")
