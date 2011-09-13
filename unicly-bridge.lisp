@@ -14,9 +14,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (unless (member :SB-UNICODE *features*)
     (warn "~&~%Feature :SB-UNICODE not present in `cl:*features*'~%~
-               If current SBCL is :UTF-8 compatible please evaluate~%~% ~
-                \(require :sb-unicode\)~%~@
-               and try reloading Unicly~%"))
+               Using :flexi-streams as fallback for :UTF-8 string/char frobbing~%"))
   (unless (eql sb-impl::*default-external-format* :UTF-8)
     (warn "~&~%Value of SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* not :UTF-8~%~%~
                Current default external-format is: ~S~%~@
