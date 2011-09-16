@@ -22,6 +22,7 @@ UNICLY_GIT=$CL_MON_CODE/unicly-GIT
 
 UNICLY_FILES="unicly.asd
 package.lisp
+unicly-extend.lisp
 unicly-bit-vectors.lisp
 unicly-bridge.lisp
 unicly-byte-arrays.lisp
