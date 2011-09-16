@@ -86,9 +86,9 @@
                    :rehash-threshold rehash-threshold
                    :test 'uuid-eql
                    :weak weakness
-                   ;; clisp specific
+                   ;; Clisp specific but see the equivalent alist-hash-fu in Alexandria 
+                   ;; or`sb-impl::%stuff-hash-table' in sbcl/src/code/target-hash-table.lisp 
                    :initial-contents initial-contents))
-
 
 ;; LispWorks hash-tables:
 ;; &key test size rehash-size rehash-threshold hash-function weak-kind single-thread free-function

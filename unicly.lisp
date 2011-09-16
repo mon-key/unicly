@@ -255,7 +255,7 @@
     (make-instance 'unique-universal-identifier
                    :%uuid_time-low (%uuid_time-low-request v5-digest-byte-array)
                    :%uuid_time-mid (%uuid_time-mid-request v5-digest-byte-array)
-                   :%uuid_time-high-and-version (%uuid_time-high-and-version-request v5-digest-byte-array 5)
+                   :%uuid_time-high-and-version (%uuid_time-high-and-version-request v5-digest-byte-array #x05)
                    :%uuid_clock-seq-and-reserved (%uuid_clock-seq-and-reserved-request v5-digest-byte-array)
                    :%uuid_clock-seq-low (the uuid-ub8 (%uuid_clock-seq-low-request v5-digest-byte-array))
                    :%uuid_node (%uuid_node-request v5-digest-byte-array))))
@@ -270,7 +270,7 @@
     (make-instance 'unique-universal-identifier
                    :%uuid_time-low (%uuid_time-low-request v3-digest-byte-array)
                    :%uuid_time-mid (%uuid_time-mid-request v3-digest-byte-array)
-                   :%uuid_time-high-and-version (%uuid_time-high-and-version-request v3-digest-byte-array 3)
+                   :%uuid_time-high-and-version (%uuid_time-high-and-version-request v3-digest-byte-array #x03)
                    :%uuid_clock-seq-and-reserved (%uuid_clock-seq-and-reserved-request v3-digest-byte-array)
                    :%uuid_clock-seq-low (%uuid_clock-seq-low-request v3-digest-byte-array)
                    :%uuid_node (the uuid-ub48 (%uuid_node-request v3-digest-byte-array)))))
@@ -296,7 +296,7 @@
            (inline digested-v3or5-uuid)
            (optimize (speed 3)))
   (the (values unique-universal-identifier &optional)
-    (digested-v3or5-uuid (the uuid-byte-array-16 (uuid-digest-uuid-instance 3 namespace name)) 3)))
+    (digested-v3or5-uuid (the uuid-byte-array-16 (uuid-digest-uuid-instance #x03 namespace name)) #x03)))
 
 (defun make-v5-uuid (namespace name)
   (declare (type string-compat name)
@@ -305,7 +305,7 @@
                    digested-v3or5-uuid)
            (optimize (speed 3)))
   (the (values unique-universal-identifier &optional)
-    (digested-v3or5-uuid (the uuid-byte-array-20 (uuid-digest-uuid-instance 5 namespace name))  5)))
+    (digested-v3or5-uuid (the uuid-byte-array-20 (uuid-digest-uuid-instance #x05 namespace name)) #x05)))
 
 ;;; ==============================
 ;; ,---- RFC4122 Section 4.4. "Creating UUIDs from Truly-Random/Pseudo-Random Numbers":
