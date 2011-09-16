@@ -283,10 +283,10 @@
   (let ((version-if  (%verify-version-3-or-5 digest-3-or-5)))
     (the unique-universal-identifier
       (ecase (the uuid-v3or5-int version-if)
-        (3  
+        (#x03
          (setf version-if (the unique-universal-identifier
                             (digested-v3-uuid (the uuid-byte-array-16 digest-byte-array)))))
-        (5  
+        (#x05
          (setf version-if (the unique-universal-identifier
                             (digested-v5-uuid (the uuid-byte-array-20 digest-byte-array)))))))))
 
