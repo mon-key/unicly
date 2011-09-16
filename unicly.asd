@@ -56,6 +56,7 @@
                (:file "unicly-uuid-version")
                (:file "unicly-hash-table")
                (:file "unicly-io")
+               (:file "unicly-extend")
                (:file "unicly-docs" )
                ;; (:file "unicly-compat")
                ;; (:file "unicly-deprecated")
