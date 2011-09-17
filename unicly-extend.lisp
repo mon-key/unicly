@@ -24,7 +24,8 @@
 ;; familar. If we moved to structure based instance we would likely have to
 ;; allocate both a class object and a structure object for each UUID created
 ;; In any event, as it stands we're sticking with the existing class interface.
-;; This said, the current interface as defined below is not hooking into the MOP and everything by hand with attempting to 
+;; This said, the current interface as defined below is not hooking into the MOP
+;; and everything is written out by hand as a bunch of macros.
 ;;
 ;; :USAGE
 ;;
