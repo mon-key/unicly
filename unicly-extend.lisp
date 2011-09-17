@@ -77,7 +77,7 @@
   (unless (equal '(T T)
                  (multiple-value-list
                   (subtypep 'uuid-indexable-v5 'unique-universal-identifier)))
-    (error "Arg SUBCLASS not `cl:subtypep' the class `unique-universal-identifier'~% ~
+    (error "Arg SUBCLASS not `cl:subtypep' the class `unicly:unique-universal-identifier'~% ~
             got: ~S~% type-of: ~S~%" subclass (type-of subclass))))
 
 (defun %verify-class-slots (class)
