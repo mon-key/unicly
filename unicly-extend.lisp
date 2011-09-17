@@ -59,6 +59,7 @@
 ;; (make-v5-uuid-indexable *uuid-namespace-dns* "bubba")
 ;; (make-v3-uuid-indexable *uuid-namespace-dns* "bubba")
 ;; (make-v4-uuid-indexable)
+;; (make-uuid-from-string-indexable "7e4b6445-8097-4d3b-976b-b67bbe784c90")
 ;;
 ;;; ==============================
 ;;
