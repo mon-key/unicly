@@ -23,20 +23,21 @@
 ;; class uuid:uuid that existing 3 party code using the uuid would remain
 ;; familar. If we moved to structure based instance we would likely have to
 ;; allocate both a class object and a structure object for each UUID created
-;; In any event, as it stands were sticking with the existing class interface.
+;; In any event, as it stands we're sticking with the existing class interface.
+;; This said, the current interface as defined below is not hooking into the MOP and everything by hand with attempting to 
 ;;
 ;; :USAGE
 ;;
-;; (defclass indexable-v5-uuid (unicly:unique-universal-identifier)
+;; (defclass indexable-uuid (unicly:unique-universal-identifier)
 ;;  ((bit-vector 
 ;;    :reader bit-vector-of-uuid)
 ;;   (integer-128
 ;;    :reader integer-128-of-uuid)))
 ;;
-;; (def-make-v5-uuid-extended indexed indexable-v5-uuid)
+;; (def-make-uuid-extend-class-fun indexed indexable-uuid)
 ;;
 ;; (defmethod update-instance-for-different-class  ((old unicly:unique-universal-identifier)
-;;                                                  (new uuid-indexable-v5)
+;;                                                  (new indexable-uuid)
 ;;                                                  &key)
 ;;   (with-slots (%uuid_time-low
 ;;                %uuid_time-mid
