@@ -35,37 +35,33 @@
 ;;
 ;; (def-make-v5-uuid-extended indexed indexable-v5-uuid)
 ;;
-;; (defmethod update-instance-for-different-class  ((old unique-universal-identifier)
+;; (defmethod update-instance-for-different-class  ((old unicly:unique-universal-identifier)
 ;;                                                  (new uuid-indexable-v5)
 ;;                                                  &key)
-;;   (with-slots '(%uuid_time-low
-;;                 %uuid_time-mid
-;;                 %uuid_time-high-and-version 
-;;                 %uuid_clock-seq-and-reserved
-;;                 %uuid_clock-seq-low 
-;;                 %uuid_node)
+;;   (with-slots (%uuid_time-low
+;;                %uuid_time-mid
+;;                %uuid_time-high-and-version 
+;;                %uuid_clock-seq-and-reserved
+;;                %uuid_clock-seq-low 
+;;                %uuid_node)
 ;;       old
-;;     (setf (slot-value new '%uuid_time-low) old
-;;           (slot-value new '%uuid_time-mid) old
-;;           (slot-value new '%uuid_time-high-and-version) old
-;;           (slot-value new '%uuid_clock-seq-and-reserved) old
-;;           (slot-value new '%uuid_clock-seq-low) old
-;;           (slot-value new '%uuid_node) old
-;;           (slot-value new 'bit-vector) (unicly:uuid-to-bit-vector old)
-;;           (slot-value new 'integer-128)
-;;           (unicly::uuid-bit-vector-to-integer (slot-value new 'bit-vector)))))
+;;     (setf (slot-value new '%uuid_time-low) %uuid_time-low
+;;           (slot-value new '%uuid_time-mid) %uuid_time-mid
+;;           (slot-value new '%uuid_time-high-and-version) %uuid_time-high-and-version
+;;           (slot-value new '%uuid_clock-seq-and-reserved) %uuid_clock-seq-and-reserved
+;;           (slot-value new '%uuid_clock-seq-low) %uuid_clock-seq-low
+;;           (slot-value new '%uuid_node) %uuid_node
+;;           (slot-value new 'bit-vector)  (unicly:uuid-to-bit-vector old)
+;;           (slot-value new 'integer-128) (unicly::uuid-bit-vector-to-integer (slot-value new 'bit-vector)))))
 ;;
 ;; (make-v5-uuid-indexable *uuid-namespace-dns* "bubba")
 ;;
 ;;; ==============================
 ;;
 ;; :TODO macros for 
-;; `make-v3-uuid' as `def-make-v3-uuid-extended'
-;; `make-v4-uuid' as `def-make-v4-uuid-extended'
-;; `make-uuid-from-string' as `def-make-uuid-from-string-extended'
-;; `uuid-copy-uuid'
+;; `uuid-copy-uuid' as `def-make-uuid-copy-uuid-extended'
+;;
 ;;; ==============================
-
 
 (in-package #:unicly)
 
@@ -98,16 +94,22 @@
                  slot class))
     class))
 
+(declaim (inline %make-uuid-from-string-extended-null-string-error))
 (defun %make-uuid-from-string-extended-null-string-error (maybe-null-string)
   (declare (type (or string-or-null unique-universal-identifier) maybe-null-string)
            (optimize (speed 3)))
-  (when (string= maybe-null-string +uuid-null-string+)
-    (error "Arg must not be `cl:string=' `unicly:+uuid-null-string+'")))
+  (if (string= maybe-null-string +uuid-null-string+)
+      (error "Arg must not be `cl:string=' the constant `unicly::+uuid-null-string+'")
+      maybe-null-string))
+
+(defun %verify-valid-subclass-and-slots (class-to-verify)
+  (%verify-valid-uuid-subclass class-to-verify)
+  (%verify-class-slots         class-to-verify))
 
 (defmacro def-make-v5-uuid-extended (make-v5-uuid-suffix v5-uuid-class)
   ;; (macroexpand-1 '(unicly::def-make-v5-uuid-extended indexable uuid-indexable-v5))
-  (%verify-valid-uuid-subclass v5-uuid-class)
-  (%verify-class-slots         v5-uuid-class)
+  ;;  (%verify-valid-uuid-subclass v5-uuid-class)
+  ;; (%verify-class-slots         v5-uuid-class)
   (let ((v5-fun-name 
          (intern (format nil "MAKE-V5-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v5-uuid-suffix))))))
@@ -115,13 +117,13 @@
        (declare (type unicly::unique-universal-identifier namespace)
                 (type unicly::string-compat name))
        (let ((change-obj (unicly::make-v5-uuid namespace name)))
-         (declare (unicly::unique-universal-identifier change-obj))
+         (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',v5-uuid-class)))))
 
 (defmacro def-make-v3-uuid-extended (make-v3-uuid-suffix v3-uuid-class)
   ;; (macroexpand-1 '(def-make-v3-uuid-extended indexable uuid-indexable-v3))
-  (%verify-valid-uuid-subclass v3-uuid-class)
-  (%verify-class-slots         v3-uuid-class)
+  ;; (%verify-valid-uuid-subclass v3-uuid-class)
+  ;; (%verify-class-slots         v3-uuid-class)
   (let ((v3-fun-name 
          (intern (format nil "MAKE-V3-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v3-uuid-suffix))))))
@@ -129,11 +131,42 @@
        (declare (type unicly::unique-universal-identifier namespace)
                 (type unicly::string-compat name))
        (let ((change-obj (unicly::make-v3-uuid namespace name)))
-         (declare (unicly::unique-universal-identifier change-obj))
+         (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',v3-uuid-class)))))
 
-;; (defun ,<MAKE-UUID-FROM-STRING-FOO> (uuid-or-hex-string-36)
-;;  (let ((change-obj (make-uuid-from-string uuid-or-hex-string-36)))
+(defmacro def-make-v4-uuid-extended (make-v4-uuid-suffix v4-uuid-class)
+  ;; (macroexpand-1 '(def-make-v4-uuid-extended indexable uuid-indexable-v3))
+  ;; (%verify-valid-uuid-subclass v4-uuid-class)
+  ;; (%verify-class-slots         v4-uuid-class)
+  (let ((v4-fun-name 
+         (intern (format nil "MAKE-V4-UUID-~A"
+                         (string-trim '(#\SPACE #\- #\:) (string-upcase make-v4-uuid-suffix))))))
+    `(defun ,v4-fun-name ()
+       (let ((change-obj (unicly::make-v4-uuid)))
+         (declare (type unicly::unique-universal-identifier change-obj))
+         (change-class change-obj ',v4-uuid-class)))))
+
+(defmacro def-make-uuid-from-string-extended (make-extended-suffix extended-class)
+  (let ((uuid-from-string-fun
+         (intern (format nil "MAKE-UUID-FROM-STRING-~A"
+                         (string-trim '(#\SPACE #\- #\:) (string-upcase make-extended-suffix))))))
+    `(defun ,uuid-from-string-fun (uuid-hex-string-36)
+       (declare (type unicly::uuid-hex-string-36 uuid-hex-string-36)
+                (inline %make-uuid-from-string-extended-null-string-error))
+       (%make-uuid-from-string-extended-null-string-error uuid-hex-string-36)
+       (let ((change-obj (make-uuid-from-string uuid-hex-string-36)))
+         (declare (type unicly::unique-universal-identifier change-obj))
+         (change-class change-obj ',extended-class)))))
+
+(defmacro def-make-uuid-extend-class-fun (make-extended-suffix extended-class)
+  ;; (macroexpand-1 (def-make-uuid-extend-class-fun indexable uuid-indexable-v5))
+  (%verify-valid-subclass-and-slots extended-class)
+  `(progn
+     (def-make-v3-uuid-extended ,make-extended-suffix ,extended-class)
+     (def-make-v5-uuid-extended ,make-extended-suffix ,extended-class)
+     (def-make-v4-uuid-extended ,make-extended-suffix ,extended-class)
+     (def-make-uuid-from-string-extended ,make-extended-suffix ,extended-class)
+     (values)))
 
 ;;; ==============================
 ;; Alternative form of macro `def-make-v5-uuid-extended' that doesn't so easily
