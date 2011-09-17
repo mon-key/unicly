@@ -60,7 +60,9 @@
 ;;
 ;; :TODO macros for 
 ;; `uuid-copy-uuid' as `def-make-uuid-copy-uuid-extended'
-;;
+;; `uuid-from-bit-vector' as `def-make-uuid-from-bit-vector-extended'
+;; `uuid-from-byte-array' as `def-make-uuid-from-byte-array-extended'
+
 ;;; ==============================
 
 (in-package #:unicly)
@@ -101,6 +103,18 @@
   (if (string= maybe-null-string +uuid-null-string+)
       (error "Arg must not be `cl:string=' the constant `unicly::+uuid-null-string+'")
       maybe-null-string))
+
+(declaim (inline %make-uuid-from-byte-array-extended-null-array-error))
+(defun %make-uuid-from-byte-array-extended-null-array-error (byte-array)
+  ;; (%make-uuid-from-byte-array-extended-null-array-error (uuid-byte-array-16-zeroed))
+  (declare (type uuid-byte-array-16 byte-array)
+           (inline %uuid-byte-array-null-p)
+           (optimize (speed 3)))
+  (if (%uuid-byte-array-null-p byte-array)
+      (error "Arg must not be an array with all octets `cl:zerop'")
+      byte-array))
+
+;; (unicly::uuid-to-byte-array (make-v5-uuid-indexable unicly::*uuid-namespace-dns* "bubba"))
 
 (defun %verify-valid-subclass-and-slots (class-to-verify)
   (%verify-valid-uuid-subclass class-to-verify)
@@ -158,14 +172,27 @@
          (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',extended-class)))))
 
+(defmacro def-make-uuid-byte-array-extended (make-extended-suffix extended-class)
+  (let ((uuid-from-ba-fun
+         (intern (format nil "MAKE-UUID-FROM-BYTE-ARRAY-~A"
+                         (string-trim '(#\SPACE #\- #\:) (string-upcase make-extended-suffix))))))
+    `(defun ,uuid-from-ba-fun (uuid-byte-array-16)
+       (declare (type unicly::uuid-byte-array-16 uuid-byte-array-16)
+                (inline unicly::%make-uuid-from-byte-array-extended-null-array-error))
+       (unicly::%make-uuid-from-byte-array-extended-null-array-error uuid-byte-array-16)
+       (let ((change-obj (unicly::uuid-from-byte-array uuid-byte-array-16)))
+         (declare (type unicly::unique-universal-identifier change-obj))
+         (change-class change-obj ',extended-class)))))
+
 (defmacro def-make-uuid-extend-class-fun (make-extended-suffix extended-class)
   ;; (macroexpand-1 (def-make-uuid-extend-class-fun indexable uuid-indexable-v5))
   (%verify-valid-subclass-and-slots extended-class)
   `(progn
-     (def-make-v3-uuid-extended ,make-extended-suffix ,extended-class)
-     (def-make-v5-uuid-extended ,make-extended-suffix ,extended-class)
-     (def-make-v4-uuid-extended ,make-extended-suffix ,extended-class)
-     (def-make-uuid-from-string-extended ,make-extended-suffix ,extended-class)
+     (unicly::def-make-v3-uuid-extended ,make-extended-suffix ,extended-class)
+     (unicly::def-make-v5-uuid-extended ,make-extended-suffix ,extended-class)
+     (unicly::def-make-v4-uuid-extended ,make-extended-suffix ,extended-class)
+     (unicly::def-make-uuid-from-string-extended ,make-extended-suffix ,extended-class)
+     (unicly::def-make-uuid-byte-array-extended ,make-extended-suffix ,extended-class)
      (values)))
 
 ;;; ==============================
