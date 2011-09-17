@@ -98,17 +98,39 @@
                  slot class))
     class))
 
+(defun %make-uuid-from-string-extended-null-string-error (maybe-null-string)
+  (declare (type (or string-or-null unique-universal-identifier) maybe-null-string)
+           (optimize (speed 3)))
+  (when (string= maybe-null-string +uuid-null-string+)
+    (error "Arg must not be `cl:string=' `unicly:+uuid-null-string+'")))
+
 (defmacro def-make-v5-uuid-extended (make-v5-uuid-suffix v5-uuid-class)
-  ;; (unicly::def-make-v5-uuid-extended indexable uuid-indexable-v5)
+  ;; (macroexpand-1 '(unicly::def-make-v5-uuid-extended indexable uuid-indexable-v5))
   (%verify-valid-uuid-subclass v5-uuid-class)
   (%verify-class-slots         v5-uuid-class)
   (let ((v5-fun-name 
          (intern (format nil "MAKE-V5-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v5-uuid-suffix))))))
     `(defun ,v5-fun-name (namespace name)
-       (let ((change-obj (make-v5-uuid namespace name)))
-         (declare (unique-universal-identifier change-obj))
+       (declare (type unicly::unique-universal-identifier namespace)
+                (type unicly::string-compat name))
+       (let ((change-obj (unicly::make-v5-uuid namespace name)))
+         (declare (unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',v5-uuid-class)))))
+
+(defmacro def-make-v3-uuid-extended (make-v3-uuid-suffix v3-uuid-class)
+  ;; (macroexpand-1 '(def-make-v3-uuid-extended indexable uuid-indexable-v3))
+  (%verify-valid-uuid-subclass v3-uuid-class)
+  (%verify-class-slots         v3-uuid-class)
+  (let ((v3-fun-name 
+         (intern (format nil "MAKE-V3-UUID-~A"
+                         (string-trim '(#\SPACE #\- #\:) (string-upcase make-v3-uuid-suffix))))))
+    `(defun ,v3-fun-name (namespace name)
+       (declare (type unicly::unique-universal-identifier namespace)
+                (type unicly::string-compat name))
+       (let ((change-obj (unicly::make-v3-uuid namespace name)))
+         (declare (unicly::unique-universal-identifier change-obj))
+         (change-class change-obj ',v3-uuid-class)))))
 
 ;; (defun ,<MAKE-UUID-FROM-STRING-FOO> (uuid-or-hex-string-36)
 ;;  (let ((change-obj (make-uuid-from-string uuid-or-hex-string-36)))
