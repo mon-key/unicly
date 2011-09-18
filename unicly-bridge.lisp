@@ -82,6 +82,7 @@
   ;;  Flexi-Streams: `flex:string-to-octets'
   (declare (type string-compat name-arg)
            (optimize (speed 3)))
+  ;; #+:allegro (coerce (excl:string-to-octets string) 'list)
   #+:clisp 
   (the (simple-array (unsigned-byte 8) (*))  
     (ext:convert-string-to-bytes name-arg CHARSET:UTF-8))
