@@ -55,12 +55,21 @@
 ;; (typep (unicly::make-uuid-from-string-if "6ba7b810-9dad-11d1-80b4-00c04fd430c8") '(simple-array simple-string (5)))
 ;; (unicly::make-uuid-from-string-if "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 ;; (typep (unicly::make-uuid-from-string-if "00000000-0000-0000-0000-000000000000") 'compiled-function)
+;; (compiled-function-p (nth-value 1 (unicly::uuid-hex-string-36-p "00000000-0000-0000-0000-000000000000"))) 
 ;;
 ;; (make-uuid-from-string "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 
 ;;; ==============================
 ;; :TODO This should also check for a uuid-hex-string-32 and parse at different
 ;; offsets via dispatch to the appropriate function.
+;;
+;; :TODO Figure out what to do about subclasses of
+;; `unique-universal-identifier'.  If we keep the same separation for
+;; `make-uuid-from-string' as we currently have between 
+;; `make-v5-uuid' and `def-make-v4-uuid-extended'
+;; then a macro `def-make-uuid-from-string-extended' may require duplicating
+;; much of the functionality defined below. However, it won't require us to make
+;; dispambiguations in the etypecase form.
 ;;
 ;; :NOTE What about `cl:read-from-string' instead of `cl:parse-integer' e.g.:
 ;;   (let ((*read-base* 16)) (read-from-string "88"))

@@ -181,8 +181,6 @@ In which is added an extra parameter ELEMENT-TYPE!
 |  ;=> SIMPLE-BASE-STRING
 `---- :SOURCE (URL `http://www.lispworks.com/documentation/lw60/LW/html/lw-627.htm#85954')
 
-;; (typep "abc" '(string 3))
-
 ,----
 | 22.2.1 Character types
 | 
