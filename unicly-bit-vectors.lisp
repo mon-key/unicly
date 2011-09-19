@@ -514,7 +514,8 @@
                    %uuid_time-high-and-version-request-bit-vector
                    %uuid_clock-seq-and-reserved-request-bit-vector
                    %uuid_clock-seq-low-request-bit-vector
-                   %uuid_node-request-bit-vector)
+                   %uuid_node-request-bit-vector
+                   uuid-bit-vector-null-p)
            (uuid-bit-vector-128 bit-vector-128)
            (optimize (speed 3)))
   (uuid-bit-vector-128-check-type bit-vector-128)
