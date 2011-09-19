@@ -78,7 +78,7 @@
     (error "Arg SUBCLASS must be a subclass of unicly:unique-universal-identifier"))
   (unless (equal '(T T)
                  (multiple-value-list
-                  (subtypep 'uuid-indexable-v5 'unique-universal-identifier)))
+                  (subtypep subclass 'unique-universal-identifier)))
     (error "Arg SUBCLASS not `cl:subtypep' the class `unicly:unique-universal-identifier'~% ~
             got: ~S~% type-of: ~S~%" subclass (type-of subclass))))
 
@@ -122,7 +122,23 @@
       (error "Arg must not be an array with all octets `cl:zerop'")
       byte-array))
 
-;; (unicly::uuid-to-byte-array (make-v5-uuid-indexable unicly::*uuid-namespace-dns* "bubba"))
+;; (fundoc '%make-uuid-from-bit-vector-extendable-bv-zeroed-error
+;; Return MAYBE-BIT-VECTOR-ZEROED or error if it is `unicly::uuid-bit-vector-null-p'.
+;; :EXAMPLE
+;; (let ((zero-bits (uuid-bit-vector-128-zeroed)))
+;;    (setf (sbit zero-bits 0) 1)
+;;    (%make-uuid-from-bit-vector-extendable-bv-zeroed-error zero-bits))
+;; Following each fail succesfully:
+;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (uuid-bit-vector-128-zeroed))
+;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (make-array 16 :element-type 'bit))
+(declaim (inline %make-uuid-from-bit-vector-extendable-bv-zeroed-error))
+(defun %make-uuid-from-bit-vector-extendable-bv-zeroed-error (maybe-bit-vector-zeroed)
+  (declare (unicly::uuid-bit-vector-128 maybe-bit-vector-zeroed)
+           (inline unicly::uuid-bit-vector-null-p)
+           (optimize (speed 3)))
+  (if (unicly::uuid-bit-vector-null-p maybe-bit-vector-zeroed)
+      (error "Arg must _not_ satisfy `unicly::uuid-bit-vector-null-p'")
+      maybe-bit-vector-zeroed))
 
 (defun %verify-valid-subclass-and-slots (class-to-verify)
   (%verify-valid-uuid-subclass class-to-verify)
@@ -181,6 +197,7 @@
          (change-class change-obj ',extended-class)))))
 
 (defmacro def-make-uuid-byte-array-extended (make-extended-suffix extended-class)
+  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexable uuid-indexable-v3))
   (let ((uuid-from-ba-fun
          (intern (format nil "MAKE-UUID-FROM-BYTE-ARRAY-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-extended-suffix))))))
@@ -192,8 +209,23 @@
          (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',extended-class)))))
 
+(defmacro def-uuid-from-bit-vector-extendable (make-uuid-from-bv-suffix uuid-bv-class)
+  ;; (macroexpand-1 '(def-uuid-from-bit-vector-extendable indexable uuid-indexable-v3))
+  (let ((uuid-from-bv-fun
+         (intern (format nil "MAKE-UUID-FROM-BIT-VECTOR-~A"
+                         (string-trim '(#\SPACE #\- #\:) (string-upcase make-uuid-from-bv-suffix))))))
+    `(defun ,uuid-from-bv-fun (uuid-bit-vector-128)
+       (declare (unicly::uuid-bit-vector-128 uuid-bit-vector-128)
+                (inline unicly::%make-uuid-from-bit-vector-extendable-bv-zeroed-error)
+                (optimize (speed 3)))
+       #-:sbcl (unicly::uuid-bit-vector-128-check-type uuid-bit-vector-128)
+       (%make-uuid-from-bit-vector-extendable-bv-zeroed-error uuid-bit-vector-128)
+       (let ((change-obj (unicly::uuid-from-bit-vector uuid-bit-vector-128)))
+         (declare (type unicly::unique-universal-identifier change-obj))
+         (change-class change-obj ',uuid-bv-class)))))
+
 (defmacro def-make-uuid-extend-class-fun (make-extended-suffix extended-class)
-  ;; (macroexpand-1 (def-make-uuid-extend-class-fun indexable uuid-indexable-v5))
+  ;; (macroexpand-1 '(def-make-uuid-extend-class-fun indexable uuid-indexable-v5))
   (%verify-valid-subclass-and-slots extended-class)
   `(progn
      (unicly::def-make-v3-uuid-extended ,make-extended-suffix ,extended-class)
@@ -201,8 +233,8 @@
      (unicly::def-make-v4-uuid-extended ,make-extended-suffix ,extended-class)
      (unicly::def-make-uuid-from-string-extended ,make-extended-suffix ,extended-class)
      (unicly::def-make-uuid-byte-array-extended ,make-extended-suffix ,extended-class)
+     (unicly::def-uuid-from-bit-vector-extendable ,make-extended-suffix ,extended-class)
      (values)))
-
 
 ;;; ==============================
 ;; Alternative forms of macro `def-make-v5-uuid-extended',
