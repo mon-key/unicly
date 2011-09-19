@@ -60,6 +60,12 @@
 (deftype string-not-null-or-empty ()
   '(and not-null string-not-empty))
 
+(declaim (inline %string-not-empty-p))
+(defun %string-not-empty-p (maybe-not-null-or-empty-string)
+  (declare (optimize (speed 3)))
+  (typep maybe-not-null-or-empty-string 'string-not-empty))
+
+(declaim (inline simple-string-compat-p))
 (defun simple-string-compat-p (maybe-simple-string-compat)
   (declare (optimize (speed 3)))
   #+:lispworks 
@@ -80,16 +86,27 @@
 (declaim (inline string-all-hex-char-p))
 (defun string-all-hex-char-p (maybe-hex-string)
   (declare (string-or-null maybe-hex-string)
-           (inline string-not-null-or-empty-p
+           (inline simple-string-compat-p
+                   %string-not-empty-p
                    hexadecimal-char-p)
            (optimize (speed 3)))
-  (and maybe-hex-string ;; allow null and bail
-       (string-not-null-or-empty-p (the string-compat maybe-hex-string))
-       (or (simple-string-compat-p (the string-compat maybe-hex-string))
-           (setf maybe-hex-string (copy-seq maybe-hex-string)))
-       (loop 
-          for chk-hex across (the simple-string-compat maybe-hex-string)
-          always (hexadecimal-char-p chk-hex))))
+  (when (null maybe-hex-string)
+    (return-from string-all-hex-char-p nil))
+  (the boolean
+    (and (locally 
+             (declare (string-compat maybe-hex-string))
+           (%string-not-empty-p maybe-hex-string)
+           (or (simple-string-compat-p maybe-hex-string)
+               (setf maybe-hex-string (copy-seq maybe-hex-string))))
+         (locally
+             (declare (simple-string-compat maybe-hex-string))
+           (loop 
+              for chk-hex across maybe-hex-string
+              always (hexadecimal-char-p chk-hex))))))
+
+;; (loop 
+;;    for chk-hex across +uuid-null-string+ of-type simple-string-compat
+;;    always (hexadecimal-char-p chk-hex))
 
 ;; :SOURCE sbcl/src/code/stream.lisp
 (declaim (inline vector-with-fill-pointer))
