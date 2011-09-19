@@ -35,30 +35,32 @@
 ;;   (integer-128
 ;;    :reader integer-128-of-uuid)))
 ;;
-;; (def-make-uuid-extend-class-fun indexed indexable-uuid)
+;; (unicly::def-make-uuid-extend-class-fun indexed indexable-uuid)
 ;;
 ;; (defmethod update-instance-for-different-class  ((old unicly:unique-universal-identifier)
 ;;                                                  (new indexable-uuid)
 ;;                                                  &key)
-;;   (with-slots (%uuid_time-low
-;;                %uuid_time-mid
-;;                %uuid_time-high-and-version 
-;;                %uuid_clock-seq-and-reserved
-;;                %uuid_clock-seq-low 
-;;                %uuid_node)
+;;   (with-slots (unicly::%uuid_time-low
+;;                unicly::%uuid_time-mid
+;;                unicly::%uuid_time-high-and-version
+;;                unicly::%uuid_clock-seq-and-reserved
+;;                unicly::%uuid_clock-seq-low
+;;                unicly::%uuid_node)
 ;;       old
-;;     (setf (slot-value new '%uuid_time-low) %uuid_time-low
-;;           (slot-value new '%uuid_time-mid) %uuid_time-mid
-;;           (slot-value new '%uuid_time-high-and-version) %uuid_time-high-and-version
-;;           (slot-value new '%uuid_clock-seq-and-reserved) %uuid_clock-seq-and-reserved
-;;           (slot-value new '%uuid_clock-seq-low) %uuid_clock-seq-low
-;;           (slot-value new '%uuid_node) %uuid_node
+;;     (setf (slot-value new 'unicly::%uuid_time-low) unicly::%uuid_time-low
+;;           (slot-value new 'unicly::%uuid_time-mid) unicly::%uuid_time-mid
+;;           (slot-value new 'unicly::%uuid_time-high-and-version) unicly::%uuid_time-high-and-version
+;;           (slot-value new 'unicly::%uuid_clock-seq-and-reserved) unicly::%uuid_clock-seq-and-reserved
+;;           (slot-value new 'unicly::%uuid_clock-seq-low) unicly::%uuid_clock-seq-low
+;;           (slot-value new 'unicly::%uuid_node) unicly::%uuid_node
 ;;           (slot-value new 'bit-vector)  (unicly:uuid-to-bit-vector old)
 ;;           (slot-value new 'integer-128) (unicly::uuid-bit-vector-to-integer (slot-value new 'bit-vector)))))
 ;;
-;; (make-v5-uuid-indexable *uuid-namespace-dns* "bubba")
-;; (make-v3-uuid-indexable *uuid-namespace-dns* "bubba")
+;; (make-v5-uuid-indexable unicly:*uuid-namespace-dns* "bubba")
+;; (make-v3-uuid-indexable unicly:*uuid-namespace-dns* "bubba")
 ;; (make-v4-uuid-indexable)
+;; (make-uuid-from-bit-vector-indexable (unicly:uuid-to-bit-vector (make-v4-uuid)))
+;; (make-uuid-from-byte-array-indexable (unicly::uuid-to-byte-array (make-v4-uuid)))
 ;; (make-uuid-from-string-indexable "7e4b6445-8097-4d3b-976b-b67bbe784c90")
 ;;
 ;;; ==============================
