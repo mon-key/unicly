@@ -124,7 +124,7 @@
   (locally 
       (declare (type uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
                (optimize (speed 3) (safety 0)))
-  #-sbcl 
+  #-:sbcl
   (if (and (= (count 0 uuid-bv-a :test #'=) (count 0 uuid-bv-b :test #'=))
            (= (count 1 uuid-bv-a :test #'=) (count 1 uuid-bv-b :test #'=)))
       (loop 
@@ -132,7 +132,7 @@
          for top-idx = (logxor low-idx 127)
          always (and (= (sbit uuid-bv-a low-idx) (sbit uuid-bv-b low-idx))
                      (= (sbit uuid-bv-a top-idx) (sbit uuid-bv-b top-idx)))))
-  #+sbcl (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b)))
+  #+:sbcl (SB-INT:BIT-VECTOR-= uuid-bv-a uuid-bv-b)))
 
 (defun %uuid-bit-vector-null-p (bit-vector-maybe-null)
   (declare (uuid-bit-vector-128 bit-vector-maybe-null)
@@ -142,6 +142,7 @@
   (the (values (member t nil) &optional)
     (uuid-bit-vector-eql bit-vector-maybe-null (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed)))))
 
+;; :NOTE The type unicly::uuid-bit-vector-null is a satisfies of %uuid-bit-vector-null-p
 (declaim (inline uuid-bit-vector-null-p))
 (defun uuid-bit-vector-null-p (bit-vector-maybe-null)
   (declare (optimize (speed 3)))

@@ -189,7 +189,7 @@ In long-form this number is:~%
  decillion, 366 nonillion, 920 octillion, 938 septillion, 463 sextillion, 463~%~
  quintillion, 374 quadrillion, 607 trillion, 431 billion, 768 million, 211~%~
  thousand and 455~%~@
-:SEE-ALSO `<XREF>'.~%~%")))
+:SEE-ALSO `<XREF>'.~%")))
 
 (defclass unique-universal-identifier-null (unique-universal-identifier)
   ;; :NOTE We don't advertise `*uuid-null-uuid*' and `%make-null-uuid-loadtime'

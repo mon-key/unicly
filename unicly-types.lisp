@@ -148,11 +148,6 @@
 (deftype uuid-string-36 ()
   #-:lispworks '(array character (36))
   #+:lispworks '(string-n-length-compat 36))
-
-;; (deftype uuid-string-36-null-p ()
-;; (and uuid-string-36 
-;; string-n-length-compat
-;; %uuid-null-string-p
  
 ;; complex-type
 ;; currently unused :SEE `uuid-get-bytes' in unicly/unicly-deprecated.lisp
