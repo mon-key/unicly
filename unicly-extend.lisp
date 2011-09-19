@@ -103,7 +103,10 @@
 
 (declaim (inline %make-uuid-from-string-extended-null-string-error))
 (defun %make-uuid-from-string-extended-null-string-error (maybe-null-string)
-  (declare (type (or string-or-null unique-universal-identifier) maybe-null-string)
+  ;; :TODO We originally declared MAYBE-NULL-STRING as `unicly:string-or-null'
+  ;; verify why we might ever expect MAYBE-NULL-STRING to be other than of type
+  ;; unicly::uuid-string-36
+  (declare (type unicly::uuid-string-36 maybe-null-string)
            (optimize (speed 3)))
   (if (string= maybe-null-string +uuid-null-string+)
       (error "Arg must not be `cl:string=' the constant `unicly::+uuid-null-string+'")
