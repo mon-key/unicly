@@ -218,6 +218,7 @@
                  uuid-bit-vector-8-p
                  uuid-string-32-p
                  uuid-string-36-p
+                 uuid-string-36-check-type
                  uuid-byte-array-p
                  uuid-byte-array-16-p
                  uuid-byte-array-16-check-type
