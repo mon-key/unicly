@@ -5,29 +5,30 @@
 ;;; ==============================
 ;; :NOTE The inteface defined here is experimental and subject to change!
 ;;
-;; Should you need to define a function which instantiates a uuid for a subclass
-;; of unique-universal-identifier I've provided an alternative form of the macro
-;; `def-make-v5-uuid-extended' at the bottom of this file which is functional and
-;; can be adapted to for use in third-party code but it isn't particular CLOS
-;; friendly.
+;; The current interface as defined below is not hooking into the MOP and
+;; everything is written out by hand as a bunch of macros.
 ;;
-;; There are some issues around subclassing `unique-universal-identifier' b/c of
-;; we the way we've chosen to interact with the base class UUID class
-;; `unique-universal-identifier'. Basically we treat the slot values of its
-;; instances as immutable once instantiated and try to go out of our way to
-;; protect those slots. It may have been wiser to define the base class as a
-;; structure (which would likely open up other complications) and then move the
-;; slot values of an instantiated UUID structure into a CLOS thing. 
-;; The original intent behind defining UUIDs as classes was to:
-;; implement unique-universal-identifier in a manner similar enough to the
-;; class uuid:uuid that existing 3 party code using the uuid would remain
-;; familar. If we moved to structure based instance we would likely have to
-;; allocate both a class object and a structure object for each UUID created
-;; In any event, as it stands we're sticking with the existing class interface.
-;; This said, the current interface as defined below is not hooking into the MOP
-;; and everything is written out by hand as a bunch of macros.
+;; There are some issues around defining a direct CLOS oriented
+;; defgeneric/defmethod interface w/r/t subclassing
+;; `unique-universal-identifier' b/c of the way we've chosen to interact with
+;; the base UUID class `unique-universal-identifier' and do some non-CLOS
+;; friendly things by treating the slot values of its instances as immutable
+;; once instantiated and try to go out of our way to protect those slots.  It
+;; may have been wiser to define the base class as a structure (which would
+;; likely open up other complications) and then move the slot values of an
+;; instantiated UUID structure into a CLOS thing.  Our original intent behind
+;; defining UUIDs as classes was to implement the class
+;; `unique-universal-identifier' in a manner similar enough to the class `uuid:uuid'
+;; that existing 3 party code using the uuid system would retain a (mostly)
+;; familar interface.  Should we ever decide to move to structure based
+;; instances of unique-universal-identifier we would likely have to allocate
+;; both a class object and a structure object for each UUID created in much the
+;; same way that we are now doing with subclasses.  In any event, as it stands,
+;; we're sticking with the existing class interface.
 ;;
 ;; :USAGE
+;;
+;; (defpackage #:tt-uuid-extended (:use #:common-lisp #:unicly))
 ;;
 ;; (defclass indexable-uuid (unicly:unique-universal-identifier)
 ;;  ((bit-vector 
@@ -65,7 +66,6 @@
 ;; (make-v4-uuid-indexed)
 ;; => 0c813195-5c4d-40a4-acc1-994c26d773b3
 ;;
-;;
 ;; (make-uuid-from-bit-vector-indexed 
 ;;  (unicly:uuid-to-bit-vector 
 ;;   (make-v5-uuid-indexed unicly:*uuid-namespace-dns* "bubba")))
@@ -75,10 +75,9 @@
 ;;  (unicly::uuid-to-byte-array 
 ;;   (make-v3-uuid-indexed unicly:*uuid-namespace-dns* "bubba")))
 ;; => 5e320838-7157-3039-8383-652d96705a7d
-
+;;
 ;; (make-uuid-from-string-indexed "eea1105e-3681-5117-99b6-7b2b5fe1f3c7")
 ;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
-
 ;;
 ;;; ==============================
 ;;
