@@ -51,6 +51,7 @@
                (:file "unicly-integers")
                (:file "unicly-byte-arrays")
                (:file "unicly-bit-vectors")
+               (:file "unicly-null-check")
                (:file "unicly")
                (:file "unicly-string-uuid")
                (:file "unicly-uuid-version")
