@@ -1543,6 +1543,24 @@ Following each fail succesfully:~%
  \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error \(make-array 16 :element-type 'bit\)\)~%
 :SEE-ALSO `<XREF>'.~%")
 
+(fundoc 'def-make-uuid-extend-class-fun
+"Define functions which provide a the equivalent of the Unicly uuid API for
+subclasses of the class `unicly:unique-universal-identifier'.~%~@
+MAKE-EXTENDED-SUFFIX is a non-quoted symbol which is appended to the
+symbol-name of each defined function.~%~@
+EXTENDED-CLASS is a non-quoted which designates a valid subclass of the class
+`unicly:unique-universal-identifier'.~%~@
+Following table outlines the correspondence of extended functions defined
+with their standard Unicly counterparts:~%
+ Extended Unicly API function   Standard Unicly API function~%
+ make-v3-uuid-<FOO>              `make-v3-uuid'
+ make-v4-uuid-<FOO>              `make-v4-uuid'
+ make-v5-uuid-<FOO>              `make-v5-uuid'
+ make-uuid-from-string-<FOO>     `make-uuid-from-string'
+ make-uuid-from-byte-array-<FOO> `uuid-from-byte-array'
+ make-uuid-from-bit-vector-<FOO> `uuid-from-bit-vector'~%~@
+:SEE-ALSO `<XREF>'.~%")
+
 
 ;;; ==============================
 ;;; :DEPRECATED-DOCS

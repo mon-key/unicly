@@ -269,21 +269,6 @@
          (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',uuid-bv-class)))))
 
-;; (fundoc 'def-make-uuid-extend-class-fun
-;; "define functions which provide a functionally equivalent uuid API for
-;; subclasses of the class `unicly:unique-universal-identifier'
-;; MAKE-EXTENDED-SUFFIX is a non-quoted symbol which is appended to the
-;; symbol-name of each defined function.
-;; EXTENDED-CLASS is a non-quoted which designates a valid subclass of the class
-;; `unicly:unique-universal-identifier'.
-;;  Extended Unicly API function   Standard Unicly API function
-;;  make-v3-uuid-<FOO>              make-v3-uuid
-;;  make-v4-uuid-<FOO>              make-v4-uuid
-;;  make-v5-uuid-<FOO>              make-v5-uuid
-;;  make-uuid-from-string-<FOO>     make-uuid-from-string
-;;  make-uuid-from-byte-array-<FOO> uuid-from-byte-array
-;;  make-uuid-from-bit-vector-<FOO> uuid-from-bit-vector
-;; 
 (defmacro def-make-uuid-extend-class-fun (make-extended-suffix extended-class)
   ;; (macroexpand-1 '(def-make-uuid-extend-class-fun indexed indexable-uuid))
   `(progn
