@@ -60,6 +60,9 @@
 ;; (make-v5-uuid-indexed unicly:*uuid-namespace-dns* "bubba")
 ;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 ;;
+;; (make-v5-uuid-indexed  (make-v5-uuid-indexed unicly:*uuid-namespace-dns* "foo") "bar")
+;; => c62a67b5-d166-5e74-9e17-ec4d173bddc9
+;;
 ;; (make-v3-uuid-indexed unicly:*uuid-namespace-dns* "bubba")
 ;; => 5e320838-7157-3039-8383-652d96705a7d
 ;;
@@ -79,6 +82,9 @@
 ;; (make-uuid-from-string-indexed "eea1105e-3681-5117-99b6-7b2b5fe1f3c7")
 ;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 ;;
+;; (null (ignore-errors (make-uuid-from-string-indexed "00000000-0000-0000-0000-000000000000")))
+;; => T
+;;
 ;;; ==============================
 ;;
 ;; :TODO macros for 
@@ -88,19 +94,41 @@
 
 (in-package #:unicly)
 
-(defun %verify-valid-uuid-subclass (subclass)
-  ;; (%verify-valid-uuid-subclass 'unique-universal-identifier)
-  (when (eq subclass 'unicly:unique-universal-identifier)
-    (error "Arg SUBCLASS must be a subclass of unicly:unique-universal-identifier"))
+;; (fundoc '%verify-valid-uuid-subclass-type
+;; Return MAYBE-VALID-UUID-SUBCLASS if it is verifiably `cl:subtypep' the
+;; class `unicly:unique-universal-identifier' and not `cl:eq' the symbol
+;; UNIQUE-UNIVERSAL-IDENTIFIER, an error is signaled if not.
+;; MAYBE-VALID-UUID-SUBCLASS is a symbol designating a subclass.
+;; (null (ignore-errors (%verify-valid-uuid-subclass-type 'unique-universal-identifier)))
+;; (null (ignore-errors (%verify-valid-uuid-subclass-type 42)))
+;; (null (ignore-errors (%verify-valid-uuid-subclass-type 'cl:structure-class)))
+(defun %verify-valid-uuid-subclass-type (maybe-valid-uuid-subclass)
+  (unless (symbolp  maybe-valid-uuid-subclass)
+    (error "Arg MAYBE-VALID-UUID-SUBCLASS must satisfy `cl:symbolp'~% got: ~S~% type-of: ~S"
+           maybe-valid-uuid-subclass (type-of maybe-valid-uuid-subclass)))
+  (when (eq maybe-valid-uuid-subclass 'unicly:unique-universal-identifier)
+    (error "Arg MAYBE-VALID-UUID-SUBCLASS must be a subclass of `unicly:unique-universal-identifier'"))
   (unless (equal '(T T)
                  (multiple-value-list
-                  (subtypep subclass 'unique-universal-identifier)))
-    (error "Arg SUBCLASS not `cl:subtypep' the class `unicly:unique-universal-identifier'~% ~
-            got: ~S~% type-of: ~S~%" subclass (type-of subclass))))
+                  (subtypep maybe-valid-uuid-subclass 'unique-universal-identifier)))
+    (error "Arg MAYBE-VALID-UUID-SUBCLASS not `cl:subtypep' the class `unicly:unique-universal-identifier'~% ~
+            got: ~S~% type-of: ~S~%" maybe-valid-uuid-subclass (type-of maybe-valid-uuid-subclass)))
+  (the symbol maybe-valid-uuid-subclass))
 
-(defun %verify-class-slots (class)
-  ;; (%verify-class-slots 'unique-universal-identifier)
-  (let ((obj (make-instance class)))
+;; (fundoc '%verify-valid-uuid-subclass-slots
+;; Instantiate an instance of CLASS-TO-VERIFY as if by `cl:make-instance' and
+;; ensure that each slot of the class 'unicly:unique-universal-identifier is
+;; `cl:slot-exists-p' for the instantiated instance and that their default
+;; `cl:slot-value' is `cl:zerop', if so return CLASS-TO-VERIFY, else an error
+;; is signaled.
+;; :EXAMPLE
+;; (%verify-valid-uuid-subclass-slots 'unique-universal-identifier)
+;; :NOTE The evaluation of `cl:make-instance' should finalize CLASS-TO-VERIFY if it is not already.
+;; :NOTE This function is evaluated _after_ `unicly::%verify-valid-uuid-subclass' by
+;; `unicly::%verify-valid-subclass-and-slots' and is not evaluated when class
+;; CLASS-TO-VERIFY is not a valid subclass of the class `unicly::unique-universal-identifier'
+(defun %verify-valid-uuid-subclass-slots (class-to-verify)
+  (let ((obj (make-instance class-to-verify)))
     (loop for slot in (list 
                        '%uuid_time-low
                        '%uuid_time-mid
@@ -110,88 +138,129 @@
                        '%uuid_node)
        unless (slot-exists-p obj slot)
        do (error "Class slot ~S does not satisfy `cl:slot-exists-p' for class ~S"
-                 slot class)
+                 slot class-to-verify)
        end
        unless (zerop (slot-value obj slot))
        do (error "Default value of slot ~S does not satisfy `cl:zero-p' for class ~S"
-                 slot class))
-    class))
+                 slot class-to-verify))
+    class-to-verify))
+
+;; (fundoc '%verify-valid-subclass-and-slots
+;; When SUBCLASS-TO-VERIFY satisfies both `unicly::%verify-valid-uuid-subclass-type' and
+;; `unicly::%verify-valid-uuid-subclass-slots' return SUBCLASS-TO-VERIFY, else an error is
+;; signaled.
+;; When SUBCLASS-TO-VERIFY is e
+;; SUBCLASS-TO-VERIFY is a symbol designating a class which subclasses the class
+;; `unicly:unique-universal-identifier'.
+;; :EXAMPLE
+;; (%verify-valid-subclass-and-slots 'indexable-uuid) ; assuming it exists
+;; (null (ignore-errors (%verify-valid-subclass-and-slots 'unique-universal-identifier)))
+(defun %verify-valid-subclass-and-slots (subclass-to-verify)
+  (%verify-valid-uuid-subclass-slots (%verify-valid-uuid-subclass-type subclass-to-verify)))
+
+;; Return MAYBE-VALID-UUID-HEX-STRING-36 if it is not `cl:string=' the constant `unicly::+uuid-null-string+'.
+;; MAYBE-VALID-UUID-HEX-STRING-36 is a string of type `unicly::uuid-string-36'.
 
 (declaim (inline %make-uuid-from-string-extended-null-string-error))
-(defun %make-uuid-from-string-extended-null-string-error (maybe-null-string)
-  ;; :TODO We originally declared MAYBE-NULL-STRING as `unicly:string-or-null'
-  ;; verify why we might ever expect MAYBE-NULL-STRING to be other than of type
+(defun %make-uuid-from-string-extended-null-string-error (maybe-valid-uuid-hex-string-36)
+  ;; (%make-uuid-from-string-extended-null-string-error "eea1105e-3681-5117-99b6-7b2b5fe1f3c7")
+  ;; (%make-uuid-from-string-extended-null-string-error "not-a-valid-uuid-string-36")
+  ;; (null (ignore-errors (%make-uuid-from-string-extended-null-string-error "00000000-0000-0000-0000-000000000000")))
+  ;; :TODO We originally declared MAYBE-VALID-UUID-HEX-STRING-36 as `unicly:string-or-null'
+  ;; verify why we might ever expect MAYBE-VALID-UUID-HEX-STRING-36 to be other than of type
   ;; unicly::uuid-string-36
-  (declare (type unicly::uuid-string-36 maybe-null-string)
+  (declare (type uuid-string-36 +uuid-null-string+)
+           (inline uuid-string-36-check-type)
            (optimize (speed 3)))
-  (if (string= maybe-null-string +uuid-null-string+)
-      (error "Arg must not be `cl:string=' the constant `unicly::+uuid-null-string+'")
-      maybe-null-string))
+  (when (uuid-string-36-check-type maybe-valid-uuid-hex-string-36)
+    (locally 
+        (declare (type uuid-string-36 maybe-valid-uuid-hex-string-36))
+      (if (string= maybe-valid-uuid-hex-string-36 +uuid-null-string+)
+          (error "Arg MAYBE-VALID-UUID-HEX-STRING-36 must not be `cl:string=' the constant `unicly::+uuid-null-string+'")
+          maybe-valid-uuid-hex-string-36))))
 
+;; (fundoc '%make-uuid-from-byte-array-extended-null-array-error
+;; Return MAYBE-VALID-UUID-BYTE-ARRAY if it is of type of type
+;; `unicly:uuid-byte-array-16' without without all octets `cl:zerop', if not an
+;; error is signaled.
+;; (%make-uuid-from-byte-array-extended-null-array-error (uuid-to-byte-array (make-v4-uuid)))
+;; (%make-uuid-from-byte-array-extended-null-array-error (uuid-byte-array-16-zeroed))
+;; (null 
+;;  (ignore-errors 
+;;    (%make-uuid-from-byte-array-extended-null-array-error 
+;;     (make-array 3 :element-type 'uuid-ub8 :initial-contents #(255 255 255)))))
+;; (null (ignore-errors (%make-uuid-from-byte-array-extended-null-array-error (uuid-byte-array-16-zeroed))))
 (declaim (inline %make-uuid-from-byte-array-extended-null-array-error))
-(defun %make-uuid-from-byte-array-extended-null-array-error (byte-array)
-  ;; (%make-uuid-from-byte-array-extended-null-array-error (uuid-byte-array-16-zeroed))
-  (declare (type uuid-byte-array-16 byte-array)
-           (inline %uuid-byte-array-null-p)
+(defun %make-uuid-from-byte-array-extended-null-array-error (maybe-valid-uuid-byte-array)
+  (declare (inline uuid-byte-array-16-check-type
+                   %uuid-byte-array-null-p)
            (optimize (speed 3)))
-  (if (%uuid-byte-array-null-p byte-array)
-      (error "Arg must not be an array with all octets `cl:zerop'")
-      byte-array))
+  (when (uuid-byte-array-16-check-type maybe-valid-uuid-byte-array)
+    (locally 
+        (declare (type uuid-byte-array-16 maybe-valid-uuid-byte-array))
+      (if (%uuid-byte-array-null-p maybe-valid-uuid-byte-array)
+          (error "Arg MAYBE-VALID-UUID-BYTE-ARRAY must be an array of type `unicly:uuid-byte-array-16' without all octets `cl:zerop'")
+          maybe-valid-uuid-byte-array))))
 
 ;; (fundoc '%make-uuid-from-bit-vector-extendable-bv-zeroed-error
-;; Return MAYBE-BIT-VECTOR-ZEROED or error if it is `unicly::uuid-bit-vector-null-p'.
+;; Return MAYBE-VALID-UUID-BIT-VECTOR or error if it is `unicly::uuid-bit-vector-null-p'.
 ;; :EXAMPLE
 ;; (let ((zero-bits (uuid-bit-vector-128-zeroed)))
 ;;    (setf (sbit zero-bits 0) 1)
 ;;    (%make-uuid-from-bit-vector-extendable-bv-zeroed-error zero-bits))
 ;; Following each fail succesfully:
-;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (uuid-bit-vector-128-zeroed))
+;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (make-array 129 :element-type 'bit :initial-element 1))
+;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (make-array 129 :element-type 'bit :initial-element 1))
 ;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (make-array 16 :element-type 'bit))
 (declaim (inline %make-uuid-from-bit-vector-extendable-bv-zeroed-error))
-(defun %make-uuid-from-bit-vector-extendable-bv-zeroed-error (maybe-bit-vector-zeroed)
-  (declare (unicly::uuid-bit-vector-128 maybe-bit-vector-zeroed)
-           (inline unicly::uuid-bit-vector-null-p)
+(defun %make-uuid-from-bit-vector-extendable-bv-zeroed-error (maybe-valid-uuid-bit-vector)
+  (declare (inline uuid-bit-vector-null-p
+                   uuid-bit-vector-128-check-type)
            (optimize (speed 3)))
-  (if (unicly::uuid-bit-vector-null-p maybe-bit-vector-zeroed)
-      (error "Arg must _not_ satisfy `unicly::uuid-bit-vector-null-p'")
-      maybe-bit-vector-zeroed))
+  (if (uuid-bit-vector-128-check-type  maybe-valid-uuid-bit-vector)
+      (locally 
+          (declare (type uuid-bit-vector-128 maybe-valid-uuid-bit-vector))
+        (if (uuid-bit-vector-null-p maybe-valid-uuid-bit-vector)
+            (error "Arg must _not_ satisfy `unicly::uuid-bit-vector-null-p'")
+            maybe-valid-uuid-bit-vector))))
 
-(defun %verify-valid-subclass-and-slots (class-to-verify)
-  (%verify-valid-uuid-subclass class-to-verify)
-  (%verify-class-slots         class-to-verify))
-
-(defmacro def-make-v5-uuid-extended (make-v5-uuid-suffix v5-uuid-class)
-  ;; (macroexpand-1 '(unicly::def-make-v5-uuid-extended indexable uuid-indexable-v5))
-  ;;  (%verify-valid-uuid-subclass v5-uuid-class)
-  ;; (%verify-class-slots         v5-uuid-class)
+(defmacro def-make-v5-uuid-extended (make-v5-uuid-suffix v5-uuid-class &optional (no-verify nil))
+  ;; (macroexpand-1 '(unicly::def-make-v5-uuid-extended indexable indexable-uuid))
+  ;; (macroexpand-1 '(unicly::def-make-v5-uuid-extended indexable indexable-uuid t))
+  (declare (type boolean no-verify))
+  (unless no-verify (%verify-valid-subclass-and-slots v5-uuid-class))
   (let ((v5-fun-name 
          (intern (format nil "MAKE-V5-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v5-uuid-suffix))))))
     `(defun ,v5-fun-name (namespace name)
        (declare (type unicly::unique-universal-identifier namespace)
-                (type unicly::string-compat name))
+                (type unicly::string-compat name)
+                (optimize (speed 3)))
        (let ((change-obj (unicly::make-v5-uuid namespace name)))
          (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',v5-uuid-class)))))
 
-(defmacro def-make-v3-uuid-extended (make-v3-uuid-suffix v3-uuid-class)
-  ;; (macroexpand-1 '(def-make-v3-uuid-extended indexable uuid-indexable-v3))
-  ;; (%verify-valid-uuid-subclass v3-uuid-class)
-  ;; (%verify-class-slots         v3-uuid-class)
+(defmacro def-make-v3-uuid-extended (make-v3-uuid-suffix v3-uuid-class &optional (no-verify nil))
+  ;; (macroexpand-1 '(def-make-v3-uuid-extended indexed indexable-uuid))
+  ;; (macroexpand-1 '(def-make-v3-uuid-extended indexed indexable-uuid t))
+  (declare (type boolean no-verify))
+  (unless no-verify (%verify-valid-subclass-and-slots v3-uuid-class))
   (let ((v3-fun-name 
          (intern (format nil "MAKE-V3-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v3-uuid-suffix))))))
     `(defun ,v3-fun-name (namespace name)
        (declare (type unicly::unique-universal-identifier namespace)
-                (type unicly::string-compat name))
+                (type unicly::string-compat name)
+                (optimize (speed 3)))
        (let ((change-obj (unicly::make-v3-uuid namespace name)))
          (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',v3-uuid-class)))))
 
-(defmacro def-make-v4-uuid-extended (make-v4-uuid-suffix v4-uuid-class)
-  ;; (macroexpand-1 '(def-make-v4-uuid-extended indexable uuid-indexable-v3))
-  ;; (%verify-valid-uuid-subclass v4-uuid-class)
-  ;; (%verify-class-slots         v4-uuid-class)
+(defmacro def-make-v4-uuid-extended (make-v4-uuid-suffix v4-uuid-class &optional (no-verify nil))
+  ;; (macroexpand-1 '(def-make-v4-uuid-extended indexed indexable-uuid))
+  ;; (macroexpand-1 '(def-make-v4-uuid-extended indexed indexable-uuid t))
+  (declare (type boolean no-verify))
+  (unless no-verify (%verify-valid-subclass-and-slots v4-uuid-class))
   (let ((v4-fun-name 
          (intern (format nil "MAKE-V4-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v4-uuid-suffix))))))
@@ -200,33 +269,49 @@
          (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',v4-uuid-class)))))
 
-(defmacro def-make-uuid-from-string-extended (make-extended-suffix extended-class)
+(defmacro def-make-uuid-from-string-extended (make-extended-suffix extended-class &optional (no-verify nil))
+  ;; (macroexpand-1 '(def-make-uuid-from-string-extended indexed indexable-uuid))
+  ;; (macroexpand-1 '(def-make-uuid-from-string-extended indexed indexable-uuid t))
+  (declare (type boolean no-verify))
+  (unless no-verify (%verify-valid-subclass-and-slots extended-class))
   (let ((uuid-from-string-fun
          (intern (format nil "MAKE-UUID-FROM-STRING-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-extended-suffix))))))
     `(defun ,uuid-from-string-fun (uuid-hex-string-36)
-       (declare (type unicly::uuid-hex-string-36 uuid-hex-string-36)
-                (inline %make-uuid-from-string-extended-null-string-error))
-       (%make-uuid-from-string-extended-null-string-error uuid-hex-string-36)
-       (let ((change-obj (make-uuid-from-string uuid-hex-string-36)))
-         (declare (type unicly::unique-universal-identifier change-obj))
-         (change-class change-obj ',extended-class)))))
+       (declare (type unicly::string-compat uuid-hex-string-36)
+                (inline unicly::%make-uuid-from-string-extended-null-string-error)
+                (optimize (speed 3)))
+       (when (unicly::%make-uuid-from-string-extended-null-string-error uuid-hex-string-36)
+         (locally 
+             (declare (type unicly::uuid-string-36 uuid-hex-string-36))
+           (let ((change-obj (unicly::make-uuid-from-string uuid-hex-string-36)))
+             (declare (type unicly::unique-universal-identifier change-obj))
+             (change-class change-obj ',extended-class)))))))
 
-(defmacro def-make-uuid-byte-array-extended (make-extended-suffix extended-class)
-  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexable uuid-indexable-v3))
+(defmacro def-make-uuid-byte-array-extended (make-extended-suffix extended-class &optional (no-verify nil))
+  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexed indexable-uuid)) 
+  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexed indexable-uuid t)) 
+  (declare (type boolean no-verify))
+  (unless no-verify (%verify-valid-subclass-and-slots extended-class))
   (let ((uuid-from-ba-fun
          (intern (format nil "MAKE-UUID-FROM-BYTE-ARRAY-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-extended-suffix))))))
     `(defun ,uuid-from-ba-fun (uuid-byte-array-16)
-       (declare (type unicly::uuid-byte-array-16 uuid-byte-array-16)
-                (inline unicly::%make-uuid-from-byte-array-extended-null-array-error))
-       (unicly::%make-uuid-from-byte-array-extended-null-array-error uuid-byte-array-16)
-       (let ((change-obj (unicly::uuid-from-byte-array uuid-byte-array-16)))
-         (declare (type unicly::unique-universal-identifier change-obj))
-         (change-class change-obj ',extended-class)))))
+       (declare (type unicly::uuid-byte-array uuid-byte-array-16)
+                (inline unicly::%make-uuid-from-byte-array-extended-null-array-error)
+                (optimize (speed 3)))
+       (when (unicly::%make-uuid-from-byte-array-extended-null-array-error uuid-byte-array-16)
+         (locally 
+             (declare (type unicly::uuid-byte-array-16 uuid-byte-array-16))
+           (let ((change-obj (unicly::uuid-from-byte-array uuid-byte-array-16)))
+             (declare (type unicly::unique-universal-identifier change-obj))
+             (change-class change-obj ',extended-class)))))))
 
-(defmacro def-uuid-from-bit-vector-extendable (make-uuid-from-bv-suffix uuid-bv-class)
-  ;; (macroexpand-1 '(def-uuid-from-bit-vector-extendable indexable uuid-indexable-v3))
+(defmacro def-uuid-from-bit-vector-extendable (make-uuid-from-bv-suffix uuid-bv-class &optional (no-verify nil))
+  ;; (macroexpand-1 '(def-uuid-from-bit-vector-extendable indexed indexable-uuid))
+  ;; (macroexpand-1 '(def-uuid-from-bit-vector-extendable indexed indexable-uuid t))
+  (declare (type boolean no-verify))
+  (unless no-verify (%verify-valid-subclass-and-slots uuid-bv-class))
   (let ((uuid-from-bv-fun
          (intern (format nil "MAKE-UUID-FROM-BIT-VECTOR-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-uuid-from-bv-suffix))))))
@@ -240,90 +325,23 @@
          (declare (type unicly::unique-universal-identifier change-obj))
          (change-class change-obj ',uuid-bv-class)))))
 
+;; (fundoc 'def-make-uuid-extend-class-fun
+;; "define functions which provide a functionally equivalent uuid API for subclasses of the class `unicly:unique-universal-identifier'
+;; MAKE-EXTENDED-SUFFIX is a non-quoted symbol which is appended to the symbol-name of each defined function.
+;; EXTENDED-CLASS is a non-quoted which designates a valid subclass of the class `unicly:unique-universal-identifier'.
+;; 
+;; 
 (defmacro def-make-uuid-extend-class-fun (make-extended-suffix extended-class)
-  ;; (macroexpand-1 '(def-make-uuid-extend-class-fun indexable uuid-indexable-v5))
-  (%verify-valid-subclass-and-slots extended-class)
+  ;; (macroexpand-1 '(def-make-uuid-extend-class-fun indexed indexable-uuid))
   `(progn
-     (unicly::def-make-v3-uuid-extended ,make-extended-suffix ,extended-class)
-     (unicly::def-make-v5-uuid-extended ,make-extended-suffix ,extended-class)
-     (unicly::def-make-v4-uuid-extended ,make-extended-suffix ,extended-class)
-     (unicly::def-make-uuid-from-string-extended ,make-extended-suffix ,extended-class)
-     (unicly::def-make-uuid-byte-array-extended ,make-extended-suffix ,extended-class)
-     (unicly::def-uuid-from-bit-vector-extendable ,make-extended-suffix ,extended-class)
+     (%verify-valid-subclass-and-slots ',extended-class)
+     (unicly::def-make-v3-uuid-extended ,make-extended-suffix           ,extended-class t)
+     (unicly::def-make-v5-uuid-extended ,make-extended-suffix           ,extended-class t)
+     (unicly::def-make-v4-uuid-extended ,make-extended-suffix           ,extended-class t)
+     (unicly::def-make-uuid-from-string-extended ,make-extended-suffix  ,extended-class t)
+     (unicly::def-make-uuid-byte-array-extended ,make-extended-suffix   ,extended-class t)
+     (unicly::def-uuid-from-bit-vector-extendable ,make-extended-suffix ,extended-class t)
      (values)))
-
-;;; ==============================
-;; Alternative forms of macro `def-make-v5-uuid-extended',
-;; `def-make-v4-uuid-extended' That are likely faster where we don't need to
-;; accomodate specializations on `cl:update-instance-for-different-class'
-;; e.g. where we know that the subclass arguments don't contain additional
-;; direct-slots which need to be accomodated.
-;;
-
-;; NOTE This is likely a faster but won't handle updating the `cl:slot-value's of arg V4-UUID-CLASS
-;; (defmacro def-make-v4-uuid-extended (make-v4-uuid-suffix v4-uuid-class)
-;;   ;; (macroexpand-1 '(def-make-v4-uuid-extended indexable uuid-indexable-v3))
-;;   ;; (%verify-valid-uuid-subclass v4-uuid-class)
-;;   ;; (%verify-class-slots         v4-uuid-class)
-;;   (let ((v4-fun-name 
-;;          (intern (format nil "MAKE-V4-UUID-~A"
-;;                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v4-uuid-suffix))))))
-;;     `(defun ,v4-fun-name, ()
-;;        (declare (special unicly::*random-state-uuid*)
-;;                 (optimize (speed 3)))
-;;        (let ((*random-state* (the random-state unicly::*random-state-uuid*)))
-;;          (the ,v4-uuid-class
-;;            (make-instance ',v4-uuid-class
-;;                           :%uuid_time-low (the unicly::uuid-ub32 (random #xFFFFFFFF))
-;;                           :%uuid_time-mid (the unicly::uuid-ub16 (random #xFFFF))
-;;                           :%uuid_time-high-and-version  
-;;                           (the unicly::uuid-ub16 (dpb #b0100 (byte 4 12) (ldb (byte 12 0) (the unicly::uuid-ub16 (random #xFFFF)))))
-;;                           :%uuid_clock-seq-and-reserved
-;;                           (the unicly::uuid-ub8  (dpb #b0010 (byte 2  6) (ldb (byte  8 0) (the unicly::uuid-ub8 (random #xFF)))))
-;;                           :%uuid_clock-seq-low (the unicly::uuid-ub8 (random #xFF))
-;;                           :%uuid_node (the unicly::uuid-ub48 (random #xFFFFFFFFFFFF))))))))
-;;
-;; (defmacro def-make-v5-uuid-extended (make-v5-uuid-suffix v5-uuid-class)
-;;   (%verify-valid-uuid-subclass v5-uuid-class)
-;;   (%verify-class-slots         v5-uuid-class)
-;;   (let ((v5-fun-name 
-;;          (intern (format nil "MAKE-V5-UUID-~A"
-;;                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v5-uuid-suffix)))))
-;;         (digested-v5-uuid-fun-name
-;;          (intern (format nil "%DIGESTED-V5-UUID-~A"
-;;                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v5-uuid-suffix))))))
-;;     ;;
-;;     `(defun ,<DIGESTED-V5-UUID-FUN-NAME> (v5-digest-byte-array)
-;;        (declare (type unicly::uuid-byte-array-20 
-;;                       v5-digest-byte-array)
-;;                 (inline unicly::%uuid_time-low-request
-;;                         unicly::%uuid_time-mid-request
-;;                         unicly::%uuid_time-high-and-version-request
-;;                         unicly::%uuid_clock-seq-and-reserved-request 
-;;                         unicly::%uuid_node-request)
-;;                 (optimize (speed 3)))
-;;        (the ,V5-UUID-CLASS
-;;          (make-instance ',V5-UUID-CLASS
-;;                         :%uuid_time-low (unicly::%uuid_time-low-request v5-digest-byte-array)
-;;                         :%uuid_time-mid (unicly::%uuid_time-mid-request v5-digest-byte-array)
-;;                         :%uuid_time-high-and-version (unicly::%uuid_time-high-and-version-request v5-digest-byte-array #x05)
-;;                         :%uuid_clock-seq-and-reserved (unicly::%uuid_clock-seq-and-reserved-request v5-digest-byte-array)
-;;                         :%uuid_clock-seq-low (the uuid-ub8 (unicly::%uuid_clock-seq-low-request v5-digest-byte-array))
-;;                         :%uuid_node (unicly::%uuid_node-request v5-digest-byte-array))))
-;;     ;;
-;;     `(defun ,V5-FUN-NAME (namespace name)
-;;        (declare (type string name)
-;;                 (type unicly:unique-universal-identifier namespace)
-;;                 (inline unicly::uuid-digest-uuid-instance
-;;                         ,DIGESTED-V5-UUID-FUN-NAME)
-;;                 (optimize (speed 3)))
-;;        (the (values ,V5-UUID-CLASS &optional)
-;;          (,DIGESTED-V5-UUID-FUN-NAME
-;;           (the unicly::uuid-byte-array-20 
-;;             (unicly::uuid-digest-uuid-instance #x05 namespace name)))))))
-;;
-;;; ==============================
-
 
 ;;; ==============================
 ;;; EOF

@@ -123,6 +123,7 @@
     `(simple-array uuid-ub8 (,sz))))
 
 ;; (mon:type-expand-all 'uuid-byte-array-16)
+;; uuid-byte-array-<N>
 (def-uuid-byte-array-length 20)
 (def-uuid-byte-array-length 16)
 
