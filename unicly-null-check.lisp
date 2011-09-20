@@ -97,7 +97,7 @@
                             (%verify-non-empty-name-arg name)))
         (null-uuid-chk    (the (values uuid-byte-array-16 &optional)
                             (%verify-non-null-namespace-arg namespace))))
-    (values empty-string-chk null-uuid-chk)))
+    (values null-uuid-chk empty-string-chk)))
 
 
 ;;; ==============================
