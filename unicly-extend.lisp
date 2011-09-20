@@ -56,20 +56,35 @@
 ;;           (slot-value new 'bit-vector)  (unicly:uuid-to-bit-vector old)
 ;;           (slot-value new 'integer-128) (unicly::uuid-bit-vector-to-integer (slot-value new 'bit-vector)))))
 ;;
-;; (make-v5-uuid-indexable unicly:*uuid-namespace-dns* "bubba")
-;; (make-v3-uuid-indexable unicly:*uuid-namespace-dns* "bubba")
-;; (make-v4-uuid-indexable)
-;; (make-uuid-from-bit-vector-indexable (unicly:uuid-to-bit-vector (make-v4-uuid)))
-;; (make-uuid-from-byte-array-indexable (unicly::uuid-to-byte-array (make-v4-uuid)))
-;; (make-uuid-from-string-indexable "7e4b6445-8097-4d3b-976b-b67bbe784c90")
+;; (make-v5-uuid-indexed unicly:*uuid-namespace-dns* "bubba")
+;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
+;;
+;; (make-v3-uuid-indexed unicly:*uuid-namespace-dns* "bubba")
+;; => 5e320838-7157-3039-8383-652d96705a7d
+;;
+;; (make-v4-uuid-indexed)
+;; => 0c813195-5c4d-40a4-acc1-994c26d773b3
+;;
+;;
+;; (make-uuid-from-bit-vector-indexed 
+;;  (unicly:uuid-to-bit-vector 
+;;   (make-v5-uuid-indexed unicly:*uuid-namespace-dns* "bubba")))
+;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
+;;
+;; (make-uuid-from-byte-array-indexed 
+;;  (unicly::uuid-to-byte-array 
+;;   (make-v3-uuid-indexed unicly:*uuid-namespace-dns* "bubba")))
+;; => 5e320838-7157-3039-8383-652d96705a7d
+
+;; (make-uuid-from-string-indexed "eea1105e-3681-5117-99b6-7b2b5fe1f3c7")
+;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
+
 ;;
 ;;; ==============================
 ;;
 ;; :TODO macros for 
 ;; `uuid-copy-uuid' as `def-make-uuid-copy-uuid-extended'
-;; `uuid-from-bit-vector' as `def-make-uuid-from-bit-vector-extended'
-;; `uuid-from-byte-array' as `def-make-uuid-from-byte-array-extended'
-
+;;
 ;;; ==============================
 
 (in-package #:unicly)
