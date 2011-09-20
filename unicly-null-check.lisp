@@ -86,7 +86,7 @@
 ;;       (*uuid-allow-empty-string-name-args*   t))
 ;;   (verify-sane-namespace-and-name (make-instance 'unique-universal-identifier) ""))
 (defun verify-sane-namespace-and-name (namespace name)
-  ;; (values uuid-byte-array uuid-byte-array-16 &optional)
+  ;; (values uuid-byte-array-16 uuid-byte-array &optional)
   (declare (type unique-universal-identifier namespace)
            (type string-compat name)
            (inline %verify-non-null-namespace-arg
