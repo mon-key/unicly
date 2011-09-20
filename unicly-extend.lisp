@@ -85,6 +85,17 @@
 ;; (null (ignore-errors (make-uuid-from-string-indexed "00000000-0000-0000-0000-000000000000")))
 ;; => T
 ;;
+;; (null (ignore-errors (make-v5-uuid-indexed *uuid-namespace-dns* "")))
+;; => T
+;;
+;; (null (ignore-errors (make-v5-uuid-indexed (make-instance 'indexable-uuid) "bubba")))
+;; => T
+;;
+;; (let ((unicly::*uuid-allow-empty-string-name-args* t) 
+;;       (unicly::*uuid-allow-null-like-namespace-args* t))
+;;   (make-v5-uuid-indexed (make-instance 'indexable-uuid) "bubba"))
+;; => ca773f8d-32a5-51fa-915e-1600b9c37958
+;;
 ;;; ==============================
 ;;
 ;; :TODO macros for 
