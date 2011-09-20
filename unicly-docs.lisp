@@ -1411,6 +1411,38 @@ Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
                      \(uuid-byte-array-to-bit-vector \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)\)~%~@
 :SEE-ALSO `<XREF>'.~%")
 
+(fundoc 'verify-sane-namespace-and-name
+"Return as if by cl:values the uuid-byte-array representations of NAMESPACE and NAME.~%~@
+NAMESPACE is an object of type `unicly:unique-universal-identifier'.~%~@
+NAME is a string.~%~@
+Depending on value of special variables:~%
+`*uuid-allow-null-like-namespace-args*' `*uuid-allow-empty-string-name-args*'~%~@
+Signal an error if NAMESPACE is a null-uuid not satisfying `unique-universal-identifier-null-p'.
+Siganl an error if NAME fails to satisfy `unicly::%string-not-empty-p'.
+:EXAMPLE~%
+ \(verify-sane-namespace-and-name \(make-v4-uuid\) \"bubba\"\)~%
+ \(let \(\(*uuid-allow-empty-string-name-args* t\)\)
+   \(verify-sane-namespace-and-name \(make-v4-uuid\) \"\"\)\)~%
+ \(null \(ignore-errors \(verify-sane-namespace-and-name \(make-v4-uuid\) \"\"\)\)\)~%
+ \(let \(\(*uuid-allow-null-like-namespace-args* t\)\)
+   \(verify-sane-namespace-and-name \(make-instance 'unique-universal-identifier\) \"bubba\"\)\)~%
+ \(let \(\(*uuid-allow-null-like-namespace-args* t\)
+       \(*uuid-allow-empty-string-name-args*   t\)\)
+   \(verify-sane-namespace-and-name \(make-instance 'unique-universal-identifier\) \"\"\)\)~%
+:SEE-ALSO `unicly::%verify-non-empty-name-arg', `unicly::%verify-non-null-namespace-arg'.~%")
+
+(fundoc '%verify-non-empty-name-arg
+        "If value of `unicly::*uuid-allow-empty-string-name-args*' is T retrun NAME-ARG.~%~@
+If value of NAME-ARG is of type `unicly::string-not-empty' retrun NAME-ARG,
+if not and error is signaled.~%~@
+:EXAMPLE~%
+ \(%verify-non-empty-name-arg \"bubba\"\)
+ \(let \(\(*uuid-allow-empty-string-name-args* t\)\)
+   \(%verify-non-empty-name-arg \"\"\)\)
+ \(null \(ignore-errors \(%verify-non-empty-name-arg \"\"\)\)\)
+:SEE-ALSO `unicly::verify-sane-namespace-and-name', `unicly::%verify-non-null-namespace-arg'.~%")
+
+
 
 ;;; ==============================
 ;;; :DEPRECATED-DOCS

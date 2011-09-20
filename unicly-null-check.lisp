@@ -10,16 +10,12 @@
 (in-package #:unicly)
 ;; *package*
 
-;; *uuid-allow-null-like-namespace-args*
 (declaim (inline %verify-non-null-namespace-arg))
 (defun %verify-non-null-namespace-arg (namespace-arg)
   ;; (values uuid-byte-array-16 &optional)
   (declare (type unique-universal-identifier namespace-arg)
            (inline uuid-byte-array-null-p)
            (optimize (speed 3)))
-  ;; (if *uuid-allow-null-like-namespace-args*
-  ;;     (the (values uuid-byte-array-16 &optional)
-  ;;       (uuid-get-namespace-bytes namespace-arg))
   (let ((name-bytes (the (values uuid-byte-array-16 &optional)
                       (uuid-get-namespace-bytes namespace-arg))))
     (declare (uuid-byte-array-16 name-bytes))
@@ -35,20 +31,6 @@
                namespace-arg (type-of namespace-arg))
         name-bytes)))
 
-;; (type-of (%uuid-string-to-octets "bubba"))
-;; (mon:type-expand-all 'uuid-byte-array)
-;; (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (*))
-;; (%uuid-byte-array-null-p (uuid-get-namespace-bytes 
-;;
-;; (fundoc '%verify-non-empty-name-arg
-;; If value of `unicly::*uuid-allow-empty-string-name-args*' is T retrun NAME-ARG.
-;; If value of NAME-ARG is of type `unicly::string-not-empty' retrun NAME-ARG,
-;; if not and error is signaled.
-;; :EXAMPLE
-;; (%verify-non-empty-name-arg "bubba")
-;; (let ((*uuid-allow-empty-string-name-args* t))
-;;   (%verify-non-empty-name-arg ""))
-;; (null (ignore-errors (%verify-non-empty-name-arg "")))
 (declaim (inline %verify-non-empty-name-arg))
 (defun %verify-non-empty-name-arg (name-arg)
   ;; (values uuid-byte-array &optional)
@@ -57,6 +39,7 @@
              #+:sbcl %uuid-string-to-octets
              %string-not-empty-p)
            (optimize (speed 3)))
+  ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
   (the (values uuid-byte-array &optional)
     (%uuid-string-to-octets 
      (the (values string-compat &optional)
@@ -71,20 +54,6 @@
                   both a NAME and NAMESPACE argument, consider dynamically binding the value of~%~
                   `unicly::*uuid-allow-empty-string-name-args*' T within a wrapper function.~%")))))))
 
-;; (fundoc 'verify-sane-namespace-and-name
-;; (verify-sane-namespace-and-name (make-v4-uuid) "bubba")
-;;
-;; (let ((*uuid-allow-empty-string-name-args* t))
-;;   (verify-sane-namespace-and-name (make-v4-uuid) ""))
-;;
-;; (null (ignore-errors (verify-sane-namespace-and-name (make-v4-uuid) "")))
-;;
-;; (let ((*uuid-allow-null-like-namespace-args* t))
-;;   (verify-sane-namespace-and-name (make-instance 'unique-universal-identifier) "bubba"))
-;;
-;; (let ((*uuid-allow-null-like-namespace-args* t)
-;;       (*uuid-allow-empty-string-name-args*   t))
-;;   (verify-sane-namespace-and-name (make-instance 'unique-universal-identifier) ""))
 (defun verify-sane-namespace-and-name (namespace name)
   ;; (values uuid-byte-array-16 uuid-byte-array &optional)
   (declare (type unique-universal-identifier namespace)
@@ -92,7 +61,7 @@
            (inline %verify-non-null-namespace-arg
                    %verify-non-empty-name-arg)
            (optimize (speed 3)))
-  ;; :NOTE do the empty-string check first b/c its cheaper
+  ;; :NOTE Doing the empty-string check first b/c it is cheaper
   (let ((empty-string-chk (the (values uuid-byte-array &optional)
                             (%verify-non-empty-name-arg name)))
         (null-uuid-chk    (the (values uuid-byte-array-16 &optional)
