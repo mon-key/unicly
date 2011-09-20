@@ -16,15 +16,20 @@
                     for y from 65 below 91 
                     nconc (list (code-char x) (code-char y)) into alpha
                     finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
-   (flet ((random-string ()
-            (loop
-               repeat (random 53)
-               for x = (schar alphabet (random 52)) collect x into rand
-               finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
-    
+   (labels ((rand-no-zerop (range)
+            (loop 
+               for rand = (random range)  
+               until (not (zerop rand))
+               finally (return rand)))
+            (random-string ()
+              (loop
+                 repeat (rand-no-zerop 53)
+                 for x = (schar alphabet (random 52)) collect x into rand
+                 finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
      (loop 
         repeat 1000
-        for uuid   = (make-v5-uuid (make-v4-uuid) (random-string))
+        for rand   = (random-string) 
+        for uuid   = (make-v5-uuid (make-v4-uuid) rand)
         for ba     = (uuid-to-byte-array uuid)  
         for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
         for ba-int = (uuid-integer-128-to-byte-array int)
@@ -37,11 +42,16 @@
                     for y from 65 below 91 
                     nconc (list (code-char x) (code-char y)) into alpha
                     finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
-   (flet ((random-string ()
-            (loop
-               repeat (random 53)
-               for x = (aref alphabet (random 52)) collect x into rand
-               finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
+   (labels ((rand-no-zerop (range)
+              (loop 
+                 for rand = (random range)  
+                 until (not (zerop rand))
+                 finally (return rand)))
+            (random-string ()
+              (loop
+                 repeat (rand-no-zerop 53)
+                 for x = (aref alphabet (random 52)) collect x into rand
+                 finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
      (loop 
         repeat 1000
         for uuid   = (make-v3-uuid (make-v4-uuid) (random-string))
@@ -52,7 +62,7 @@
 
 ;; `uuid-integer-128-to-byte-array' with v4 uuids
 
- (loop 
+(loop 
     repeat 1000
     for uuid   = (make-v4-uuid)
     for ba     = (uuid-to-byte-array uuid)
