@@ -94,14 +94,6 @@
 
 (in-package #:unicly)
 
-;; (fundoc '%verify-valid-uuid-subclass-type
-;; Return MAYBE-VALID-UUID-SUBCLASS if it is verifiably `cl:subtypep' the
-;; class `unicly:unique-universal-identifier' and not `cl:eq' the symbol
-;; UNIQUE-UNIVERSAL-IDENTIFIER, an error is signaled if not.
-;; MAYBE-VALID-UUID-SUBCLASS is a symbol designating a subclass.
-;; (null (ignore-errors (%verify-valid-uuid-subclass-type 'unique-universal-identifier)))
-;; (null (ignore-errors (%verify-valid-uuid-subclass-type 42)))
-;; (null (ignore-errors (%verify-valid-uuid-subclass-type 'cl:structure-class)))
 (defun %verify-valid-uuid-subclass-type (maybe-valid-uuid-subclass)
   (unless (symbolp  maybe-valid-uuid-subclass)
     (error "Arg MAYBE-VALID-UUID-SUBCLASS must satisfy `cl:symbolp'~% got: ~S~% type-of: ~S"
@@ -115,18 +107,6 @@
             got: ~S~% type-of: ~S~%" maybe-valid-uuid-subclass (type-of maybe-valid-uuid-subclass)))
   (the symbol maybe-valid-uuid-subclass))
 
-;; (fundoc '%verify-valid-uuid-subclass-slots
-;; Instantiate an instance of CLASS-TO-VERIFY as if by `cl:make-instance' and
-;; ensure that each slot of the class 'unicly:unique-universal-identifier is
-;; `cl:slot-exists-p' for the instantiated instance and that their default
-;; `cl:slot-value' is `cl:zerop', if so return CLASS-TO-VERIFY, else an error
-;; is signaled.
-;; :EXAMPLE
-;; (%verify-valid-uuid-subclass-slots 'unique-universal-identifier)
-;; :NOTE The evaluation of `cl:make-instance' should finalize CLASS-TO-VERIFY if it is not already.
-;; :NOTE This function is evaluated _after_ `unicly::%verify-valid-uuid-subclass' by
-;; `unicly::%verify-valid-subclass-and-slots' and is not evaluated when class
-;; CLASS-TO-VERIFY is not a valid subclass of the class `unicly::unique-universal-identifier'
 (defun %verify-valid-uuid-subclass-slots (class-to-verify)
   (let ((obj (make-instance class-to-verify)))
     (loop for slot in (list 
@@ -145,27 +125,12 @@
                  slot class-to-verify))
     class-to-verify))
 
-;; (fundoc '%verify-valid-subclass-and-slots
-;; When SUBCLASS-TO-VERIFY satisfies both `unicly::%verify-valid-uuid-subclass-type' and
-;; `unicly::%verify-valid-uuid-subclass-slots' return SUBCLASS-TO-VERIFY, else an error is
-;; signaled.
-;; When SUBCLASS-TO-VERIFY is e
-;; SUBCLASS-TO-VERIFY is a symbol designating a class which subclasses the class
-;; `unicly:unique-universal-identifier'.
-;; :EXAMPLE
-;; (%verify-valid-subclass-and-slots 'indexable-uuid) ; assuming it exists
-;; (null (ignore-errors (%verify-valid-subclass-and-slots 'unique-universal-identifier)))
+
 (defun %verify-valid-subclass-and-slots (subclass-to-verify)
   (%verify-valid-uuid-subclass-slots (%verify-valid-uuid-subclass-type subclass-to-verify)))
 
-;; Return MAYBE-VALID-UUID-HEX-STRING-36 if it is not `cl:string=' the constant `unicly::+uuid-null-string+'.
-;; MAYBE-VALID-UUID-HEX-STRING-36 is a string of type `unicly::uuid-string-36'.
-
 (declaim (inline %make-uuid-from-string-extended-null-string-error))
 (defun %make-uuid-from-string-extended-null-string-error (maybe-valid-uuid-hex-string-36)
-  ;; (%make-uuid-from-string-extended-null-string-error "eea1105e-3681-5117-99b6-7b2b5fe1f3c7")
-  ;; (%make-uuid-from-string-extended-null-string-error "not-a-valid-uuid-string-36")
-  ;; (null (ignore-errors (%make-uuid-from-string-extended-null-string-error "00000000-0000-0000-0000-000000000000")))
   ;; :TODO We originally declared MAYBE-VALID-UUID-HEX-STRING-36 as `unicly:string-or-null'
   ;; verify why we might ever expect MAYBE-VALID-UUID-HEX-STRING-36 to be other than of type
   ;; unicly::uuid-string-36
@@ -179,17 +144,6 @@
           (error "Arg MAYBE-VALID-UUID-HEX-STRING-36 must not be `cl:string=' the constant `unicly::+uuid-null-string+'")
           maybe-valid-uuid-hex-string-36))))
 
-;; (fundoc '%make-uuid-from-byte-array-extended-null-array-error
-;; Return MAYBE-VALID-UUID-BYTE-ARRAY if it is of type of type
-;; `unicly:uuid-byte-array-16' without without all octets `cl:zerop', if not an
-;; error is signaled.
-;; (%make-uuid-from-byte-array-extended-null-array-error (uuid-to-byte-array (make-v4-uuid)))
-;; (%make-uuid-from-byte-array-extended-null-array-error (uuid-byte-array-16-zeroed))
-;; (null 
-;;  (ignore-errors 
-;;    (%make-uuid-from-byte-array-extended-null-array-error 
-;;     (make-array 3 :element-type 'uuid-ub8 :initial-contents #(255 255 255)))))
-;; (null (ignore-errors (%make-uuid-from-byte-array-extended-null-array-error (uuid-byte-array-16-zeroed))))
 (declaim (inline %make-uuid-from-byte-array-extended-null-array-error))
 (defun %make-uuid-from-byte-array-extended-null-array-error (maybe-valid-uuid-byte-array)
   (declare (inline uuid-byte-array-16-check-type
@@ -202,16 +156,6 @@
           (error "Arg MAYBE-VALID-UUID-BYTE-ARRAY must be an array of type `unicly:uuid-byte-array-16' without all octets `cl:zerop'")
           maybe-valid-uuid-byte-array))))
 
-;; (fundoc '%make-uuid-from-bit-vector-extendable-bv-zeroed-error
-;; Return MAYBE-VALID-UUID-BIT-VECTOR or error if it is `unicly::uuid-bit-vector-null-p'.
-;; :EXAMPLE
-;; (let ((zero-bits (uuid-bit-vector-128-zeroed)))
-;;    (setf (sbit zero-bits 0) 1)
-;;    (%make-uuid-from-bit-vector-extendable-bv-zeroed-error zero-bits))
-;; Following each fail succesfully:
-;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (make-array 129 :element-type 'bit :initial-element 1))
-;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (make-array 129 :element-type 'bit :initial-element 1))
-;; (%make-uuid-from-bit-vector-extendable-bv-zeroed-error (make-array 16 :element-type 'bit))
 (declaim (inline %make-uuid-from-bit-vector-extendable-bv-zeroed-error))
 (defun %make-uuid-from-bit-vector-extendable-bv-zeroed-error (maybe-valid-uuid-bit-vector)
   (declare (inline uuid-bit-vector-null-p
@@ -326,10 +270,19 @@
          (change-class change-obj ',uuid-bv-class)))))
 
 ;; (fundoc 'def-make-uuid-extend-class-fun
-;; "define functions which provide a functionally equivalent uuid API for subclasses of the class `unicly:unique-universal-identifier'
-;; MAKE-EXTENDED-SUFFIX is a non-quoted symbol which is appended to the symbol-name of each defined function.
-;; EXTENDED-CLASS is a non-quoted which designates a valid subclass of the class `unicly:unique-universal-identifier'.
-;; 
+;; "define functions which provide a functionally equivalent uuid API for
+;; subclasses of the class `unicly:unique-universal-identifier'
+;; MAKE-EXTENDED-SUFFIX is a non-quoted symbol which is appended to the
+;; symbol-name of each defined function.
+;; EXTENDED-CLASS is a non-quoted which designates a valid subclass of the class
+;; `unicly:unique-universal-identifier'.
+;;  Extended Unicly API function   Standard Unicly API function
+;;  make-v3-uuid-<FOO>              make-v3-uuid
+;;  make-v4-uuid-<FOO>              make-v4-uuid
+;;  make-v5-uuid-<FOO>              make-v5-uuid
+;;  make-uuid-from-string-<FOO>     make-uuid-from-string
+;;  make-uuid-from-byte-array-<FOO> uuid-from-byte-array
+;;  make-uuid-from-bit-vector-<FOO> uuid-from-bit-vector
 ;; 
 (defmacro def-make-uuid-extend-class-fun (make-extended-suffix extended-class)
   ;; (macroexpand-1 '(def-make-uuid-extend-class-fun indexed indexable-uuid))

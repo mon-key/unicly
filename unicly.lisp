@@ -86,7 +86,7 @@
            (optimize (speed 3)  (debug 0)))
   ;; (or (and (or (= version 3) (= version 5)) version)
   ;; (error "arg VERSION is not integer 3 nor 5"))
-  #-sbcl (etypecase version 
+  #-:sbcl (etypecase version 
            ((mod 6) version))
   (unless (logbitp 1 (logcount version))
     (error "arg VERSION is not integer 3 nor 5"))
@@ -123,6 +123,7 @@
                    %uuid-digest-uuid-instance-sha1
                    %uuid-digest-uuid-instance-md5)
            (optimize (speed 3)))
+  ;; :NOTE Prior to 2011-09-20 we never checked for the null-uuid or the empty string:
   ;; (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
   ;;                  (uuid-get-namespace-bytes uuid-namespace-instance)))
   ;;       ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
@@ -376,7 +377,7 @@
                    %uuid_byte-array-16-ub8-reqeust
                    %uuid_node-request)
            (optimize (speed 3)))
-  #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
+  #-:sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
                  "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
   (when (%uuid-byte-array-null-p byte-array)
     (return-from uuid-from-byte-array 
@@ -397,7 +398,7 @@
 ;;   ;; IOW if we call this from uuid-digest-uuid-instance we deserve to fail.
 ;;   (declare (type uuid-byte-array-16 byte-array)
 ;;            (inline %uuid-byte-array-null-p))
-;;   #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
+;;   #-:sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
 ;;                  "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
 ;;   (when (%uuid-byte-array-null-p byte-array)
 ;;     (return-from uuid-from-byte-array 

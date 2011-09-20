@@ -1473,6 +1473,75 @@ if not and error is signaled.~%~@
  \(null \(ignore-errors \(%verify-non-empty-name-arg \"\"\)\)\)
 :SEE-ALSO `unicly::verify-sane-namespace-and-name', `unicly::%verify-non-null-namespace-arg'.~%")
 
+(fundoc '%verify-valid-uuid-subclass-type
+ "Return MAYBE-VALID-UUID-SUBCLASS if it is verifiably `cl:subtypep' the class
+`unicly:unique-universal-identifier' and not `cl:eq' the symbol
+UNIQUE-UNIVERSAL-IDENTIFIER, an error is signaled if not.~%~@
+MAYBE-VALID-UUID-SUBCLASS is a symbol designating a subclass.~%~@
+:EXAMPLE~%
+ \(null \(ignore-errors \(%verify-valid-uuid-subclass-type 'unique-universal-identifier\)\)\)~%
+ \(null \(ignore-errors \(%verify-valid-uuid-subclass-type 42\)\)\)~%
+ \(null \(ignore-errors \(%verify-valid-uuid-subclass-type 'cl:structure-class\)\)\)~%
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%verify-valid-uuid-subclass-slots
+        "Instantiate an instance of CLASS-TO-VERIFY as if by `cl:make-instance' and
+ensure that each slot of the class 'unicly:unique-universal-identifier is
+`cl:slot-exists-p' for the instantiated instance and that their default
+`cl:slot-value' is `cl:zerop', if so return CLASS-TO-VERIFY, if not, an error is
+signaled.~%~@
+:EXAMPLE~%
+ \(%verify-valid-uuid-subclass-slots 'unique-universal-identifier\)~%~@
+:NOTE The evaluation of `cl:make-instance' should finalize CLASS-TO-VERIFY if it is not already.~%~@
+:NOTE This function is evaluated _after_ `unicly::%verify-valid-uuid-subclass'
+by `unicly::%verify-valid-subclass-and-slots' and is not evaluated when class
+CLASS-TO-VERIFY is not a valid subclass of the class `unicly::unique-universal-identifier'~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%verify-valid-subclass-and-slots
+"Return SUBCLASS-TO-VERIFY when SUBCLASS-TO-VERIFY satisfies both:~%
+ `unicly::%verify-valid-uuid-subclass-type' `unicly::%verify-valid-uuid-subclass-slots'~%~@
+If not, an error is signaled.~%~@
+SUBCLASS-TO-VERIFY is a symbol designating a class which subclasses the class `unicly:unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(%verify-valid-subclass-and-slots 'indexable-uuid\) ; assuming it exists~%
+ \(null \(ignore-errors \(%verify-valid-subclass-and-slots 'unique-universal-identifier\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%make-uuid-from-string-extended-null-string-error
+        "Return MAYBE-VALID-UUID-HEX-STRING-36 if it is not `cl:string=' the constant `unicly::+uuid-null-string+'.~%~@
+MAYBE-VALID-UUID-HEX-STRING-36 is a string of type `unicly::uuid-string-36'.~%~@
+:EXAMPLE~%
+ \(%make-uuid-from-string-extended-null-string-error \"eea1105e-3681-5117-99b6-7b2b5fe1f3c7\"\)~%
+ \(%make-uuid-from-string-extended-null-string-error \"not-a-valid-uuid-string-36\"\)~%
+ \(null \(ignore-errors \(%make-uuid-from-string-extended-null-string-error \"00000000-0000-0000-0000-000000000000\"\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%make-uuid-from-byte-array-extended-null-array-error
+        "Return MAYBE-VALID-UUID-BYTE-ARRAY if it is of type of type
+`unicly:uuid-byte-array-16' without without all octets `cl:zerop', if not an
+error is signaled.~%~@
+:EXAMPLE~%
+ \(%make-uuid-from-byte-array-extended-null-array-error \(uuid-to-byte-array \(make-v4-uuid\)\)\)~%
+ \(%make-uuid-from-byte-array-extended-null-array-error \(uuid-byte-array-16-zeroed\)\)~%
+ \(null 
+  \(ignore-errors 
+    \(%make-uuid-from-byte-array-extended-null-array-error 
+     \(make-array 3 :element-type 'uuid-ub8 :initial-contents #\(255 255 255\)\)\)\)\)~%
+ \(null \(ignore-errors \(%make-uuid-from-byte-array-extended-null-array-error \(uuid-byte-array-16-zeroed\)\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%make-uuid-from-bit-vector-extendable-bv-zeroed-error
+"Return MAYBE-VALID-UUID-BIT-VECTOR or error if it is `unicly::uuid-bit-vector-null-p'.~%~@
+:EXAMPLE~%
+ \(let \(\(zero-bits \(uuid-bit-vector-128-zeroed\)\)\)
+    \(setf \(sbit zero-bits 0\) 1\)
+    \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error zero-bits\)\)~%~@
+Following each fail succesfully:~%
+ \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error \(make-array 129 :element-type 'bit :initial-element 1\)\)~%
+ \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error \(make-array 129 :element-type 'bit :initial-element 1\)\)~%
+ \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error \(make-array 16 :element-type 'bit\)\)~%
+:SEE-ALSO `<XREF>'.~%")
 
 
 ;;; ==============================
