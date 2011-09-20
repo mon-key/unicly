@@ -18,6 +18,37 @@
  \(random-state-p  *random-state-uuid*\)~%~@
 :SEE-ALSO `cl:random-state', `cl:random-state-p'.~%")
 
+(vardoc '*uuid-allow-empty-string-name-args*
+"When value is null `make-v3-uuid' and `make-v5-uuid' will error when their NAME
+argumement is not of type `unicly::string-not-empty'.~%~@
+:SEE-ALSO `*uuid-allow-null-like-namespace-args*',
+`unicly::verify-sane-namespace-and-name', `unicly::%verify-non-empty-name-arg',
+`unicly::%verify-non-null-namespace-arg'.~%")
+
+(vardoc '*uuid-allow-null-like-namespace-args*
+"When value is null, `make-v3-uuid' and `make-v5-uuid' will error when their
+NAMESPACE argumement is an instance of the class `unique-universal-identifier'
+with all of its slot-values satisfying `cl:zerop' but which doesn't satisfy
+`unique-universal-identifier-null-p'.~%~@
+:NOTE RFC 4122 probably didn't have CLOS in mind w/r/t the null-uuid and as
+such when either of the following type of object is allowed as a NAMESPACE
+argument it may produce unexpected results and with unexpected consequences
+which may not be easily detected after the fact:~%
+ \(unique-universal-identifier-null-p \(make-instance 'unique-universal-identifier\)\)
+ \(unique-universal-identifier-null-p \(make-instance 'unique-universal-identifier-null\)\)
+ \(unique-universal-identifier-null-p \(make-instance 'mop-frobbed-subclass-of-unique-universal-identifier\)\)
+Their may be a performance impact when this argument is nil \(the default\) b/c we
+will have to check the slot-values of each namespace arg for each evaluation
+of `make-v5-uuid' / `make-v3-uuid'.~%~@
+A reasonable way to avoid this impact is to cache the NAMESPACEs common to a
+class you control and dynamically bind this variable inside a wrapper function:~%
+ \(make-v5-uuid-with-cached-namespace \(name\)
+   \(let \(\(*uuid-allow-null-like-namespace-args* t\)\)
+     \(make-v5-uuid <CACHED-NAMESPACE> name\)\)\)~%~@
+:SEE-ALSO `*uuid-allow-empty-string-name-args*', `unicly::verify-sane-namespace-and-name',
+`unicly::%verify-non-empty-name-arg',
+`unicly::%verify-non-null-namespace-arg'.~%")
+
 ;;; ==============================
 (vardoc '*uuid-namespace-dns*
 "A DNS namespace as provided with RFC4122 Appendix C. \"Some Name Space IDs\".~%~@
