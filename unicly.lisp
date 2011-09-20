@@ -123,12 +123,15 @@
                    %uuid-digest-uuid-instance-sha1
                    %uuid-digest-uuid-instance-md5)
            (optimize (speed 3)))
-  (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
-                   (uuid-get-namespace-bytes uuid-namespace-instance)))
-        ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
-        (name-ba (%uuid-string-to-octets name))) 
-    (declare (type uuid-byte-array-16 uuid-ba)
-             (type uuid-byte-array    name-ba))
+  ;; (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
+  ;;                  (uuid-get-namespace-bytes uuid-namespace-instance)))
+  ;;       ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
+  ;;       (name-ba (%uuid-string-to-octets name))) 
+  ;;   (declare (type uuid-byte-array-16 uuid-ba)
+  ;;            (type uuid-byte-array    name-ba))
+  (multiple-value-bind (uuid-ba name-ba) (the (values uuid-byte-array-16 uuid-byte-array &optional)
+                                           (verify-sane-namespace-and-name uuid-namespace-instance name))
+    (declare (uuid-byte-array-16 uuid-ba) (uuid-byte-array name-ba))
     (ecase (%verify-digest-version digest-version)
       (:MD5  (the (values uuid-byte-array-16 &optional)
                (%uuid-digest-uuid-instance-md5  uuid-ba name-ba))) 
