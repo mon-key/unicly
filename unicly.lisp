@@ -349,7 +349,8 @@
 
 (defun uuid-as-urn-string (stream uuid)
   (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream) 
-           (type unique-universal-identifier uuid))
+           (type unique-universal-identifier uuid)
+           (optimize (speed 3)))
   ;; :NOTE RFC4122 Section 3. "Namespace Registration Template"
   ;; Case is significant on output.
   (format stream "~(urn:uuid:~A~)" uuid))
