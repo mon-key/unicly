@@ -1561,6 +1561,128 @@ with their standard Unicly counterparts:~%
  make-uuid-from-bit-vector-<FOO> `uuid-from-bit-vector'~%~@
 :SEE-ALSO `<XREF>'.~%")
 
+
+(setf (documentation (find-method (fdefinition 'uuid-print-bytes-to-string) nil '(unique-universal-identifier)) 'method)
+      #.(format nil
+                "Print bytes of UUID in hexadecimal representation to a `uuid-string-32'.~%~@
+Keyword STRING-OR-CHAR-TYPE is non-nil it is a string or the symbol 'base-char or 'character.
+When it is `cl:stringp' and satisfies `string-with-fill-pointer-p'
+print hexadecimal representation of bytes to STRING.
+Default method speciaclized on instances of class `unique-universal-identifier'.
+:EXAMPLE~%
+ \(uuid-print-bytes-to-string \(make-v4-uuid\)\)~%
+ \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\) :upcase t\)
+ \(let \(\(fp-string \(make-array 11 
+                              :element-type 'base-char 
+                              :fill-pointer 11 
+                              :initial-contents \"UUID-BYTES:\"\)\)\)
+   \(format fp-string \"~~%\"\)
+   \(uuid-print-bytes-to-string \(make-v4-uuid\) fp-string\)\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)
+                              :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)
+                              :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)\)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)\)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                                      :string-or-char-type 'character 
+                                      :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\) 
+                                      :string-or-char-type 'base-char
+                                      :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                                      :string-or-char-type 'character \)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                                      :string-or-char-type 'base-char \)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%~@
+:NOTE Per RFC4122 Section 3. \"Namespace Registration Template\" 
+ ,----
+ | The hexadecimal values \"a\" through \"f\" are output as
+ | lower case characters and are case insensitive on input.
+ `----~%~@
+:SEE-ALSO `uuid-print-bytes', `uuid-print-bit-vector', `uuid-princ-to-string'.~%"))
+
+(setf (documentation (find-method (fdefinition 'uuid-print-bytes-to-string) nil '(vector)) 'method)
+      #.(format nil
+          "Print the byte-array representation of UUID in a format suitable to its class to STREAM.~%~@
+UUID is an object of type `uuid-byte-array-16' representang of an instance of
+`unique-universal-identifier' class or subclass.
+Keyword STRING-OR-CHAR-TYPE is non-nil it is a string or the symbol 'base-char or 'character.
+When it is `cl:stringp' and satisfies `string-with-fill-pointer-p'
+print hexadecimal representation of bytes to STRING.~%~@
+:EXAMPLE~%~@
+ \(uuid-print-bytes-to-string 
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+ ;=> \"eea1105e3681511799b67b2b5fe1f3c7\"~%
+ \(uuid-print-bytes-to-string 
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :upcase t\)
+ ;=> \"EEA1105E3681511799B67B2B5FE1F3C7\"~%
+ \(uuid-print-bytes-to-string   
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)\)
+ ;=> \"eea1105e3681511799b67b2b5fe1f3c7\"~%
+ \(uuid-print-bytes-to-string   
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)\)
+ ;=> \"eea1105e3681511799b67b2b5fe1f3c7\"~%
+ \(uuid-print-bytes-to-string   
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)
+  :upcase t\)
+ ;=> \"EEA1105E3681511799B67B2B5FE1F3C7\"~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)
+           :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)
+           :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)\)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)\)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type 'character\)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type 'character
+           :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type 'base-char
+           :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+:SEE-ALSO `<XREF>'.~%"))
+
 
 ;;; ==============================
 ;;; :DEPRECATED-DOCS
