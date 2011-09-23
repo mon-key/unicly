@@ -647,44 +647,6 @@ Output of return value has the format:~%
             (string-upcase fp-strm)
             fp-strm))))
 
-
-;; (defmethod uuid-print-bytes-to-string ((uuid vector) &optional string)
-  
-;; :NOTE if we specialize on an object of type `uuid-byte-array-16' we can use 
-;; ironclad:byte-array-to-hex-string to print the equivalent for the method
-;; specialized on `unique-universal-identifier' above.
-;; :NOTE I'm not sure this is possible (or smart)
-;; :SEE http://groups.google.com/group/comp.lang.lisp/browse_thread/thread/600aec8fc7fbeb8e/d9536dceba4bf4c6
-;; 
-;; (defmethod uuid-print-bytes-to-string ((uuid <UUID-BYTE-ARRAY-16>) &optional string)
-;; 
-;; (uuid-print-bytes nil (make-v5-uuid *uuid-namespace-dns* "bubba"))
-;; => "eea1105e3681511799b67b2b5fe1f3c7"
-;;
-;; (type-of (uuid-print-bytes nil (make-v5-uuid *uuid-namespace-dns* "bubba")))
-;; ;=> (SIMPLE-ARRAY CHARACTER (32))
-;;
-;; (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))
-;; => #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
-;;
-;; (type-of (ironclad:byte-array-to-hex-string (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))))
-;; => (SIMPLE-BASE-STRING 32)
-;; 
-;; (type-of (ironclad:byte-array-to-hex-string (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))
-;;                                            :element-type 'character))
-;; => (SIMPLE-ARRAY CHARACTER (32))
-;;
-;; (type-of (uuid-print-bytes-to-string (make-v5-uuid *uuid-namespace-dns* "bubba")))
-;; => (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
-;;
-;; (type-of (ironclad:byte-array-to-hex-string (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))))
-;=> (SIMPLE-BASE-STRING 32)
-;; (type-of (ironclad:byte-array-to-hex-string (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))
-;;                                             :element-type 'character))
-;; => (SIMPLE-ARRAY CHARACTER (32))
-;;
-;;
-;; (defmethod uuid-print-bytes-to-string ((uuid bit-vector/simple-bit-vector) &optional string)
 (defmethod uuid-princ-to-string ((uuid unique-universal-identifier) &key)
   (princ-to-string uuid))
 
