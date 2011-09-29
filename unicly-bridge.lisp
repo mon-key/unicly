@@ -80,6 +80,17 @@
   ;;  SBCL:          `sb-ext:string-to-octets'
   ;;  Clisp:         `ext:convert-string-to-bytes'
   ;;  Flexi-Streams: `flex:string-to-octets'
+  ;; NOTE When the string arg to SBCL's `sb-ext:string-to-octets' is comprised of only
+  ;; characters is in the constrained range of ASCII chars [0,255] SBCL may be a
+  ;; good bit slower than its Babel equivalent. It appears that much of the
+  ;; slowness is around the detection of and adjustment for differences in OS
+  ;; line-ending conversions w/r/t CRLF LF CR e.g. chars #\return and #\newline.
+  ;; Nikodemus posted some new SBCL code examples around May 2011 which would
+  ;; allows for SBCL string-to-octets timings to be as good or better as
+  ;; Babel's.  AFAICT as of 2011-09-28 the changes required for the speedup have
+  ;; yet to be synchronised with upstream.
+  ;; :SEE (URL `http://paste.lisp.org/display/122405')
+  ;; :SEE (URL `http://paste.lisp.org/display/122395')
   (declare (type string-compat name-arg)
            (optimize (speed 3)))
   ;; #+:allegro (coerce (excl:string-to-octets string) 'list)

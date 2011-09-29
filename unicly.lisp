@@ -90,14 +90,14 @@
            ((mod 6) version))
   (unless (logbitp 1 (logcount version))
     (error "arg VERSION is not integer 3 nor 5"))
-  (the uuid-v3or5-int version))
+  (the uuid-v3-or-5-int version))
 
 (declaim (inline %verify-digest-version))
 (defun %verify-digest-version (chk-version)
   (declare (type (mod 6) chk-version)
            (inline %verify-version-3-or-5)
            (optimize (speed 3)))
-  (if (logbitp 1 (the uuid-v3or5-int (%verify-version-3-or-5 chk-version)))
+  (if (logbitp 1 (the uuid-v3-or-5-int (%verify-version-3-or-5 chk-version)))
       :MD5
       :SHA1))
 
@@ -286,7 +286,7 @@
            (optimize (speed 3)))
   (let ((version-if  (%verify-version-3-or-5 digest-3-or-5)))
     (the unique-universal-identifier
-      (ecase (the uuid-v3or5-int version-if)
+      (ecase (the uuid-v3-or-5-int version-if)
         (#x03
          (setf version-if (the unique-universal-identifier
                             (digested-v3-uuid (the uuid-byte-array-16 digest-byte-array)))))

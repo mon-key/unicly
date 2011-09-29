@@ -62,7 +62,7 @@
    ;; #:uuid-ub16-integer-length        ; SIMPLE-TYPE
    ;; #:uuid-ub8-integer-length         ; SIMPLE-TYPE
    ;; #:uuid-version-int                ; SIMPLE-TYPE
-   ;; #:uuid-v3or5-int                  ; SIMPLE-TYPE
+   ;; #:uuid-v3-or-5-int                ; SIMPLE-TYPE
    ;; #:uuid-bit-vector                 ; COMPLEX-TYPE
    ;; #:uuid-bit-vector-128             ; COMPLEX-TYPE   
    ;; #:uuid-bit-vector-48              ; COMPLEX-TYPE

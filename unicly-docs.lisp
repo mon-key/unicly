@@ -503,6 +503,53 @@ frob objects of type `uuid-hex-string-36'.~%~@
 :SEE-ALSO `uuid-hex-string-length', `uuid-hex-string-12', `uuid-hex-string-8',
 `uuid-hex-string-4', `uuid-hex-string-2'.~%")
 
+(typedoc 'uuid-version-int 
+         "An integer value in the range [0,5].~%~@
+Range represents the possible return values for `unicly:uuid-version-uuid' when
+an object is a UUID as per return value of:~%
+ `unicly:make-v3-uuid', `unicly:make-v4-uuid', `unicly:make-v5-uuid'~%~@
+and exclusive of return value for `unicly:make-null-uuid'.~%~@
+:EXAMPLE~%
+ \(loop 
+    for x from 0 below 6
+    for y = \(typep x 'uuid-version-int\)
+    always y\)~%~@
+:SEE-ALSO `unicly::uuid-v3-or-5-int', `unicly::uuid-v3-4-or-5-int', `unicly::uuid-version-bit-vector'.~%")
+
+(typedoc 'uuid-v3-or-5-int
+         "An integer value either 3 or 5.~%~@
+Range represents the possible return values for `unicly:uuid-version-uuid' when
+an object is a UUID as per return value of:~%
+ `make-v3-uuid'  `make-v5-uuid'~%~@
+:EXAMPLE~%
+ \(equal \(subseq \(mapcar #'\(lambda \(x\) \(typep x 'uuid-v3-or-5-int\)\)
+                        \(loop for x from 2 below 7 collect x\)\)
+                1 4\)
+        \(list T NIL T\)\)~%
+ \(equal \(mapcar #'\(lambda \(x\) \(typep \(uuid-version-uuid x\) 'uuid-v3-or-5-int\)\)
+                \(list \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)
+                      \(make-v4-uuid\)
+                      \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+        \(list T NIL T\)\)~%~@
+:SEE-ALSO `unicly::uuid-version-int', `unicly::uuid-v3-4-or-5-int', `unicly::uuid-version-bit-vector'.~%")
+
+(typedoc 'uuid-v3-4-or-5-int
+         "An integer value in the range [3,5].~%~@
+Range represents the possible return values for `unicly:uuid-version-uuid' when
+an object is a UUID as per return value of:~%
+ `make-v3-uuid' `make-v4-uuid' `make-v5-uuid'~%~@
+:EXAMPLE~%
+ \(equal \(subseq \(mapcar #'\(lambda \(x\) \(typep x 'uuid-v3-4-or-5-int\)\)
+                        \(loop for x from 2 below 7 collect x\)\)
+                1 4\)
+        \(list T T T\)\)~%~@
+ \(equal \(mapcar #'\(lambda \(x\) \(typep \(uuid-version-uuid x\) 'uuid-v3-4-or-5-int\)\)
+                \(list \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)
+                      \(make-v4-uuid\)
+                      \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+  \(list T T T\)\)~%~@
+:SEE-ALSO `unicly::uuid-version-int', `unicly::uuid-v3-or-5-int', `unicly::uuid-version-bit-vector'.~%")
+
 
 ;;; ==============================
 ;;; :UUID-MACRO-DOCUMENTATION
