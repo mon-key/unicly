@@ -8,6 +8,35 @@
 (in-package #:unicly)
 ;; *package*
 
+;; `uuid-version-int'
+ (loop 
+    for x from 0 below 6
+    for y = (typep x 'uuid-version-int)
+    always y)
+
+;; `uuid-v3-4-or-5-int'
+ (equal (subseq (mapcar #'(lambda (x) (typep x 'uuid-v3-4-or-5-int))
+                        (loop for x from 2 below 7 collect x))
+                1 4)
+        (list T T T))
+    
+ (equal (mapcar #'(lambda (x) (typep (uuid-version-uuid x) 'uuid-v3-4-or-5-int))
+                (list (make-v3-uuid *uuid-namespace-dns* "bubba")
+                      (make-v4-uuid)
+                      (make-v5-uuid *uuid-namespace-dns* "bubba")))
+        (list T T T))
+
+;; `uuid-v3-or-5-int'
+ (equal (subseq (mapcar #'(lambda (x) (typep x 'uuid-v3-or-5-int))
+                        (loop for x from 2 below 7 collect x))
+                1 4)
+        (list T NIL T))
+    
+ (equal (mapcar #'(lambda (x) (typep (uuid-version-uuid x) 'uuid-v3-or-5-int))
+                (list (make-v3-uuid *uuid-namespace-dns* "bubba")
+                      (make-v4-uuid)
+                      (make-v5-uuid *uuid-namespace-dns* "bubba")))
+        (list T NIL T))
 
 ;; `uuid-integer-128-to-byte-array' with v5 uuids
 
