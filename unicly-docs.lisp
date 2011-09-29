@@ -1608,43 +1608,37 @@ with their standard Unicly counterparts:~%
  make-uuid-from-bit-vector-<FOO> `uuid-from-bit-vector'~%~@
 :SEE-ALSO `<XREF>'.~%")
 
-
 ;;; ==============================
 
-(setf (documentation #'uuid-print-bytes t)
-#.(format nil 
+(generic-doc #'uuid-print-bytes
              "Print the bytes of UUID in a format suitable to its class to STREAM.~%~@
 UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
 STREAM is an output-stream.~%~@
-:SEE-ALSO `uuid-print-bytes-to-string'.~%"))
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")
 
-(setf (documentation #'uuid-print-bytes-to-string t)
-#.(format nil
+(generic-doc #'uuid-print-bytes-to-string
  "Print the bytes of UUID in a format suitable to its class to a string.~%~@
 When keyword STRING-OR-CHAR-TYPE is non-nil specializing methods may provide opmitimizations around this arg.~%~@
-:SEE-ALSO `uuid-print-bytes'.~%"))
+:SEE-ALSO `uuid-print-bytes'.~%")
 
-(setf (documentation #'uuid-princ-to-string t)
-#.(format nil
+(generic-doc #'uuid-princ-to-string
 "Return string representation of UUID-INSTANCE as if by `cl:princ-to-string'.~%~@
-:SEE-ALSO `uuid-print-bytes-to-string', `uuid-print-bytes'.~%"))
+:SEE-ALSO `uuid-print-bytes-to-string', `uuid-print-bytes'.~%")
 
-(setf (documentation #'uuid-print-bit-vector t)
-#.(format nil 
+(generic-doc  #'uuid-print-bit-vector
  "Print the bit-vector representation of UUID in a format suitable to its class to STREAM.~%~@
 UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
 STREAM is an output-stream.~%~@
-:SEE-ALSO `uuid-print-bytes-to-string'.~%"))
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")
 
-(setf (documentation #'uuid-eql t)
-      #.(format nil 
-                "Whether object UUID-A is eql UUID-B.~%~@
+(generic-doc #'uuid-eql
+             "Whether object UUID-A is eql UUID-B.~%~@
 :EXAMPLE~%
  \(uuid-eql \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
            \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)~%
  \(uuid-eql \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
            \(make-v5-uuid *uuid-namespace-dns* \"bubbA\"\)\)~%
- \(uuid-eql \"bubb\" \"bobby\"\)~%~@
+ \(uuid-eql \"bubb\" \"bobby\"\)~%
  \(uuid-eql *uuid-null-uuid* *uuid-null-uuid*\)~%
  \(uuid-eql *uuid-null-uuid* \(make-null-uuid\)\)~%
  \(uuid-eql \(make-null-uuid\) *uuid-null-uuid*\)~%
@@ -1658,22 +1652,19 @@ STREAM is an output-stream.~%~@
 `unicly::unique-universal-identifier-null' they are only considered to be
 `unicly:uuid-eql' if both objects are `cl:eql' the value of special variable
 `unicly::*uuid-null-uuid*'.~%~@
-:SEE-ALSO `unique-universal-identifier-p'.~%"))
+:SEE-ALSO `unique-universal-identifier-p'.~%")
 
-(setf (documentation #'unique-universal-identifier-p t)
-      #.(format nil
-                "Whether MAYBE-UUID-INSTANCE is a unique-universal-identifier.~%~@
+(generic-doc #'unique-universal-identifier-p
+             "Whether MAYBE-UUID-INSTANCE is a unique-universal-identifier.~%~@
 Return T if argument is a class instance of `unique-universal-identifier' or
 one of its subclasses.~%~@
 :EXAMPLE~%
  \(unique-universal-identifier-p *uuid-namespace-dns*\)~%
  \(unique-universal-identifier-p \(uuid-to-bit-vector *uuid-namespace-dns*\)\)~%
  \(unique-universal-identifier-p t\)~%~@
-:SEE-ALSO `uuid-eql', `unicly::unique-universal-identifier-null-p'.~%"))
+:SEE-ALSO `uuid-eql', `unicly::unique-universal-identifier-null-p'.~%")
 
-
-(setf (documentation (find-method  #'uuid-print-bytes nil '(t unique-universal-identifier)) t)
-  #.(format nil
+(method-doc #'uuid-print-bytes nil '(t unique-universal-identifier)
 "Print the raw bytes of UUID in hexadecimal format to STREAM.~%~@
 UUID is an instance of `unique-universal-identifier' class.~%~@
 STREAM is an output-stream.~%~@
@@ -1687,11 +1678,10 @@ Output of return value has the format:~%
  | The hexadecimal values \"a\" through \"f\" are output as
  | lower case characters and are case insensitive on input.
  `----~%~@
-:SEE-ALSO `uuid-print-bytes-to-string'.~%"))
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")
 
-(setf (documentation (find-method (fdefinition 'uuid-print-bytes-to-string) nil '(unique-universal-identifier)) T)
-      #.(format nil
-                "Print bytes of UUID in hexadecimal representation to a `uuid-string-32'.~%~@
+(method-doc #'uuid-print-bytes-to-string nil '(unique-universal-identifier)
+            "Print bytes of UUID in hexadecimal representation to a `uuid-string-32'.~%~@
 Keyword STRING-OR-CHAR-TYPE is non-nil it is a string or the symbol 'base-char or 'character.
 When it is `cl:stringp' and satisfies `string-with-fill-pointer-p'
 print hexadecimal representation of bytes to STRING.
@@ -1742,10 +1732,9 @@ Default method speciaclized on instances of class `unique-universal-identifier'.
  | The hexadecimal values \"a\" through \"f\" are output as
  | lower case characters and are case insensitive on input.
  `----~%~@
-:SEE-ALSO `uuid-print-bytes', `uuid-print-bit-vector', `uuid-princ-to-string'.~%"))
+:SEE-ALSO `uuid-print-bytes', `uuid-print-bit-vector', `uuid-princ-to-string'.~%")
 
-(setf (documentation (find-method (fdefinition 'uuid-print-bytes-to-string) nil '(vector)) T)
-      #.(format nil
+(method-doc #'uuid-print-bytes-to-string nil '(vector)
           "Print the byte-array representation of UUID in a format suitable to its class to STREAM.~%~@
 UUID is an object of type `uuid-byte-array-16' representang of an instance of
 `unique-universal-identifier' class or subclass.
@@ -1808,28 +1797,25 @@ UUID's hexadecimal byte representation to STRING.~%~@
            :string-or-char-type 'base-char
            :upcase t\)\)
  ;=> \(SIMPLE-BASE-STRING 32\)~%
-:SEE-ALSO `<XREF>'.~%"))
+:SEE-ALSO `<XREF>'.~%")
 
-(setf (documentation (find-method #'uuid-print-bit-vector nil #+:sbcl '(simple-bit-vector) #-:sbcl '(bit-vector t)) t)
-      #.(format nil
+(method-doc #'uuid-print-bit-vector nil #+:sbcl '(simple-bit-vector) #-:sbcl '(bit-vector t)
 "Print the bit-vector reprsentation of UUID to STREAM.~%~@
 UUID should be an object of type `uuid-bit-vector-128', an error is signaled if not.~%~@
 :EXAMPLE~%
  \(uuid-print-bit-vector nil (uuid-bit-vector-128-zeroed))~%
  \(find-method #'uuid-print-bit-vector nil '\(t simple-bit-vector\)\)~%~@
-:SEE-ALSO `uuid-to-bit-vector'.~%"))
+:SEE-ALSO `uuid-to-bit-vector'.~%")
 
-(setf (documentation (find-method #'uuid-print-bit-vector nil '(unique-universal-identifier)) t)
-      #.(format nil
+(method-doc #'uuid-print-bit-vector nil '(unique-universal-identifier)
 "Print the `uuid-bit-vector-128' representation UUID to STREAM.~%~@
 UUID is an instance of class `unique-universal-identifier'.~%~@
 :EXAMPLE~%
  \(uuid-print-bit-vector \(make-v4-uuid\) nil\)~%
  \(find-method #'uuid-print-bit-vector nil '\(t unique-universal-identifier\)\)~%~@
-:SEE-ALSO `uuid-princ-to-string'.~%~%"))
+:SEE-ALSO `uuid-princ-to-string'.~%")
 
-(setf (documentation (find-method #'uuid-print-bit-vector nil '(unique-universal-identifier-null)) t)
-  #.(format nil
+(method-doc #'uuid-print-bit-vector nil '(unique-universal-identifier-null)
  "If UUID is `unique-universal-identifier-null-p' print it's bit-vector representation.~%~@
 If not, an error is signaled.~%~@
 :EXAMPLE~%
@@ -1841,18 +1827,17 @@ If not, an error is signaled.~%~@
 uuid-bit-vector-128 representation printed with this method.
 IOW, The results are unspecified if and attempt is made to to create null uuid objects as if by:~%
  \(make-instance 'unique-universal-identifier-null\)~%~@
-:SEE-ALSO `<XREF>'.~%"))
+:SEE-ALSO `<XREF>'.~%")
 
-(setf (documentation (find-method #'cl:print-object  nil '(unique-universal-identifier t)) t)
-      #.(format nil
-         "Print instance of class `unicly:unique-universal-identifier' to STREAM in string representation.~%
+(method-doc #'cl:print-object  nil '(unique-universal-identifier t)
+            "Print instance of class `unicly:unique-universal-identifier' to STREAM in string representation.~%
 :EXAMPLE~%
  \(print-object \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\) nil\)~%
  \(print-object \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\) nil\)~%
  \(print-object \(make-v4-uuid\) nil\)~%
  \(print-object \(make-null-uuid\) nil\)~%~@
 :SEE-ALSO `unicly:uuid-print-bytes', `unicly:uuid-princ-to-string',
-`unicly:uuid-print-bit-vector', `unicly:uuid-print-bytes-to-string'.~%"))
+`unicly:uuid-print-bit-vector', `unicly:uuid-print-bytes-to-string'.~%")
 
 
 ;;; ==============================
