@@ -153,23 +153,27 @@
 	(declare (ignore v))
 	(not errorp)))))
 
-(defun doc-set (name object-type string args);&rest args)
-  (declare (type symbol name) 
-           ((member variable type function) object-type)
-           ((or null string-compat) string))
+(defun doc-set (name object-type string args) ;&rest args)
+  (declare (type (or standard-method standard-generic-function (and symbol (not-null)))  name) 
+           (type (member variable type function generic method) object-type)
+           ((or null string) string))
   (let ((doc-or-null 
          (if (null string)
              string
              (apply #'format nil `(,string ,@args)))))
     (ecase object-type
-          (function
-           (setf (documentation (fdefinition name) object-type) 
-                 (setf (documentation name object-type) doc-or-null)))
-          (variable 
-           (locally (declare (special name))
+      (function
+       (setf (documentation (fdefinition name) object-type) 
              (setf (documentation name object-type) doc-or-null)))
-          (type 
-           (setf (documentation name object-type) doc-or-null)))))
+      (variable 
+       (locally (declare (special name))
+         (setf (documentation name object-type) doc-or-null)))
+      (type 
+       (setf (documentation name object-type) doc-or-null))
+      (method
+       (setf (documentation name t) doc-or-null))
+      (generic
+       (setf (documentation name t) doc-or-null)))))
 
 (defun fundoc (name &optional string &rest args)
   (declare (type symbol name) ((or null string) string))
@@ -186,6 +190,16 @@
            ((or null string-compat) string))
   (when (type-specifier-p name)
     (doc-set name 'type string args)))
+
+(defun method-doc (generic-function-designator qualifiers specializers &optional doc-string &rest args)
+  (when doc-string
+    (let ((found-method (find-method generic-function-designator qualifiers specializers nil)))
+      (when (and found-method (typep found-method 'standard-method))
+        (doc-set found-method 'method doc-string args)))))
+
+(defun fundoc (name &optional string &rest args)
+  (declare (type symbol name) ((or null string) string))
+  (doc-set name 'function string args))
 
 ;;; ==============================
 
