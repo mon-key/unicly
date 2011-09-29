@@ -10,6 +10,8 @@
 (deftype uuid-version-int ()
   '(mod 6))
 
+;; simple-type
+;; (funcall #'(lambda (x) (declare (uuid-v3-4-or-5-int x) (optimize (speed 3)))  x) 6)
 (deftype uuid-v3-4-or-5-int ()
   '(and uuid-version-int (integer 3 5)))
 
