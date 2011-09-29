@@ -179,6 +179,17 @@
   (declare (type symbol name) ((or null string) string))
   (doc-set name 'function string args))
 
+(defun generic-doc (function-designator &optional doc-string &rest args)
+  (when (and doc-string
+             (typep function-designator 'standard-generic-function))
+    (doc-set function-designator 'generic doc-string args)))
+
+(defun method-doc (generic-function-designator qualifiers specializers &optional doc-string &rest args)
+  (when doc-string
+    (let ((found-method (find-method generic-function-designator qualifiers specializers nil)))
+      (when (and found-method (typep found-method 'standard-method))
+        (doc-set found-method 'method doc-string args)))))
+
 (defun vardoc (name &optional string &rest args)
   (declare (type symbol name)
            (special name) 
@@ -191,15 +202,6 @@
   (when (type-specifier-p name)
     (doc-set name 'type string args)))
 
-(defun method-doc (generic-function-designator qualifiers specializers &optional doc-string &rest args)
-  (when doc-string
-    (let ((found-method (find-method generic-function-designator qualifiers specializers nil)))
-      (when (and found-method (typep found-method 'standard-method))
-        (doc-set found-method 'method doc-string args)))))
-
-(defun fundoc (name &optional string &rest args)
-  (declare (type symbol name) ((or null string) string))
-  (doc-set name 'function string args))
 
 ;;; ==============================
 
