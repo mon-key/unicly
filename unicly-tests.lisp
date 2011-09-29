@@ -91,7 +91,7 @@
 
 ;; `uuid-integer-128-to-byte-array' with v4 uuids
 
-(loop 
+ (loop 
     repeat 1000
     for uuid   = (make-v4-uuid)
     for ba     = (uuid-to-byte-array uuid)
@@ -203,15 +203,15 @@
 ;;; ==============================
 ;; `uuid-digest-uuid-instance' for sha1 and md5 
 
-(eq (length (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 20)
+ (eq (length (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")) 20)
 
-(eq (length (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba")) 16)
+ (eq (length (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba")) 16)
 
-(equalp (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")
-        #(238 161 16 94 54 129 17 23 153 182 123 43 95 225 243 199 6 226 80 144))
+ (equalp (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba")
+         #(238 161 16 94 54 129 17 23 153 182 123 43 95 225 243 199 6 226 80 144))
 
-(equalp (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba")
-        #(94 50 8 56 113 87 80 57 67 131 101 45 150 112 90 125))
+ (equalp (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba")
+         #(94 50 8 56 113 87 80 57 67 131 101 45 150 112 90 125))
 
 ;;; ==============================
 ;; compare `uuid-digest-uuid-instance' with combined output of 
