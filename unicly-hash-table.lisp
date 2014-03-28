@@ -154,8 +154,8 @@
                              (synchronized nil)) ;; &allow-other-keys ??
   (declare
    (type unsigned-byte size)
-   (type (or (integer 1) (single-float (1.0)) (double-float (1.0d0))) rehash-size)
-   (type (or (single-float 0.0 1.0) (double-float 0.0d0 1.0d0) (rational 0 1)) rehash-threshold)
+   (type (or (integer 1) (single-float (1.0f0)) (double-float (1.0d0))) rehash-size)
+   (type (or (single-float 0.0f0 1.0f0) (double-float 0.0d0 1.0d0) (rational 0 1)) rehash-threshold)
    (type (member nil :key :value :key-and-value :key-or-value) weakness)
    ;; (type (or function symbol) hash-function) ;; not needed given that is already defined sxhash-uuid.
    (type boolean synchronized))
