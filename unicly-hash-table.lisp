@@ -144,10 +144,12 @@
 ;; Keyword SIZE defaults to value of `SB-IMPL::+MIN-HASH-TABLE-SIZE+'.
 ;; Where the SIZE of the generated table is know It is likely that specifying a
 ;; value will enable the system to not require as much rehashing.
+;; UPDATE: referencing SB-IMPL::+MIN-HASH-TABLE-SIZE+ causes an error on build
+;; and was removed.
 ;; REHASH-SIZE defaults to 1.5. For large tables setting this value to
 #+:sbcl
 (defun make-hash-table-uuid (&key
-                             (size SB-IMPL::+MIN-HASH-TABLE-SIZE+)
+                             size
                              (rehash-size 1.5)
                              (rehash-threshold 1)
                              (weakness nil)
